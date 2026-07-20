@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { FileText } from 'lucide-react';
-import { AUTH_ENDPOINTS } from '../config/api';
+import { AUTH_ENDPOINTS } from '../../config/api';
 
 export default function DynamicListingTable({ schema, onEditRecord }) {
   const [dataset, setDataset] = useState([]);

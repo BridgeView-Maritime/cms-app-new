@@ -3,7 +3,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import DynamicFormRenderer from './DynamicFormRenderer';
 import DynamicListingTable from './DynamicListingTable';
-import { AUTH_ENDPOINTS } from '../config/api';
+import { AUTH_ENDPOINTS } from '../../config/api';
 
 export default function DynamicPageRouterEngine() {
   const { formCode } = useParams();

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Save, Briefcase, FileText, HelpCircle } from 'lucide-react';
 import '../../styles/DynamicFormRenderer.css';
-import { AUTH_ENDPOINTS } from '../config/api';
+import { AUTH_ENDPOINTS } from '../../config/api';
 
 // Simple map to cleanly match string values to dynamic dashboard icons
 const iconMap = {
