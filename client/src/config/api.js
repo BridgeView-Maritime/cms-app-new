@@ -3,9 +3,9 @@
 // const REACT_APP_API_URL = 'http://localhost:5000';
 // const REACT_APP_URL = 'http://localhost:5173';
 
-const API_BASE_URL = 'https://salty-hands-bet.loca.lt/api';
-const REACT_APP_API_URL = 'https://salty-hands-bet.loca.lt';
-const REACT_APP_URL = 'https://salty-hands-bet.loca.lt';
+const API_BASE_URL = 'https://cms-app-new-production.up.railway.app/api';
+const REACT_APP_API_URL = 'https://cms-app-new-production.up.railway.app';
+const REACT_APP_URL = 'https://cms-app-new.vercel.app';
 
 export const AUTH_ENDPOINTS = {
   LOGIN: `${API_BASE_URL}/auth/login`,
