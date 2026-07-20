@@ -34,6 +34,7 @@
     "nodemailer": "^9.0.3",
     "openai": "^6.47.0",
     "otp-generator": "^4.0.1",
+    "resend": "^6.17.2",
     "socket.io": "^4.8.3",
     "uuid": "^14.0.1",
     "xml2js": "^0.6.2",
