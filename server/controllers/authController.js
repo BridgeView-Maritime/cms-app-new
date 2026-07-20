@@ -52,7 +52,13 @@ export const loginRequest = async (req, res) => {
     }
 
     // Generate 6-digit numeric OTP code
-    const secureOtp = otpGenerator.generate(6, { lowerCaseAlphabets: false, upperCaseAlphabets: false, specialChars: false });
+    // const secureOtp = otpGenerator.generate(6, { lowerCaseAlphabets: false, upperCaseAlphabets: false, specialChars: false });
+    let secureOtp;
+    if (process.env.IS_EMAIL_ON === 'false') {
+      secureOtp = '123456'; 
+    } else {
+      secureOtp = otpGenerator.generate(6, { lowerCaseAlphabets: false, upperCaseAlphabets: false, specialChars: false });
+    }
     const expiration = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes active bounds
 
     // Invalidate old unused OTP logs for this user context
@@ -76,6 +82,7 @@ export const loginRequest = async (req, res) => {
     return res.status(200).json({
       stepTwoRequired: true,
       userId: user._id, // Return actual mongo string or mapped structure
+      ...(process.env.IS_EMAIL_ON === 'false' && { defaultOtp: secureOtp }),
       message: "OTP sent to your registered email"
     });
 
@@ -109,7 +116,7 @@ export const verifyLoginOtp = async (req, res) => {
     });
 
     if (!otpRecord) {
-      return res.status(400).json({ success: false, message: "Invalid or expired security access challenge code." });
+      return res.status(400).json({ success: false, message: "Invalid or expired access otp code." });
     }
 
     otpRecord.is_used = true;
@@ -117,7 +124,7 @@ export const verifyLoginOtp = async (req, res) => {
 
     const user = await User.findById(userId);
     if (!user) {
-      return res.status(404).json({ success: false, message: "User reference context not found." });
+      return res.status(404).json({ success: false, message: "User not found." });
     }
 
     user.failed_login_attempts = 0;
@@ -195,7 +202,13 @@ export const forgotPasswordRequest = async (req, res) => {
       return res.status(200).json({ success: true, message: "If account maps to an authorized system profile, security reset parameters have been sent." });
     }
 
-    const recoveryOtp = otpGenerator.generate(6, { lowerCaseAlphabets: false, upperCaseAlphabets: false, specialChars: false });
+    // const recoveryOtp = otpGenerator.generate(6, { lowerCaseAlphabets: false, upperCaseAlphabets: false, specialChars: false });
+    let recoveryOtp;
+    if (process.env.IS_EMAIL_ON === 'false') {
+      recoveryOtp = '123456';
+    } else {
+      recoveryOtp = otpGenerator.generate(6, { lowerCaseAlphabets: false, upperCaseAlphabets: false, specialChars: false });
+    }
     const expiration = new Date(Date.now() + 15 * 60 * 1000); // 15 Minute window bounds
 
     await OtpLog.updateMany({ user_id: user._id, purpose: 'ForgotPassword', is_used: false }, { is_used: true });
@@ -211,7 +224,7 @@ export const forgotPasswordRequest = async (req, res) => {
              <p>This verification block self-destructs after 15 minutes.</p>`
     });
 
-    return res.status(200).json({ success: true, message: "If account maps to an authorized system profile, security reset parameters have been sent.", step: 'verify_reset_otp', userId: user._id });
+    return res.status(200).json({ success: true, message: "If account maps to an authorized system profile, security reset parameters have been sent.", step: 'verify_reset_otp', userId: user._id, ...(process.env.IS_EMAIL_ON === 'false' && { defaultOtp: recoveryOtp }) });
 
   } catch (error) {
     console.error(`Forgot password flow error: ${error.message}`);
