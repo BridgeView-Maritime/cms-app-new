@@ -1,7 +1,8 @@
 /* ==========================================================================
-   SIDEBAR COMPONENT (Collapsible Console & Tree Hierarchy)
+   SIDEBAR COMPONENT (Collapsible Adaptive Drawer & Tree Hierarchy)
    ========================================================================== */
 
+/* 1. CORE WRAPPING SYSTEM SHELL */
 .mac-window-sidebar {
   width: 260px;
   min-width: 260px;
@@ -12,25 +13,82 @@
   padding: 24px 16px;
   user-select: none;
   box-sizing: border-box;
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
   transition: width 0.3s cubic-bezier(0.25, 1, 0.5, 1), 
               min-width 0.3s cubic-bezier(0.25, 1, 0.5, 1), 
+              padding 0.3s cubic-bezier(0.25, 1, 0.5, 1),
+              transform 0.3s cubic-bezier(0.25, 1, 0.5, 1),
               opacity 0.2s ease;
+  z-index: 10000;
 }
 
-.mac-window-sidebar.collapsed {
-  width: 0px !important;
-  min-width: 0px !important;
-  padding: 24px 0px !important;
-  opacity: 0 !important;
-  border-right: none !important;
-  pointer-events: none;
+/* 2. ADAPTIVE MOBILE/TABLET RESPONSIVENESS (Breakpoints for Small Viewports) */
+@media (max-width: 1024px) {
+  .mac-window-sidebar {
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    height: 100vh !important;
+    max-height: 100vh !important;
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.15);
+    transform: translateX(0); /* Maximized/Open state layout view */
+  }
+
+  /* When auto-minimized/collapsed on mobile views, slide out completely from view boundaries via hardware acceleration */
+  .mac-window-sidebar.collapsed {
+    width: 260px !important;
+    min-width: 260px !important;
+    padding: 24px 16px !important;
+    opacity: 1 !important;
+    transform: translateX(-100%) !important;
+    pointer-events: none;
+    border-right: 1px solid var(--mac-border-color) !important;
+  }
+
+  /* Dimmed Content Mask Layer */
+  .mac-sidebar-dimmer-mask {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+  }
+  
+  .mac-sidebar-dimmer-mask.visible-mask {
+    opacity: 1;
+    pointer-events: auto;
+  }
 }
 
-/* Apple Style Window Controls Circles */
+/* Desktop Only Traditional Box Model Collapse States */
+@media (min-width: 1025px) {
+  .mac-window-sidebar.collapsed {
+    width: 0px !important;
+    min-width: 0px !important;
+    padding: 24px 0px !important;
+    opacity: 0 !important;
+    border-right: none !important;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  
+  .mac-sidebar-dimmer-mask {
+    display: none !important;
+  }
+}
+
+/* 3. APPLE STYLE WINDOW CONTROL SPHERES */
 .mac-window-controls {
   display: flex;
   gap: 8px;
   margin-bottom: 24px;
+  padding-left: 4px;
 }
 
 .window-dot {
@@ -38,26 +96,28 @@
   height: 12px;
   border-radius: 50%;
   cursor: pointer;
+  display: inline-block;
+  flex-shrink: 0;
 }
 .dot-close { background: #ff5f56; border: 0.5px solid #e0443e; }
 .dot-minimize { background: #ffbd2e; border: 0.5px solid #dea123; }
 .dot-maximize { background: #27c93f; border: 0.5px solid #1aab29; }
 
-/* Profile Segment Box */
+/* 4. USER PROFILE DATA PLATES */
 .mac-profile-card {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 12px;
-  background: rgba(0, 0, 0, 0.02);
+  padding: 10px 12px;
+  background: rgba(0, 0, 0, 0.03);
   border-radius: 8px;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
   border: 1px solid var(--mac-border-color);
 }
 
 .mac-profile-avatar {
-  width: 36px;
-  height: 36px;
+  width: 38px;
+  height: 38px;
   background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
   color: #ffffff;
   border-radius: 50%;
@@ -65,20 +125,48 @@
   align-items: center;
   justify-content: center;
   font-weight: bold;
+  font-size: 13px;
   flex-shrink: 0;
 }
 
-.mac-profile-details { overflow: hidden; }
-.mac-profile-details h4 { margin: 0; font-size: 13px; font-weight: 600; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; }
-.role-tag { font-size: 11px; color: var(--mac-text-muted); }
+.mac-profile-details { 
+  overflow: hidden; 
+}
 
-/* Internal Tree Element Rows */
+.mac-profile-details h4 { 
+  margin: 0; 
+  font-size: 13px; 
+  font-weight: 600; 
+  color: var(--mac-text-main);
+  text-overflow: ellipsis; 
+  overflow: hidden; 
+  white-space: nowrap; 
+}
+
+.role-tag { 
+  font-size: 11px; 
+  color: var(--mac-text-muted); 
+  background: rgba(0, 0, 0, 0.05); 
+  padding: 2px 6px; 
+  border-radius: 4px;
+  display: inline-block;
+  margin-top: 2px;
+}
+
+/* 5. INTERNAL NAVIGATION TREE ENGINE */
 .sidebar-scrollable-tree {
   flex: 1;
   overflow-y: auto;
+  margin-right: -4px;
+  padding-right: 4px;
 }
+
+/* Hide scroll track bars beautifully while preserving active wheel scrolling */
 .sidebar-scrollable-tree::-webkit-scrollbar {
   width: 0px;
+}
+.sidebar-scrollable-tree {
+  scrollbar-width: none;
 }
 
 .sidebar-group-title {
@@ -86,93 +174,77 @@
   font-weight: 700;
   color: var(--mac-text-muted);
   text-transform: uppercase;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
   padding-left: 8px;
   display: block;
+  letter-spacing: 0.5px;
 }
 
-.mac-sidebar-menu { list-style: none; padding: 0; margin: 0; }
-.menu-node { margin-bottom: 4px; }
+.mac-sidebar-menu { 
+  list-style: none; 
+  padding: 0; 
+  margin: 0; 
+}
 
-.menu-row-item {
+.menu-node { 
+  margin-bottom: 2px; 
+}
+
+/* 6. SYSTEM LIST INTERFACE NODES */
+.menu-row-item, 
+.submenu-row-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 12px;
+  padding: 8px 12px;
   border-radius: 6px;
   cursor: pointer;
   font-size: 13px;
   color: var(--mac-text-main);
-  transition: background 0.15s ease;
+  text-decoration: none;
+  transition: background-color 0.15s ease, color 0.15s ease;
+  margin-bottom: 2px;
+  box-sizing: border-box;
 }
-.menu-row-item:hover { background: rgba(0, 0, 0, 0.04); }
-.menu-row-item.row-active {
-  background: var(--mac-selection-bg);
-  color: var(--mac-selection-text);
+
+.menu-row-item:hover, 
+.submenu-row-item:hover { 
+  background: rgba(0, 0, 0, 0.05); 
+}
+
+/* Active Highlight Vectors */
+.menu-row-item.row-active,
+.submenu-row-item.sub-active {
+  background: var(--mac-selection-bg, #007aff) !important;
+  color: var(--mac-selection-text, #ffffff) !important;
   font-weight: 500;
 }
 
-.menu-row-left { display: flex; align-items: center; gap: 10px; }
-.menu-title-text { text-overflow: ellipsis; overflow: hidden; white-space: nowrap; }
-
-/* Submenu Lists */
-.mac-sidebar-submenu { list-style: none; padding-left: 24px; margin: 4px 0; }
-.submenu-row-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  border-radius: 6px;
-  font-size: 12px;
-  cursor: pointer;
-  color: var(--mac-text-main);
-}
-.submenu-row-item:hover { background: rgba(0, 0, 0, 0.03); }
-
-/* client/src/styles/Sidebar.css */
-.mac-window-sidebar {
-  width: 260px;
-  background: var(--mac-blur-bg);
-  border-right: 1px solid var(--mac-border);
-  display: flex;
-  flex-direction: column;
-  padding: 16px 8px;
-  transition: width 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-  backdrop-filter: blur(30px);
-}
-.mac-window-sidebar.collapsed { width: 0px; padding: 16px 0px; overflow: hidden; border-right: none; }
-.mac-window-controls { display: flex; gap: 8px; margin-bottom: 24px; padding-left: 8px; }
-.window-dot { width: 12px; height: 12px; border-radius: 50%; cursor: pointer; display: inline-block; }
-.dot-close { background: #ff5f56; }
-.dot-minimize { background: #ffbd2e; }
-.dot-maximize { background: #27c93f; }
-.mac-profile-card { display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.4); padding: 10px; border-radius: 8px; margin-bottom: 20px; }
-.mac-profile-avatar { width: 40px; height: 40px; border-radius: 50%; background: #3a4856; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; }
-.mac-profile-details h4 { margin: 0; font-size: 13px; color: #222; }
-.role-tag { font-size: 11px; color: #666; background: rgba(0,0,0,0.06); padding: 2px 6px; border-radius: 4px; }
-.sidebar-group-title { font-size: 11px; font-weight: 700; color: #777; text-transform: uppercase; padding-left: 8px; display: block; margin-bottom: 8px; }
-.mac-sidebar-menu, .mac-sidebar-submenu { list-style: none; padding: 0; margin: 0; }
-.menu-row-item, .submenu-row-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; border-radius: 6px; color: #333; text-decoration: none; font-size: 13px; cursor: pointer; margin-bottom: 2px; }
-.menu-row-item:hover, .submenu-row-item:hover { background: rgba(0, 0, 0, 0.05); }
-.row-active, .sub-active { background: #007aff !important; color: white !important; font-weight: 500; }
-.mac-sidebar-submenu { padding-left: 18px; margin-top: 2px; }
-.menu-row-left { display: flex; align-items: center; gap: 10px; }
-
-/* Custom Submenu Alignment Fixes */
-.mac-sidebar-submenu .submenu-row-item {
-  justify-content: flex-start !important; /* Forces items to stay together on the left */
-  padding-left: 12px;
-}
-
-.submenu-row-left {
-  display: flex;
-  align-items: center;
-  gap: 10px; /* Space between the folder icon and the text */
+.menu-row-left,
+.submenu-row-left { 
+  display: flex; 
+  align-items: center; 
+  gap: 10px; 
+  overflow: hidden;
   width: 100%;
 }
 
-.mac-sidebar-submenu {
-  padding-left: 20px; /* Indents the entire child block nicely under the parent */
-  margin-top: 2px;
-  margin-bottom: 6px;
+.menu-title-text,
+.flyout-item-text { 
+  text-overflow: ellipsis; 
+  overflow: hidden; 
+  white-space: nowrap; 
+}
+
+/* 7. CHILD NESTED SUBMENU TREES */
+.mac-sidebar-submenu { 
+  list-style: none; 
+  padding: 0;
+  padding-left: 20px; /* Aligns child nodes clean underneath parent labels */
+  margin: 2px 0 6px 0; 
+}
+
+.mac-sidebar-submenu .submenu-row-item {
+  justify-content: flex-start !important; 
+  padding-left: 12px;
 }

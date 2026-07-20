@@ -1,5 +1,5 @@
 // client/src/components/Sidebar.jsx
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import '../styles/Sidebar.css';
@@ -16,6 +16,30 @@ export default function Sidebar({
   renderIcon 
 }) {
   const location = useLocation();
+  
+  // 1. Automatic Responsive Device Minimizer/Maximizer Listener
+  useEffect(() => {
+    const handleDeviceAdaptation = () => {
+      if (window.innerWidth <= 1024) {
+        setIsSidebarCollapsed(true); // Auto-minimize on small devices
+      } else {
+        setIsSidebarCollapsed(false); // Default open on desktop environments
+      }
+    };
+
+    // Initialize layout state assessment on mount
+    handleDeviceAdaptation();
+
+    window.addEventListener('resize', handleDeviceAdaptation);
+    return () => window.removeEventListener('resize', handleDeviceAdaptation);
+  }, [setIsSidebarCollapsed]);
+
+  // 2. Auto-minimize mobile overlay when user shifts/changes paths
+  useEffect(() => {
+    if (window.innerWidth <= 1024) {
+      setIsSidebarCollapsed(true);
+    }
+  }, [location, setIsSidebarCollapsed]);
   
   // FIXED: Clean path management ensuring relative links stay native to their context roots
   const normalizePath = (routeStr) => {
@@ -90,78 +114,88 @@ export default function Sidebar({
   }, [structuredMenu]);
 
   return (
-    <aside className={`mac-window-sidebar ${isSidebarCollapsed ? 'collapsed' : ''}`}>
-      <div className="mac-window-controls">
-        <span className="window-dot dot-close" onClick={onLogout} title="Sign Out"></span>
-        <span className="window-dot dot-minimize" onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)} title="Minimize Sidebar"></span>
-        <span className="window-dot dot-maximize" onClick={toggleNativeFullscreen} title="Toggle Fullscreen"></span>
-      </div>
+    <>
+      {/* Dimmed Structural Click-Away Overlay Background for Mobile/Tablet Canvas views */}
+      <div 
+        className={`mac-sidebar-dimmer-mask ${!isSidebarCollapsed ? 'visible-mask' : ''}`}
+        onClick={() => setIsSidebarCollapsed(true)}
+      />
 
-      <div className="mac-profile-card">
-        <div className="mac-profile-avatar">
-          {(userProfile?.firstName?.[0] || '') + (userProfile?.lastName?.[0] || '')}
+      <aside className={`mac-window-sidebar ${isSidebarCollapsed ? 'collapsed' : ''}`}>
+        <div className="mac-window-controls">
+          <span className="window-dot dot-close" onClick={onLogout} title="Sign Out"></span>
+          {/* Minimize Option */}
+          <span className="window-dot dot-minimize" onClick={() => setIsSidebarCollapsed(true)} title="Minimize Sidebar"></span>
+          {/* Maximize Option */}
+          <span className="window-dot dot-maximize" onClick={() => setIsSidebarCollapsed(false)} title="Maximize Sidebar"></span>
         </div>
-        <div className="mac-profile-details">
-          <h4>{userProfile?.firstName} {userProfile?.lastName}</h4>
-          <span className="role-tag">{userProfile?.roleName}</span>
+
+        <div className="mac-profile-card">
+          <div className="mac-profile-avatar">
+            {(userProfile?.firstName?.[0] || '') + (userProfile?.lastName?.[0] || '')}
+          </div>
+          <div className="mac-profile-details">
+            <h4>{userProfile?.firstName} {userProfile?.lastName}</h4>
+            <span className="role-tag">{userProfile?.roleName}</span>
+          </div>
         </div>
-      </div>
 
-      <div className="sidebar-scrollable-tree">
-        <span className="sidebar-group-title">Navigation Hierarchy</span>
-        <ul className="mac-sidebar-menu">
-          {activeMenus.map(menu => {
-            const activeSubMenus = menu.subMenus || [];
-            const hasChildren = activeSubMenus.length > 0;
-            const isExpanded = !!expandedMenus[menu.id];
+        <div className="sidebar-scrollable-tree">
+          <span className="sidebar-group-title">Navigation Hierarchy</span>
+          <ul className="mac-sidebar-menu">
+            {activeMenus.map(menu => {
+              const activeSubMenus = menu.subMenus || [];
+              const hasChildren = activeSubMenus.length > 0;
+              const isExpanded = !!expandedMenus[menu.id];
 
-            return (
-              <li key={menu.id} className="menu-node">
-                {hasChildren ? (
-                  <div className="menu-row-item" onClick={() => toggleSubmenu(menu.id)}>
-                    <div className="menu-row-left">
-                      {renderIcon(menu.menu_icon)}
-                      <span className="menu-title-text">{menu.menu_name}</span>
+              return (
+                <li key={menu.id} className="menu-node">
+                  {hasChildren ? (
+                    <div className="menu-row-item" onClick={() => toggleSubmenu(menu.id)}>
+                      <div className="menu-row-left">
+                        {renderIcon(menu.menu_icon)}
+                        <span className="menu-title-text">{menu.menu_name}</span>
+                      </div>
+                      <div className="menu-row-chevron">
+                        {isExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+                      </div>
                     </div>
-                    <div className="menu-row-chevron">
-                      {isExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
-                    </div>
-                  </div>
-                ) : (
-                  <NavLink 
-                    to={normalizePath(menu.route)} 
-                    end
-                    className={({ isActive }) => `menu-row-item ${isActive ? 'row-active' : ''}`}
-                  >
-                    <div className="menu-row-left">
-                      {renderIcon(menu.menu_icon)}
-                      <span className="menu-title-text">{menu.menu_name}</span>
-                    </div>
-                  </NavLink>
-                )}
+                  ) : (
+                    <NavLink 
+                      to={normalizePath(menu.route)} 
+                      end
+                      className={({ isActive }) => `menu-row-item ${isActive ? 'row-active' : ''}`}
+                    >
+                      <div className="menu-row-left">
+                        {renderIcon(menu.menu_icon)}
+                        <span className="menu-title-text">{menu.menu_name}</span>
+                      </div>
+                    </NavLink>
+                  )}
 
-                {hasChildren && isExpanded && (
-                <ul className="mac-sidebar-submenu">
-                    {activeSubMenus.map(sub => (
-                    <li key={sub.id}>
-                        <NavLink 
-                        to={normalizePath(sub.route)}
-                        className={({ isActive }) => `submenu-row-item ${isActive ? 'sub-active' : ''}`}
-                        >
-                        <div className="submenu-row-left">
-                            {renderIcon(sub.menu_icon)}
-                            <span className="menu-title-text">{sub.menu_name}</span>
-                        </div>
-                        </NavLink>
-                    </li>
-                    ))}
-                </ul>
-                )}
-              </li>
-            );
-          })}
-        </ul>
-      </div>
-    </aside>
+                  {hasChildren && isExpanded && (
+                    <ul className="mac-sidebar-submenu">
+                      {activeSubMenus.map(sub => (
+                        <li key={sub.id}>
+                          <NavLink 
+                            to={normalizePath(sub.route)}
+                            className={({ isActive }) => `submenu-row-item ${isActive ? 'sub-active' : ''}`}
+                          >
+                            <div className="submenu-row-left">
+                              {renderIcon(sub.menu_icon)}
+                              <span className="menu-title-text">{sub.menu_name}</span>
+                            </div>
+                          </NavLink>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      </aside>
+    </>
   );
 }

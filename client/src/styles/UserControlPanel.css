@@ -1,27 +1,223 @@
 /* client/src/styles/UserControlPanel.css */
-.user-panel-wrapper { display: flex; flex-direction: column; gap: 20px; }
-.panel-action-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--mac-border); padding-bottom: 14px; }
-.panel-action-header h2 { margin: 0; font-size: 20px; font-weight: 600; color: #111; }
-.panel-action-header p { margin: 4px 0 0 0; font-size: 12px; color: #666; }
-.mac-btn-primary { background: #007aff; color: white; border: none; padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 6px; }
-.mac-btn-primary:hover { background: #0063cc; }
-.mac-btn-secondary { background: rgba(0,0,0,0.06); color: #333; border: none; padding: 6px 14px; border-radius: 6px; font-size: 12px; cursor: pointer; }
-.mac-form-sheet { background: rgba(0,0,0,0.02); border: 1px solid var(--mac-border); padding: 16px; border-radius: 8px; display: flex; flex-direction: column; gap: 12px; }
-.form-grid-inputs { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
-.form-grid-inputs input { padding: 8px; border: 1px solid var(--mac-border); border-radius: 5px; font-size: 12px; background: white; }
-.form-actions-row { display: flex; justify-content: flex-end; gap: 10px; margin-top: 6px; }
-.mac-table-container { border: 1px solid var(--mac-border); border-radius: 8px; overflow: hidden; background: white; }
-.mac-data-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
-.mac-data-table th { background: rgba(0,0,0,0.03); padding: 10px 14px; font-weight: 600; color: #555; font-size: 12px; border-bottom: 1px solid var(--mac-border); }
-.mac-data-table td { padding: 10px 14px; border-bottom: 1px solid rgba(0,0,0,0.05); color: #333; vertical-align: middle; }
-.table-role-badge { display: inline-flex; align-items: center; gap: 4px; background: rgba(0,122,255,0.1); color: #007aff; padding: 2px 6px; border-radius: 4px; font-size: 11px; }
-.status-pill { display: inline-block; padding: 2px 6px; border-radius: 10px; font-size: 11px; font-weight: 500; }
+
+/* 1. CORE WRAPPING & LAYOUT BASE */
+.user-panel-wrapper { 
+  display: flex; 
+  flex-direction: column; 
+  gap: 20px; 
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Responsive Action Header */
+.panel-action-header { 
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center; 
+  border-bottom: 1px solid var(--mac-border); 
+  padding-bottom: 14px; 
+  gap: 16px;
+  flex-wrap: wrap; /* Wraps action buttons on narrow mobile viewports */
+}
+
+.panel-action-header h2 { 
+  margin: 0; 
+  font-size: 20px; 
+  font-weight: 600; 
+  color: #111; 
+}
+
+.panel-action-header p { 
+  margin: 4px 0 0 0; 
+  font-size: 12px; 
+  color: #666; 
+}
+
+/* Header Text Container to prevent flex layout breaking */
+.panel-header-titles {
+  flex: 1;
+  min-width: 200px;
+}
+
+/* 2. ACTIONS & BUTTON CONTROLS */
+.mac-btn-primary { 
+  background: #007aff; 
+  color: white; 
+  border: none; 
+  padding: 6px 14px; 
+  border-radius: 6px; 
+  font-size: 12px; 
+  font-weight: 500; 
+  cursor: pointer; 
+  display: flex; 
+  align-items: center; 
+  gap: 6px; 
+  white-space: nowrap;
+}
+
+.mac-btn-primary:hover { 
+  background: #0063cc; 
+}
+
+.mac-btn-secondary { 
+  background: rgba(0,0,0,0.06); 
+  color: #333; 
+  border: none; 
+  padding: 6px 14px; 
+  border-radius: 6px; 
+  font-size: 12px; 
+  cursor: pointer; 
+  white-space: nowrap;
+}
+
+/* 3. FLUID FORM SHEET INTERFACE */
+.mac-form-sheet { 
+  background: rgba(0,0,0,0.02); 
+  border: 1px solid var(--mac-border); 
+  padding: 16px; 
+  border-radius: 8px; 
+  display: flex; 
+  flex-direction: column; 
+  gap: 12px; 
+  box-sizing: border-box;
+}
+
+/* Automatically switches between minmax configurations dynamically */
+.form-grid-inputs { 
+  display: grid; 
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); 
+  gap: 12px; 
+  width: 100%;
+}
+
+.form-grid-inputs input { 
+  padding: 8px; 
+  border: 1px solid var(--mac-border); 
+  border-radius: 5px; 
+  font-size: 12px; 
+  background: white; 
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.form-actions-row { 
+  display: flex; 
+  justify-content: flex-end; 
+  gap: 10px; 
+  margin-top: 6px; 
+}
+
+/* 4. ADAPTIVE RESPONSIVE DATA TABLE CONTAINER */
+.mac-table-container { 
+  border: 1px solid var(--mac-border); 
+  border-radius: 8px; 
+  overflow-x: auto; /* Gracefully scroll tables horizontally on small devices instead of breaking layout */
+  background: white; 
+  width: 100%;
+  -webkit-overflow-scrolling: touch; /* Smooth kinetic scrolling for iOS devices */
+}
+
+.mac-data-table { 
+  width: 100%; 
+  border-collapse: collapse; 
+  text-align: left; 
+  font-size: 13px; 
+}
+
+.mac-data-table th { 
+  background: rgba(0,0,0,0.03); 
+  padding: 10px 14px; 
+  font-weight: 600; 
+  color: #555; 
+  font-size: 12px; 
+  border-bottom: 1px solid var(--mac-border); 
+  white-space: nowrap; /* Ensures headers look crisp and don't uncomfortably stack vertically */
+}
+
+.mac-data-table td { 
+  padding: 10px 14px; 
+  border-bottom: 1px solid rgba(0,0,0,0.05); 
+  color: #333; 
+  vertical-align: middle; 
+  white-space: nowrap; /* Prevents text formatting wraps inside cellular components */
+}
+
+/* 5. COMPONENTS & MISC STATE DECORATIONS */
+.table-role-badge { 
+  display: inline-flex; 
+  align-items: center; 
+  gap: 4px; 
+  background: rgba(0,122,255,0.1); 
+  color: #007aff; 
+  padding: 2px 6px; 
+  border-radius: 4px; 
+  font-size: 11px; 
+}
+
+.status-pill { 
+  display: inline-block; 
+  padding: 2px 6px; 
+  border-radius: 10px; 
+  font-size: 11px; 
+  font-weight: 500; 
+}
+
 .status-pill.active { background: #e3fbeb; color: #1db954; }
 .status-pill.inactive { background: #f5f5f7; color: #777; }
 .status-pill.blocked { background: #ffebeb; color: #ff3b30; }
-.actions-cell-buttons { display: flex; gap: 8px; }
-.action-inline-btn { background: none; border: none; cursor: pointer; padding: 2px; display: flex; align-items: center; }
+
+.actions-cell-buttons { 
+  display: flex; 
+  gap: 8px; 
+}
+
+.action-inline-btn { 
+  background: none; 
+  border: none; 
+  cursor: pointer; 
+  padding: 2px; 
+  display: flex; 
+  align-items: center; 
+}
+
+/* SYSTEM COLOR UTILITIES */
 .text-warn { color: #ff9500; }
 .text-danger { color: #ff3b30; }
 .text-success { color: #34c759; }
 .text-muted { color: #aeaeae; }
+
+/* ==========================================================================
+   6. RESPONSIVE MEDIA QUERIES (Breakpoints for Mobile/Tablet Optimization)
+   ========================================================================== */
+
+@media (max-width: 600px) {
+  /* Stack primary and secondary header actions comfortably */
+  .panel-action-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .panel-action-header button,
+  .panel-action-header .mac-btn-primary {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Make form layout controls stack sequentially on extra-small mobile screen sizes */
+  .form-grid-inputs {
+    grid-template-columns: 1fr;
+  }
+
+  /* Stretch form action layout triggers full-screen size */
+  .form-actions-row {
+    flex-direction: column-reverse;
+    gap: 8px;
+  }
+
+  .form-actions-row button {
+    width: 100%;
+    text-align: center;
+    padding: 10px; /* Slightly easier target on touch layouts */
+  }
+}

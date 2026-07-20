@@ -3,26 +3,30 @@
    ========================================================================== */
 
 .mac-os-dock-container {
-  position: absolute;
-  bottom: 14px;
+  position: fixed;
+  bottom: 12px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 9999;
   pointer-events: none;
+  max-width: 95vw;
+  display: flex;
+  justify-content: center;
 }
 
 .mac-os-dock-shelf {
   display: flex;
   align-items: flex-end;
   gap: 12px;
-  background: var(--mac-dock-bg);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: rgba(255, 255, 255, 0.35);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
   padding: 8px 16px;
   border-radius: 16px;
-  border: 1px solid var(--mac-border-color);
-  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
   pointer-events: auto;
+  max-width: 100%;
 }
 
 .dock-item-wrapper {
@@ -34,23 +38,31 @@
   transition: transform 0.2s cubic-bezier(0.25, 1, 0.5, 1);
   transform-origin: bottom center;
 }
-.dock-item-wrapper:hover { transform: scale(1.15); }
 
 .dock-icon-sphere {
-  width: 42px;
-  height: 42px;
-  background: rgba(255, 255, 255, 0.5);
+  width: 44px;
+  height: 44px;
+  background: rgba(255, 255, 255, 0.8);
   border: 1px solid rgba(0, 0, 0, 0.05);
   border-radius: 10px;
-  color: var(--mac-text-main);
+  color: var(--mac-text-main, #333);
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
+}
+
+/* Hover Physics for Desktop */
+@media (min-width: 1025px) {
+  .dock-item-wrapper:hover .dock-icon-sphere { 
+    transform: scale(1.18) translateY(-6px); 
+  }
 }
 
 .dock-item-active .dock-icon-sphere {
-  background: linear-gradient(135deg, #0284c7 0%, #026ca3 100%);
-  color: #ffffff;
+  background: linear-gradient(135deg, #007aff 0%, #0056b3 100%) !important;
+  color: #ffffff !important;
 }
 
 .logout-sphere { color: #ef4444; }
@@ -59,55 +71,60 @@
 .dock-active-indicator-dot {
   width: 4px;
   height: 4px;
-  background: var(--mac-text-main);
+  background: rgba(0, 0, 0, 0.6);
   border-radius: 50%;
-  margin-top: 4px;
+  margin-top: 3px;
   opacity: 0;
 }
-.dock-item-active .dock-active-indicator-dot { opacity: 0.8; }
-.dock-separator-line { width: 1px; height: 32px; background: var(--mac-border-color); align-self: center; margin: 0 4px; }
+.dock-item-active .dock-active-indicator-dot { 
+  opacity: 1; 
+  background: #007aff; 
+}
+
+.dock-separator-line { 
+  width: 1px; 
+  background: rgba(0, 0, 0, 0.2); 
+  height: 40px; 
+  align-self: center; 
+  margin: 0 4px; 
+  flex-shrink: 0;
+}
 
 /* Tooltip Title Bubble */
 .dock-tooltip-bubble {
   position: absolute;
-  bottom: 64px;
-  background: rgba(15, 23, 42, 0.9);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  color: #ffffff;
-  padding: 5px 12px;
+  top: -45px;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 4px 10px;
   border-radius: 6px;
   font-size: 11px;
-  font-weight: 500;
   white-space: nowrap;
+  display: none;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  opacity: 0;
-  pointer-events: none;
-  transform: translateY(6px);
-  transition: opacity 0.15s ease, transform 0.15s ease;
   z-index: 10000;
-  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.dock-item-wrapper:hover .dock-tooltip-bubble {
-  opacity: 1;
-  transform: translateY(0);
-}
-.dock-item-wrapper:has(.dock-submenu-flyout-panel) .dock-tooltip-bubble {
-  opacity: 0 !important; 
+@media (min-width: 1025px) {
+  .dock-item-wrapper:hover .dock-tooltip-bubble { 
+    display: block; 
+  }
+  .dock-item-wrapper:has(.dock-submenu-flyout-panel) .dock-tooltip-bubble {
+    display: none !important; 
+  }
 }
 
 /* Floating Vertical Submenu List Panel */
 .dock-submenu-flyout-panel {
   position: absolute;
-  bottom: 68px;
-  min-width: 180px;
-  background: var(--mac-dock-bg);
+  bottom: 65px;
+  width: 200px;
+  background: rgba(255, 255, 255, 0.96);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
-  border: 1px solid var(--mac-border-color);
-  border-radius: 12px;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+  border: 1px solid var(--mac-border, rgba(0,0,0,0.15));
+  border-radius: 10px;
+  box-shadow: var(--mac-shadow, 0 10px 25px rgba(0,0,0,0.15));
   padding: 6px;
   display: flex;
   flex-direction: column;
@@ -122,20 +139,19 @@
 }
 
 .flyout-panel-header {
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--mac-text-muted);
+  font-size: 11px;
+  color: #888;
+  font-weight: bold;
+  padding: 4px 8px;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  padding: 6px 10px 4px 10px;
   border-bottom: 1px solid rgba(0, 0, 0, 0.05);
   margin-bottom: 4px;
 }
 
 .flyout-submenu-list {
   list-style: none;
-  margin: 0;
   padding: 0;
+  margin: 0;
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -145,19 +161,23 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 10px;
+  padding: 6px 10px;
   border-radius: 6px;
-  cursor: pointer;
-  color: var(--mac-text-main);
-  font-size: 13px;
+  text-decoration: none;
+  color: #333;
+  font-size: 12px;
   transition: background 0.15s ease, color 0.15s ease;
 }
 
-.flyout-submenu-item:hover { background: rgba(0, 0, 0, 0.05); }
+.flyout-submenu-item:hover { 
+  background: #007aff; 
+  color: white; 
+}
+
 .flyout-submenu-item.flyout-item-active {
-  background: var(--mac-selection-bg);
-  color: var(--mac-selection-text);
-  font-weight: 500;
+  background: rgba(0, 122, 255, 0.15);
+  color: #007aff;
+  font-weight: bold;
 }
 .flyout-item-text { white-space: nowrap; }
 
@@ -169,26 +189,66 @@
   transform: translateX(-50%) rotate(45deg);
   width: 12px;
   height: 12px;
-  background: var(--mac-dock-bg);
-  border-right: 1px solid var(--mac-border-color);
-  border-bottom: 1px solid var(--mac-border-color);
+  background: rgba(255, 255, 255, 0.96);
+  border-right: 1px solid var(--mac-border, rgba(0,0,0,0.15));
+  border-bottom: 1px solid var(--mac-border, rgba(0,0,0,0.15));
   z-index: -1;
 }
 
-/* client/src/styles/Footer.css */
-.mac-os-dock-container { position: fixed; bottom: 10px; left: 50%; transform: translateX(-50%); z-index: 9999; }
-.mac-os-dock-shelf { display: flex; align-items: end; background: rgba(255, 255, 255, 0.35); padding: 6px 12px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.4); backdrop-filter: blur(25px); gap: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
-.dock-item-wrapper { position: relative; display: flex; flex-direction: column; align-items: center; cursor: pointer; }
-.dock-icon-sphere { width: 44px; height: 44px; background: rgba(255,255,255,0.8); border-radius: 10px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); transition: transform 0.2s; }
-.dock-item-wrapper:hover .dock-icon-sphere { transform: scale(1.18) translateY(-6px); }
-.dock-active-indicator-dot { width: 4px; height: 4px; background: rgba(0,0,0,0.6); border-radius: 50%; opacity: 0; margin-top: 3px; }
-.dock-item-active .dock-active-indicator-dot { opacity: 1; background: #007aff; }
-.dock-tooltip-bubble { position: absolute; top: -45px; background: rgba(0,0,0,0.8); color: white; padding: 4px 10px; border-radius: 6px; font-size: 11px; white-space: nowrap; display: none; }
-.dock-item-wrapper:hover .dock-tooltip-bubble { display: block; }
-.dock-separator-line { width: 1px; background: rgba(0,0,0,0.2); height: 40px; align-self: center; }
-.dock-submenu-flyout-panel { position: absolute; bottom: 65px; background: rgba(255,255,255,0.96); border: 1px solid var(--mac-border); width: 200px; border-radius: 10px; box-shadow: var(--mac-shadow); padding: 6px; }
-.flyout-panel-header { font-size: 11px; color: #888; font-weight: bold; padding: 4px 8px; text-transform: uppercase; }
-.flyout-submenu-list { list-style: none; padding: 0; margin: 0; }
-.flyout-submenu-item { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 6px; text-decoration: none; color: #333; font-size: 12px; }
-.flyout-submenu-item:hover { background: #007aff; color: white; }
-.flyout-item-active { background: rgba(0,122,255,0.15); color: #007aff; font-weight: bold; }
+/* ==========================================================================
+   RESPONSIVE SCROLLER AND MOBILE OVERRIDES
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  .mac-os-dock-container {
+    bottom: 8px;
+    width: 92vw;
+  }
+
+  .mac-os-dock-shelf {
+    gap: 8px;
+    padding: 6px 10px;
+    border-radius: 14px;
+    overflow-x: auto; /* Turn dock layer into an internal responsive horizontal container swipe row */
+    overflow-y: hidden;
+    scrollbar-width: none; /* Hide standard desktop scroll tracks on mobile viewports */
+    -webkit-overflow-scrolling: touch;
+    align-items: center;
+  }
+
+  .mac-os-dock-shelf::-webkit-scrollbar {
+    display: none;
+  }
+
+  .dock-icon-sphere {
+    width: 38px;
+    height: 38px;
+    border-radius: 8px;
+  }
+
+  .dock-separator-line {
+    height: 28px;
+    margin: 0 2px;
+  }
+
+  /* Center the flyout panels perfectly above their respective horizontal touch coordinates */
+  .dock-submenu-flyout-panel {
+    bottom: 56px;
+    position: fixed;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    width: 85vw;
+    max-height: 45vh; /* Safe scroll lock viewport restriction on short phones */
+    overflow-y: auto;
+  }
+
+  @keyframes dockFlyoutReveal {
+    from { opacity: 0; transform: translate(-50%, 10px) scale(0.98); }
+    to { opacity: 1; transform: translate(-50%, 0) scale(1); }
+  }
+
+  /* Hide the downward arrow anchor on small screens to maintain a clean card layout */
+  .dock-flyout-arrow-down {
+    display: none;
+  }
+}

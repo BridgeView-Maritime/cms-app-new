@@ -46,11 +46,14 @@ export default function Footer({
   };
 
   const handleDockItemMouseEnter = (menuId, hasChildren) => {
+    // Only process hover flyouts if user is on a desktop device
+    if (window.innerWidth <= 1024) return;
     if (leaveTimeoutRef.current) clearTimeout(leaveTimeoutRef.current);
     if (!isClickLocked && hasChildren) setActiveDockFlyout(menuId);
   };
 
   const handleDockItemMouseLeave = () => {
+    if (window.innerWidth <= 1024) return;
     if (!isClickLocked) {
       leaveTimeoutRef.current = setTimeout(() => setActiveDockFlyout(null), 250);
     }
