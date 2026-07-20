@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import * as Icons from 'lucide-react'; 
 import '../styles/EmployeeForm.css';
+import { AUTH_ENDPOINTS } from '../config/api';
 
 const INITIAL_FORM_STATE = {
   address_details: [{ address_type: 'Current', address_line1: '', city: '', state: '', postal_code: '', country: 'India' }],
@@ -47,7 +48,7 @@ export default function EmployeeMasterForm({ employeeId = null, formCode = 'EMPL
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
     
-    fetch(`/api/admin/metadata/form/${formCode}`, {
+    fetch(`${AUTH_ENDPOINTS.REACT_APP_API_URL}/api/admin/metadata/form/${formCode}`, {
       headers: { 'Authorization': `Bearer ${token}` }
     })
       .then(res => res.json())
@@ -110,7 +111,7 @@ export default function EmployeeMasterForm({ employeeId = null, formCode = 'EMPL
   const fetchEmployeeData = async (id) => {
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch(`/api/employees/profile/${id}`, {
+      const response = await fetch(`${AUTH_ENDPOINTS.REACT_APP_API_URL}/api/employees/profile/${id}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await response.json();
@@ -249,7 +250,7 @@ export default function EmployeeMasterForm({ employeeId = null, formCode = 'EMPL
 
     try {
       const token = localStorage.getItem('accessToken');
-      const endpointRoute = employeeId ? `/api/employees/update/${employeeId}` : '/api/employees/register-dynamic';
+      const endpointRoute = employeeId ? `${AUTH_ENDPOINTS.REACT_APP_API_URL}/api/employees/update/${employeeId}` : `${AUTH_ENDPOINTS.REACT_APP_API_URL}/api/employees/register-dynamic`;
       const requestMethod = employeeId ? 'PUT' : 'POST';
 
       const networkTransmission = await fetch(endpointRoute, {

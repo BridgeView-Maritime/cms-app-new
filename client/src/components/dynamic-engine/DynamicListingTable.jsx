@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { FileText } from 'lucide-react';
+import { AUTH_ENDPOINTS } from '../config/api';
 
 export default function DynamicListingTable({ schema, onEditRecord }) {
   const [dataset, setDataset] = useState([]);
@@ -11,7 +12,7 @@ export default function DynamicListingTable({ schema, onEditRecord }) {
 
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
-    fetch(`/api/collections/${schema.form_code.toLowerCase()}/all`, {
+    fetch(`${AUTH_ENDPOINTS.REACT_APP_API_URL}/api/collections/${schema.form_code.toLowerCase()}/all`, {
       headers: { 'Authorization': `Bearer ${token}` }
     })
       .then(res => res.json())

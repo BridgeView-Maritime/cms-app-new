@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { AUTH_ENDPOINTS } from '../config/api';
 
 export default function DynamicHrmsForm({ formCode }) {
   const [meta, setMeta] = useState(null);
@@ -16,7 +17,7 @@ export default function DynamicHrmsForm({ formCode }) {
 
   useEffect(() => {
     // Corrected path location context from '/api/employees/meta/form/' to matching admin routes structure:
-    fetch(`/api/admin/metadata/form/${formCode}`, { headers })
+    fetch(`${AUTH_ENDPOINTS.REACT_APP_API_URL}/api/admin/metadata/form/${formCode}`, { headers })
       .then(res => res.json())
       .then(data => {
         const targetData = data.data || data;
@@ -63,7 +64,7 @@ export default function DynamicHrmsForm({ formCode }) {
     };
 
     try {
-      const res = await fetch('/api/employees/register-dynamic', {
+      const res = await fetch(`${AUTH_ENDPOINTS.REACT_APP_API_URL}/api/employees/register-dynamic', {
         method: 'POST',
         headers,
         body: JSON.stringify(submissionPayload)

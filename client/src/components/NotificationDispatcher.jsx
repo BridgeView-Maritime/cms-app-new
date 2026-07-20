@@ -42,7 +42,7 @@ export default function NotificationDispatcher() {
   useEffect(() => {
     const fetchPlatformUsers = async () => {
       try {
-        const res = await fetch('/api/admin/users/list', {
+        const res = await fetch(`${AUTH_ENDPOINTS.REACT_APP_API_URL}/api/admin/users/list`, {
           headers: { 'Authorization': `Bearer ${localStorage.getItem('accessToken')}` }
         });
         if (res.ok) {

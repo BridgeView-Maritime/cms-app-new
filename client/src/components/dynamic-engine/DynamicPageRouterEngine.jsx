@@ -3,6 +3,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import DynamicFormRenderer from './DynamicFormRenderer';
 import DynamicListingTable from './DynamicListingTable';
+import { AUTH_ENDPOINTS } from '../config/api';
 
 export default function DynamicPageRouterEngine() {
   const { formCode } = useParams();
@@ -24,7 +25,7 @@ export default function DynamicPageRouterEngine() {
     setSelectedRecordId(null); // Reset active edits on route change
     const token = localStorage.getItem('accessToken');
     
-    fetch(`/api/admin/metadata/form/${activeCode}`, {
+    fetch(`${AUTH_ENDPOINTS.REACT_APP_API_URL}/api/admin/metadata/form/${activeCode}`, {
       headers: { 'Authorization': `Bearer ${token}` }
     })
       .then(res => res.json())

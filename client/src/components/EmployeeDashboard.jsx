@@ -70,7 +70,7 @@ export default function EmployeeDashboard() {
     const targetStatus = currentStatus === 'Active' ? 'Suspended' : 'Active';
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch(`/api/employees/status/${id}`, {
+      const response = await fetch(`${AUTH_ENDPOINTS.REACT_APP_API_URL}/api/employees/status/${id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

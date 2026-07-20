@@ -11,7 +11,7 @@ import SystemImmutableCards from './SystemImmutableCards';
 import FieldControlCard from './FieldControlCard';
 
 import '../styles/FormBuilder.css';
-
+import { AUTH_ENDPOINTS } from '../config/api';
 
 const AVAILABLE_SECTION_ICONS = [
   // Originally from AVAILABLE_SECTION_ICONS
@@ -105,7 +105,7 @@ export default function FormSchemaBuilder({ activeFormCode = 'EMPLOYEE_MASTER_DI
     setIsLoadingSections(true);
     const token = localStorage.getItem('accessToken');
     try {
-      const response = await fetch(`/api/form_sections/form-sections?form_code=${targetCode}`, {
+      const response = await fetch(`${AUTH_ENDPOINTS.REACT_APP_API_URL}/api/form_sections/form-sections?form_code=${targetCode}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await response.json();
@@ -123,7 +123,7 @@ export default function FormSchemaBuilder({ activeFormCode = 'EMPLOYEE_MASTER_DI
     if (!targetCode) return;
     const token = localStorage.getItem('accessToken');
     
-    fetch(`/api/admin/metadata/form/${targetCode.toUpperCase()}`, { headers: { 'Authorization': `Bearer ${token}` } })
+    fetch(`${AUTH_ENDPOINTS.REACT_APP_API_URL}/api/admin/metadata/form/${targetCode.toUpperCase()}`, { headers: { 'Authorization': `Bearer ${token}` } })
       .then(res => {
         if (!res.ok) throw new Error(`Server returned status code: ${res.status}`);
         return res.json();
@@ -160,7 +160,7 @@ export default function FormSchemaBuilder({ activeFormCode = 'EMPLOYEE_MASTER_DI
   const loadWorkspaceOptionsList = async () => {
     const token = localStorage.getItem('accessToken');
     try {
-      const response = await fetch('/api/admin/metadata/forms/list-all', {
+      const response = await fetch(`${AUTH_ENDPOINTS.REACT_APP_API_URL}/api/admin/metadata/forms/list-all`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const result = await response.json();
@@ -174,7 +174,7 @@ export default function FormSchemaBuilder({ activeFormCode = 'EMPLOYEE_MASTER_DI
 
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
-    fetch('/api/admin/roles', { headers: { 'Authorization': `Bearer ${token}` } })
+    fetch(`${AUTH_ENDPOINTS.REACT_APP_API_URL}/api/admin/roles`, { headers: { 'Authorization': `Bearer ${token}` } })
       .then(res => res.json())
       .then(res => {
         if (res.success && Array.isArray(res.data)) {
@@ -233,7 +233,7 @@ export default function FormSchemaBuilder({ activeFormCode = 'EMPLOYEE_MASTER_DI
 
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch('/api/form_sections/form-sections/create', {
+      const response = await fetch(`${AUTH_ENDPOINTS.REACT_APP_API_URL}/api/form_sections/form-sections/create`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify(payload)
@@ -264,7 +264,7 @@ export default function FormSchemaBuilder({ activeFormCode = 'EMPLOYEE_MASTER_DI
 
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch(`/api/form_sections/form-sections/update/${editingSectionId}`, {
+      const response = await fetch(`${AUTH_ENDPOINTS.REACT_APP_API_URL}/api/form_sections/form-sections/update/${editingSectionId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify({ form_code: formCode, label: trimmed, icon: editingSectionIcon })
@@ -290,7 +290,7 @@ export default function FormSchemaBuilder({ activeFormCode = 'EMPLOYEE_MASTER_DI
 
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch(`/api/form_sections/form-sections/toggle/${sectionId}`, {
+      const response = await fetch(`${AUTH_ENDPOINTS.REACT_APP_API_URL}/api/form_sections/form-sections/toggle/${sectionId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify({ form_code: formCode, is_active: !targetSection.is_active })
@@ -312,7 +312,7 @@ export default function FormSchemaBuilder({ activeFormCode = 'EMPLOYEE_MASTER_DI
 
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch(`/api/form_sections/form-sections/delete/${sectionId}?form_code=${formCode}`, {
+      const response = await fetch(`${AUTH_ENDPOINTS.REACT_APP_API_URL}/api/form_sections/form-sections/delete/${sectionId}?form_code=${formCode}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -397,7 +397,7 @@ export default function FormSchemaBuilder({ activeFormCode = 'EMPLOYEE_MASTER_DI
 
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch('/api/admin/metadata/form/create', {
+      const response = await fetch(`${AUTH_ENDPOINTS.REACT_APP_API_URL}/api/admin/metadata/form/create`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify(finalPayload)

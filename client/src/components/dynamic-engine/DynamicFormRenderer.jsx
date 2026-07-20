@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Save, Briefcase, FileText, HelpCircle } from 'lucide-react';
 import '../../styles/DynamicFormRenderer.css';
+import { AUTH_ENDPOINTS } from '../config/api';
 
 // Simple map to cleanly match string values to dynamic dashboard icons
 const iconMap = {
@@ -15,7 +16,7 @@ export default function DynamicFormRenderer({ schema, recordId, onSaveSuccess })
   useEffect(() => {
     if (recordId) {
       const token = localStorage.getItem('accessToken');
-      fetch(`/api/collections/${schema.form_code.toLowerCase()}/${recordId}`, {
+      fetch(`${AUTH_ENDPOINTS.REACT_APP_API_URL}/api/collections/${schema.form_code.toLowerCase()}/${recordId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
         .then(res => res.json())
@@ -39,8 +40,8 @@ export default function DynamicFormRenderer({ schema, recordId, onSaveSuccess })
     setIsSubmitting(true);
     const token = localStorage.getItem('accessToken');
     const endpoint = recordId 
-      ? `/api/collections/${schema.form_code.toLowerCase()}/${recordId}`
-      : `/api/collections/${schema.form_code.toLowerCase()}/create`;
+      ? `${AUTH_ENDPOINTS.REACT_APP_API_URL}/api/collections/${schema.form_code.toLowerCase()}/${recordId}`
+      : `${AUTH_ENDPOINTS.REACT_APP_API_URL}/api/collections/${schema.form_code.toLowerCase()}/create`;
 
     try {
       const response = await fetch(endpoint, {

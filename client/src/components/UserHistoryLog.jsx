@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import * as Icons from 'lucide-react';
 import '../styles/UserHistoryLog.css';
+import { AUTH_ENDPOINTS } from '../config/api';
 
 export default function UserHistoryLog({ 
   currentUserId, 
@@ -31,7 +32,7 @@ export default function UserHistoryLog({
     const token = localStorage.getItem('accessToken');
     const queryId = currentUserId || 'ALL';
 
-    fetch(`/api/notifications/my-history?userId=${queryId}&role=${currentUserRole || 'employee'}`, {
+    fetch(`${AUTH_ENDPOINTS.REACT_APP_API_URL}/api/notifications/my-history?userId=${queryId}&role=${currentUserRole || 'employee'}`, {
       headers: { 'Authorization': `Bearer ${token}` }
     })
       .then(res => res.json())
@@ -52,7 +53,7 @@ export default function UserHistoryLog({
   const executeMarkRead = async (itemId) => {
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch(`/api/notifications/mark-read/${itemId}`, {
+      const response = await fetch(`${AUTH_ENDPOINTS.REACT_APP_API_URL}/api/notifications/mark-read/${itemId}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

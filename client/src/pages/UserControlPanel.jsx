@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import * as Icons from 'lucide-react';
 import FormSchemaBuilder from '../components/FormSchemaBuilder'; // Adjust path if necessary
+import { AUTH_ENDPOINTS } from '../config/api';
 
 export default function UserManagementWorkspace({ renderIcon }) {
   const [activePanel, setActivePanel] = useState('users'); // users | roles | menus | custom_fields
@@ -35,19 +36,19 @@ export default function UserManagementWorkspace({ renderIcon }) {
 
   const refreshDataPools = async () => {
     try {
-      const uRes = await fetch('/api/admin/users/list', { headers });
+      const uRes = await fetch(`${AUTH_ENDPOINTS.REACT_APP_API_URL}/api/admin/users/list`, { headers });
       const uData = await uRes.json();
       if (uData.success) setUserList(uData.data || []);
 
-      const rRes = await fetch('/api/admin/roles', { headers });
+      const rRes = await fetch(`${AUTH_ENDPOINTS.REACT_APP_API_URL}/api/admin/roles`, { headers });
       const rData = await rRes.json();
       if (rData.success) setRoleList(rData.data || []);
 
-      const mRes = await fetch('/api/admin/menus', { headers });
+      const mRes = await fetch(`${AUTH_ENDPOINTS.REACT_APP_API_URL}/api/admin/menus`, { headers });
       const mData = await mRes.json();
       if (mData.success) setMenuList(mData.data || []);
 
-      const empRes = await fetch('/api/admin/employees/unlinked', { headers });
+      const empRes = await fetch(`${AUTH_ENDPOINTS.REACT_APP_API_URL}/api/admin/employees/unlinked`, { headers });
       const empData = await empRes.json();
       if (empData.success) setUnlinkedStaff(empData.data || []);
     } catch (e) { 
@@ -61,7 +62,7 @@ export default function UserManagementWorkspace({ renderIcon }) {
   const toggleUserStatus = async (user) => {
     const nextStatus = user.is_active === false ? true : false;
     try {
-      const res = await fetch(`/api/admin/users/update/${user._id}`, {
+      const res = await fetch(`${AUTH_ENDPOINTS.REACT_APP_API_URL}/api/admin/users/update/${user._id}`, {
         method: 'PUT',
         headers,
         body: JSON.stringify({ is_active: nextStatus })
@@ -79,7 +80,7 @@ export default function UserManagementWorkspace({ renderIcon }) {
   const toggleRoleStatus = async (role) => {
     const nextStatus = role.is_active === false ? true : false;
     try {
-      const res = await fetch(`/api/admin/roles/update/${role._id}`, {
+      const res = await fetch(`${AUTH_ENDPOINTS.REACT_APP_API_URL}/api/admin/roles/update/${role._id}`, {
         method: 'PUT',
         headers,
         body: JSON.stringify({ is_active: nextStatus })
@@ -96,7 +97,7 @@ export default function UserManagementWorkspace({ renderIcon }) {
   const toggleMenuStatus = async (menu) => {
     const nextStatus = menu.is_active === false ? true : false;
     try {
-      const res = await fetch(`/api/admin/menus/update/${menu._id}`, {
+      const res = await fetch(`${AUTH_ENDPOINTS.REACT_APP_API_URL}/api/admin/menus/update/${menu._id}`, {
         method: 'PUT',
         headers,
         body: JSON.stringify({ is_active: nextStatus })
@@ -135,8 +136,8 @@ export default function UserManagementWorkspace({ renderIcon }) {
     setErrors({});
     
     const endpoint = editingUserId 
-      ? `/api/admin/users/update/${editingUserId}` 
-      : '/api/admin/users/create';
+      ? `${AUTH_ENDPOINTS.REACT_APP_API_URL}/api/admin/users/update/${editingUserId}` 
+      : `${AUTH_ENDPOINTS.REACT_APP_API_URL}/api/admin/users/create`;
       
     const method = editingUserId ? 'PUT' : 'POST';
 
@@ -177,8 +178,8 @@ export default function UserManagementWorkspace({ renderIcon }) {
     e.preventDefault();
     
     const endpoint = editingRoleId 
-      ? `/api/admin/roles/update/${editingRoleId}` 
-      : '/api/admin/roles/create';
+      ? `${AUTH_ENDPOINTS.REACT_APP_API_URL}/api/admin/roles/update/${editingRoleId}` 
+      : `${AUTH_ENDPOINTS.REACT_APP_API_URL}/api/admin/roles/create`;
       
     const method = editingRoleId ? 'PUT' : 'POST';
 
@@ -218,8 +219,8 @@ export default function UserManagementWorkspace({ renderIcon }) {
     e.preventDefault();
     
     const endpoint = editingMenuId 
-      ? `/api/admin/menus/update/${editingMenuId}` 
-      : '/api/admin/menus/create';
+      ? `${AUTH_ENDPOINTS.REACT_APP_API_URL}/api/admin/menus/update/${editingMenuId}` 
+      : `/api/admin/menus/create`;
       
     const method = editingMenuId ? 'PUT' : 'POST';
 

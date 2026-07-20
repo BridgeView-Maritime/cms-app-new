@@ -46,7 +46,7 @@ export default function MacDynamicDashboard({ onLogout }) {
     const fetchEnvironmentData = async () => {
       try {
         const token = localStorage.getItem('accessToken');
-        const response = await fetch('/api/users/dashboard-init', {
+        const response = await fetch(`${AUTH_ENDPOINTS.REACT_APP_API_URL}/api/users/dashboard-init`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         const resData = await response.json();
@@ -92,7 +92,7 @@ export default function MacDynamicDashboard({ onLogout }) {
     const token = localStorage.getItem('accessToken');
     const queryId = userProfile.id || 'ALL';
 
-    fetch(`/api/notifications/my-history?userId=${queryId}&role=${userProfile.roleName || 'employee'}`, {
+    fetch(`${AUTH_ENDPOINTS.REACT_APP_API_URL}/api/notifications/my-history?userId=${queryId}&role=${userProfile.roleName || 'employee'}`, {
       headers: { 'Authorization': `Bearer ${token}` }
     })
       .then(res => res.json())
@@ -117,7 +117,7 @@ export default function MacDynamicDashboard({ onLogout }) {
   const handleMarkAsRead = async (logId) => {
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch(`/api/notifications/mark-read/${logId}`, {
+      const response = await fetch(`${AUTH_ENDPOINTS.REACT_APP_API_URL}/api/notifications/mark-read/${logId}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

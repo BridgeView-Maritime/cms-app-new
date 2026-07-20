@@ -28,7 +28,7 @@ export default function EmployeeDirectory() {
     setLoading(true);
     try {
       const token = localStorage.getItem('accessToken');
-      const baseEndpoint = AUTH_ENDPOINTS?.EMPLOYEE_LIST || 'http://localhost:5000/api/employees/list';
+      const baseEndpoint = AUTH_ENDPOINTS?.EMPLOYEE_LIST || `${AUTH_ENDPOINTS.REACT_APP_API_URL}/api/employees/list`;
       const targetUrl = `${baseEndpoint}?_cb=${new Date().getTime()}`;
 
       const response = await fetch(targetUrl, {
@@ -93,7 +93,7 @@ export default function EmployeeDirectory() {
     
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch(`http://localhost:5000/api/employees/status/${cleanId}`, {
+      const response = await fetch(`${AUTH_ENDPOINTS.REACT_APP_API_URL}/api/employees/status/${cleanId}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
