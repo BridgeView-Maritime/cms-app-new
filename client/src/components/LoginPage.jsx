@@ -37,7 +37,7 @@ const BASE_STATIC_CONTENT = {
   resetSubmit: "Send Recovery OTP"
 };
 
-const SHIFTS = ['day', 'afternoon', 'night'];
+const SHIFTS = ['night', 'afternoon', 'day'];
 const LANGUAGES = [
   { code: 'en', label: 'ENG' },
   { code: 'hi', label: 'हिन् (HI)' },
