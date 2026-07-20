@@ -1,0 +1,348 @@
+/* ==========================================================================
+   ENTERPRISE DESKTOP FORM STYLING PARADIGM SPECIFICATION
+   ========================================================================== */
+.mac-form-wrapper-canvas {
+  width: 100%;
+  max-width: 1100px;
+  margin: 20px auto;
+  padding: 0 20px;
+}
+
+.mac-form-window-frame {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(30px) saturate(190%);
+  -webkit-backdrop-filter: blur(30px) saturate(190%);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 14px;
+  box-shadow: 0 25px 55px rgba(0, 0, 0, 0.1), 0 4px 12px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+[data-theme='night'] .mac-form-window-frame {
+  background: rgba(22, 28, 45, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.mac-form-header {
+  height: 44px;
+  background: rgba(0,0,0,0.02);
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  position: relative;
+}
+
+.window-dots-row {
+  display: flex;
+  gap: 8px;
+  position: absolute;
+  left: 16px;
+}
+
+.window-title-text {
+  width: 100%;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+}
+
+[data-theme='night'] .window-title-text {
+  color: #94a3b8;
+}
+
+/* Tab Split Content Configurations Blueprint Grid */
+.mac-form-layout-body {
+  display: flex;
+  height: 620px;
+}
+
+.mac-form-tabs-sidebar {
+  width: 220px;
+  background: rgba(0, 0, 0, 0.01);
+  border-right: 1px solid rgba(0, 0, 0, 0.06);
+  padding: 16px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 9px 12px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #1e293b;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+[data-theme='night'] .tab-btn { color: #cbd5e1; }
+
+.tab-btn:hover { background: rgba(0, 0, 0, 0.04); }
+[data-theme='night'] .tab-btn:hover { background: rgba(255, 255, 255, 0.04); }
+
+.tab-btn.active {
+  background: #0284c7 !important;
+  color: #ffffff !important;
+}
+
+/* Master Inputs View Panels Layouts */
+.mac-form-content-view {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+}
+
+[data-theme='night'] .mac-form-content-view { background: #0b0f19; }
+
+.form-scroll-viewport {
+  flex: 1;
+  padding: 24px;
+  overflow-y: auto;
+}
+
+.form-fade-view {
+  animation: viewFadeSpring 0.25s ease-out forwards;
+}
+
+@keyframes viewFadeSpring {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.section-pane-heading {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 18px;
+  color: #0f172a;
+  border-bottom: 1px dashed rgba(0,0,0,0.08);
+  padding-bottom: 6px;
+}
+
+[data-theme='night'] .section-pane-heading { color: #f1f5f9; border-color: rgba(255,255,255,0.08); }
+
+/* Grid Responsive Core Columns Specifications Engine */
+.mac-form-grid-3x { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 20px; }
+.mac-form-grid-4x { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
+.mac-form-grid-2x { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+
+.form-control-block {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-control-block label {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #64748b;
+}
+
+/* Refined Form Input Elements Styling Core */
+.form-scroll-viewport input[type='text'],
+.form-scroll-viewport input[type='number'],
+.form-scroll-viewport input[type='date'],
+.form-scroll-viewport select {
+  height: 32px;
+  padding: 0 10px;
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #1e293b;
+  outline: none;
+  transition: border 0.15s, box-shadow 0.15s;
+}
+
+[data-theme='night'] .form-scroll-viewport input,
+[data-theme='night'] .form-scroll-viewport select {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.12);
+  color: #e2e8f0;
+}
+
+.form-scroll-viewport input:focus,
+.form-scroll-viewport select:focus {
+  border-color: #0284c7;
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+  background: #ffffff;
+}
+
+.req { color: #ef4444; margin-left: 2px; }
+.input-error { border-color: #ef4444 !important; background: #fff1f2 !important; }
+.error-lbl { font-size: 11px; color: #ef4444; margin-top: 2px; }
+
+/* Dynamic Nested Array Multi-Row Component Layout Boxes */
+.mac-form-array-card {
+  background: rgba(0,0,0,0.01);
+  border: 1px solid rgba(0,0,0,0.06);
+  border-radius: 8px;
+  padding: 14px;
+  margin-bottom: 12px;
+}
+
+[data-theme='night'] .mac-form-array-card { background: rgba(255,255,255,0.01); border-color: rgba(255,255,255,0.06); }
+
+.card-header-actions {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #94a3b8;
+  margin-bottom: 10px;
+}
+
+.action-del { color: #ef4444; cursor: pointer; transition: opacity 0.1s; }
+.action-del:hover { opacity: 0.7; }
+
+.flex-split { display: flex; justify-content: space-between; align-items: center; }
+.mt-20 { margin-top: 20px; }
+
+/* Control Bar Action Row */
+.mac-form-footer-action-row {
+  height: 54px;
+  border-top: 1px solid rgba(0,0,0,0.06);
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(0,0,0,0.01);
+}
+
+.action-buttons-end-group { display: flex; gap: 10px; margin-left: auto; }
+
+.mac-btn-action {
+  height: 32px;
+  padding: 0 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: none;
+  transition: background 0.15s;
+}
+
+.mac-btn-action.primary { background: #0284c7; color: #ffffff; }
+.mac-btn-action.primary:hover { background: #0369a1; }
+.mac-btn-action.secondary { background: #e2e8f0; color: #334155; }
+
+.form-inline-alert { display: flex; align-items: center; gap: 8px; font-size: 12.5px; font-weight: 500; }
+.form-inline-alert.success { color: #16a34a; }
+.form-inline-alert.error { color: #dc2626; }
+
+
+
+
+
+/* Footer Control Row Structural Matrix */
+.mac-form-footer-action-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 10px;
+  background: #f8f9fa;
+  border-top: 1px solid #e9ecef;
+  gap: 10px;
+  min-height: 70px;
+  box-sizing: border-box;
+}
+
+/* Alert Container Constraints */
+.form-inline-alert {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  max-width: 60%;
+  flex-shrink: 1;
+}
+
+.form-inline-alert.error {
+  background-color: #fff5f5;
+  border: 1px solid #ffe3e3;
+  color: #e03131;
+}
+
+.form-inline-alert.success {
+  background-color: #ebfbee;
+  border: 1px solid #d3f9d8;
+  color: #2b8a3e;
+}
+
+.alert-text-span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Button Group Alignment Wrapper */
+.action-buttons-end-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto; /* Pushes button cluster right regardless of alert existence */
+  flex-shrink: 0;
+}
+
+/* Standardized Button Footprint Settings */
+.mac-btn-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  border: 1px solid transparent;
+  min-width: 100px;
+  height: 38px;
+}
+
+/* Primary Styling Action Module */
+.mac-btn-action.primary {
+  background-color: #007aff;
+  color: #ffffff;
+}
+
+.mac-btn-action.primary:hover:not(:disabled) {
+  background-color: #0062cc;
+}
+
+/* Premium Restructured Reset Design Mapping */
+.mac-btn-action.secondary-reset {
+  background-color: #ffffff;
+  border: 1px solid #d1d1d6;
+  color: #48484a;
+}
+
+.mac-btn-action.secondary-reset:hover:not(:disabled) {
+  background-color: #f2f2f7;
+  border-color: #aeaeae;
+  color: #000000;
+}
+
+/* Shared Disabled Processing Overlay States */
+.mac-btn-action:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

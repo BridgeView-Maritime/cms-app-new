@@ -1,0 +1,279 @@
+.hud-deck-wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Complex deep ocean look instead of stark black */
+  background: radial-gradient(circle at 50% 30%, var(--ocean-matrix) 0%, var(--hull-bg) 80%);
+  position: relative;
+  overflow: hidden;
+  padding: 24px;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  transition: background 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* BACKGROUND DEEP SEA SHIP ANIMATION SIMULATOR */
+.dynamic-ocean-floor {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.ambient-sonar-wave {
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 600px; height: 600px;
+  border: 1px solid var(--panel-border);
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(0.5);
+  opacity: 0;
+  animation: sonarPulse 9s cubic-bezier(0.1, 0.8, 0.3, 1) infinite;
+}
+@keyframes sonarPulse {
+  0% { transform: translate(-50%, -50%) scale(0.4); opacity: 0.4; }
+  100% { transform: translate(-50%, -50%) scale(1.6); opacity: 0; }
+}
+
+/* VESSEL ANIMATION LAYERS */
+.ocean-vessel {
+  position: absolute;
+  color: var(--chart-accent);
+  display: flex;
+  flex-direction: column;
+  transition: color 0.6s ease;
+}
+.vessel-hull-svg { width: 100%; height: auto; }
+
+.vessel-carrier {
+  top: 18%;
+  width: 140px;
+  animation: sailEast 55s linear infinite;
+}
+.vessel-tanker {
+  bottom: 22%;
+  width: 110px;
+  animation: sailWest 70s linear infinite;
+}
+
+@keyframes sailEast {
+  0% { left: -160px; transform: scaleX(1); }
+  100% { left: 100%; transform: scaleX(1); }
+}
+@keyframes sailWest {
+  0% { right: -140px; transform: scaleX(1); }
+  100% { right: 100%; transform: scaleX(1); }
+}
+
+.vessel-wake {
+  height: 2px;
+  width: 90px;
+  background: linear-gradient(90deg, transparent, var(--panel-border));
+  margin-top: 3px;
+  opacity: 0.3;
+}
+.vessel-tanker .vessel-wake {
+  align-self: flex-end;
+  background: linear-gradient(-90deg, transparent, var(--panel-border));
+}
+
+/* PROCEDURAL SWELL SIMULATION GRID */
+.swell-layer {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(var(--panel-border) 1.5px, transparent 0);
+  background-size: 45px 45px;
+  opacity: 0.12;
+  transition: opacity 0.6s ease;
+}
+.layer-top { animation: swellShiftTop 25s ease-in-out infinite alternate; }
+.layer-bottom { background-size: 60px 60px; opacity: 0.06; animation: swellShiftBottom 35s ease-in-out infinite alternate; }
+
+@keyframes swellShiftTop { from { transform: translate(-8px, -8px); } to { transform: translate(8px, 8px); } }
+@keyframes swellShiftBottom { from { transform: translate(12px, -4px); } to { transform: translate(-12px, 4px); } }
+
+/* ISOMETRIC HUD CONSOLE MAIN STRUCTURE */
+.hud-glass-card {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  max-width: 440px;
+  background: var(--panel-glass);
+  border: 1px solid var(--panel-border);
+  border-radius: 16px;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.35);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: background 0.6s ease, border 0.6s ease;
+}
+
+/* TOP STATUS BAR */
+.hud-top-bar {
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--panel-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.hud-identity { display: flex; align-items: center; gap: 12px; }
+.hud-anchor-icon { color: var(--chart-accent); display: flex; transition: color 0.6s ease; }
+.hud-brand-name { font-size: 15px; font-weight: 800; color: var(--font-core); letter-spacing: 0.01em; margin: 0; }
+.hud-tagline { font-size: 11px; color: var(--font-sub); margin: 1px 0 0 0; }
+
+.hud-mode-toggle {
+  background: var(--deck-input-bg); 
+  border: 1px solid var(--deck-input-border);
+  color: var(--font-sub); 
+  padding: 6px 10px; 
+  border-radius: 20px; 
+  cursor: pointer; 
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  transition: all 0.3s ease;
+}
+.hud-mode-toggle:hover { color: var(--chart-accent); border-color: var(--chart-accent); }
+.hud-mode-text-label { opacity: 0.8; }
+
+/* FIELD CONSOLE VIEWPORT */
+.hud-card-body { padding: 32px 24px; }
+.hud-form-headers { margin-bottom: 24px; }
+.hud-main-heading { font-size: 22px; font-weight: 700; color: var(--font-core); margin-bottom: 4px; }
+.hud-sub-heading { font-size: 13px; color: var(--font-sub); }
+
+.hud-native-form { display: flex; flex-direction: column; gap: 16px; }
+.hud-input-row { display: flex; flex-direction: column; }
+.hud-label-split { display: flex; justify-content: space-between; align-items: center; }
+
+.hud-input-label { font-size: 11px; font-weight: 700; color: var(--font-core); text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.04em; }
+.hud-forgot-link { background: transparent; border: none; font-size: 11.5px; color: var(--chart-accent); cursor: pointer; padding: 0; }
+.hud-forgot-link:hover { color: var(--chart-accent-hover); text-decoration: underline; }
+
+.hud-input-field-container { position: relative; display: flex; align-items: center; }
+.hud-native-input {
+  width: 100%; height: 44px; padding: 0 40px; background: var(--deck-input-bg);
+  border: 1px solid var(--deck-input-border); border-radius: 8px; color: var(--font-core);
+  font-size: 14px; outline: none; transition: all 0.2s ease;
+}
+.hud-native-input:focus { border-color: var(--chart-accent); box-shadow: 0 0 0 3px var(--chart-glow); background: var(--deck-input-focus); }
+.hud-input-field-container.hud-faulted .hud-native-input { border-color: #ef4444; }
+
+.hud-field-icon { position: absolute; left: 14px; color: var(--font-muted); display: flex; pointer-events: none; }
+.hud-visibility-toggle { position: absolute; right: 14px; background: transparent; border: none; color: var(--font-muted); cursor: pointer; display: flex; }
+
+.hud-error-hint { font-size: 11.5px; color: #ef4444; margin-top: 4px; }
+
+/* PRIMARY EXECUTIVE CTA - TYPO RESOLVED */
+.hud-submit-action {
+  width: 100%; height: 44px; background: var(--chart-accent); color: var(--hull-bg);
+  border: none; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px var(--chart-glow);
+  transition: all 0.2s ease; margin-top: 4px;
+}
+.hud-submit-action:hover { background: var(--chart-accent-hover); transform: translateY(-1px); }
+.hud-submit-action:disabled { background: var(--font-muted); cursor: not-allowed; transform: none; box-shadow: none; }
+
+.hud-spinner-element { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: currentColor; border-radius: 50%; animation: hudSpin 0.5s linear infinite; }
+@keyframes hudSpin { to { transform: rotate(360deg); } }
+
+/* FOOTER STATUS BAR */
+.hud-footer-bar { padding: 14px 24px; background: rgba(0, 0, 0, 0.1); border-top: 1px solid var(--panel-border); text-align: center; }
+.hud-copyright-string { font-size: 11px; color: var(--font-muted); font-family: monospace; }
+
+/* SUCCESS RESPONSE UI */
+.hud-success-state { text-align: center; padding: 16px 0; }
+.success-telemetry-node { width: 48px; height: 48px; background: #10b981; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px auto; box-shadow: 0 0 0 8px rgba(16, 185, 129, 0.15); }
+.success-primary-text { font-size: 19px; font-weight: 700; color: var(--font-core); margin-bottom: 4px; }
+.success-sub-text { font-size: 13px; color: var(--font-sub); }
+
+/* ==========================================================================
+   PROFESSIONAL HUD NAVIGATION LANGUAGE SELECTOR MODULE
+   ========================================================================== */
+
+.hud-lang-selector-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* Custom Vector Arrow Overlay to Replace Native Browser Styles */
+.hud-lang-selector-wrapper::after {
+  content: "";
+  position: absolute;
+  right: 12px;
+  width: 8px;
+  height: 5px;
+  background-color: var(--font-sub);
+  /* Sleek minimalist chevron indicator */
+  clip-path: polygon(100% 0%, 0% 0%, 50% 100%);
+  pointer-events: none;
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s ease;
+}
+
+/* Open/Focus state transforms chevron downward orientation */
+.hud-lang-selector-wrapper:focus-within::after {
+  transform: rotate(180deg);
+  background-color: var(--chart-accent);
+}
+
+.hud-dropdown-native {
+  background: var(--deck-input-bg);
+  border: 1px solid var(--deck-input-border);
+  color: var(--font-sub);
+  
+  /* Increased right padding to prevent text from overlapping our custom arrow */
+  padding: 6px 28px 6px 14px;
+  
+  font-size: 11px;
+  font-weight: 700;
+  font-family: monospace, sans-serif; /* Monospace fits tactical maritime look */
+  border-radius: 6px; /* Matches the square structural lines of console panels */
+  cursor: pointer;
+  outline: none;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  
+  /* Strips out the generic browser styling completely */
+  -webkit-appearance: none;
+  appearance: none;
+  
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* Hover Deck Controls */
+.hud-dropdown-native:hover:not(:disabled) {
+  border-color: var(--chart-accent);
+  color: var(--font-core);
+  background: var(--deck-input-focus);
+}
+
+/* Focus Ring Telemetry */
+.hud-dropdown-native:focus {
+  border-color: var(--chart-accent);
+  box-shadow: 0 0 0 3px var(--chart-glow), inset 0 1px 2px rgba(0, 0, 0, 0.4);
+  color: var(--font-core);
+}
+
+/* Disabled/Translating System State */
+.hud-dropdown-native:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  border-color: var(--deck-input-border);
+}
+
+/* Style the internal options overlay window to blend with dark/light panels */
+.hud-dropdown-native option {
+  background-color: var(--deck-input-focus);
+  color: var(--font-core);
+  font-family: sans-serif;
+  text-transform: none; /* Keeps native text styling clear in dropdown lists */
+  padding: 10px;
+}

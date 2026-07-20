@@ -1,0 +1,438 @@
+/* client/src/styles/UserHistoryLog.css */
+
+.history-log-container {
+  padding: 24px;
+  max-width: calc(100% - 40px);
+  box-sizing: border-box;
+}
+
+.history-log-loading-context {
+  padding: 24px;
+  background-color: #f0f4f8;
+  border-radius: 8px;
+  margin: 16px;
+}
+
+.history-log-loading-context p {
+  color: #0066cc;
+  font-weight: 500;
+  margin: 0;
+}
+
+.history-log-card {
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.history-log-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid #f0f0f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #fafafa;
+}
+
+.history-log-header h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.history-log-header p {
+  margin: 4px 0 0 0;
+  font-size: 12px;
+  color: #777777;
+}
+
+.btn-sync-log {
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  background-color: #ffffff;
+  border: 1px solid #dcdcdc;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background-color 0.15s ease;
+}
+
+.btn-sync-log:hover {
+  background-color: #f5f5f7;
+}
+
+.history-log-state-msg {
+  padding: 40px;
+  text-align: center;
+  color: #666666;
+}
+
+.history-log-empty-state {
+  padding: 60px 40px;
+  text-align: center;
+  color: #888888;
+}
+
+.icon-empty {
+  margin-bottom: 12px;
+  color: #cccccc;
+}
+
+.history-log-empty-state p {
+  margin: 0;
+  font-size: 14px;
+}
+
+/* Scrollable Container Wrapper for Table Layout */
+.history-table-wrapper {
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+.history-table-wrapper table {
+  min-width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.history-table-wrapper thead tr {
+  background-color: #f5f5f7;
+  border-bottom: 1px solid #e5e5ea;
+}
+
+.history-table-wrapper th {
+  padding: 14px 20px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #555555;
+}
+
+.history-table-wrapper tbody {
+  font-size: 13px;
+  color: #333333;
+}
+
+.history-table-wrapper tbody tr {
+  border-bottom: 1px solid #f0f0f2;
+  transition: background-color 0.15s ease;
+}
+
+.row-read {
+  background-color: #ffffff;
+}
+
+.row-unread {
+  background-color: rgba(0, 102, 204, 0.02);
+}
+
+.cell-sender {
+  padding: 16px 20px;
+  font-weight: 500;
+  color: #111111;
+}
+
+.cell-title {
+  padding: 16px 20px;
+  font-weight: 600;
+  color: #000000;
+}
+
+.history-table-wrapper td {
+  padding: 16px 20px;
+  white-space: nowrap;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  borderRadius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.status-read {
+  background-color: #e6f7ed;
+  color: #1ea954;
+}
+
+.status-unread {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.btn-review-dispatch {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  background-color: #ffffff;
+  color: #0066cc;
+  border: 1px solid #0066cc;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-review-dispatch:hover {
+  background-color: #0066cc;
+  color: #ffffff;
+}
+
+/* Modals & Popups layout architecture */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal-container {
+  background-color: #ffffff;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 600px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  max-height: 85vh;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.98); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.modal-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid #f0f0f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-subtitle {
+  font-size: 11px;
+  color: #0066cc;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.modal-header h3 {
+  margin: 4px 0 0 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.btn-modal-close {
+  background: none;
+  border: none;
+  color: #999999;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s ease;
+}
+
+.btn-modal-close:hover {
+  color: #333333;
+}
+
+.modal-meta-bar {
+  padding: 16px 24px;
+  background-color: #fafafa;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 12px;
+  color: #666666;
+}
+
+/* Scrollable Scrollbar Window Body */
+.modal-body {
+  padding: 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.modal-body h4 {
+  margin: 0 0 8px 0;
+  font-size: 13px;
+  color: #777777;
+  font-weight: 500;
+}
+
+.message-content-box {
+  margin: 0;
+  font-size: 14px;
+  color: #333333;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  background-color: #f8fafc;
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.attachments-section {
+  margin-top: 24px;
+}
+
+.attachments-section h4 {
+  margin: 0 0 10px 0;
+}
+
+.attachments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.attachment-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  gap: 12px;
+}
+
+.attachment-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow: hidden;
+}
+
+.icon-file {
+  color: #718096;
+  flex-shrink: 0;
+}
+
+.attachment-info span {
+  font-size: 13px;
+  font-weight: 500;
+  color: #4a5568;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.btn-download-attachment {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background-color: #0066cc;
+  color: #ffffff;
+  text-decoration: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  box-shadow: 0 2px 4px rgba(0, 102, 204, 0.1);
+  transition: background-color 0.15s ease;
+}
+
+.btn-download-attachment:hover {
+  background-color: #004b99;
+}
+
+.no-attachments-text {
+  margin: 0;
+  font-size: 13px;
+  color: #a0aec0;
+  font-style: italic;
+}
+
+.modal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid #f0f0f0;
+  display: flex;
+  justify-content: flex-end;
+  background-color: #fafafa;
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+}
+
+.btn-dismiss-modal {
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  background-color: #e2e8f0;
+  color: #4a5568;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.btn-dismiss-modal:hover {
+  background-color: #cbd5e1;
+}
+
+/* Custom Uniform System Scroller Engine */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #cdcdcd;
+  border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #a6a6a6;
+}
+
+/* client/src/styles/UserHistoryLog.css */
+
+.history-log-container {
+  padding: 24px;
+  /* Allow the container to fill out completely so layout scrollers 
+     are captured at the higher parent viewport layer */
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* ... keep other styles unchanged ... */
+
+/* Scrollable Container Wrapper for Table Layout */
+.history-table-wrapper {
+  /* Remove local overflow hiding so layout renders outside the inner box */
+  overflow-x: visible; 
+  max-width: 100%;
+}
+
+/* Ensure the layout behaves responsively without squishing text labels */
+.history-table-wrapper table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}

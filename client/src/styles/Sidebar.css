@@ -1,0 +1,178 @@
+/* ==========================================================================
+   SIDEBAR COMPONENT (Collapsible Console & Tree Hierarchy)
+   ========================================================================== */
+
+.mac-window-sidebar {
+  width: 260px;
+  min-width: 260px;
+  background: var(--mac-sidebar-bg);
+  border-right: 1px solid var(--mac-border-color);
+  display: flex;
+  flex-direction: column;
+  padding: 24px 16px;
+  user-select: none;
+  box-sizing: border-box;
+  transition: width 0.3s cubic-bezier(0.25, 1, 0.5, 1), 
+              min-width 0.3s cubic-bezier(0.25, 1, 0.5, 1), 
+              opacity 0.2s ease;
+}
+
+.mac-window-sidebar.collapsed {
+  width: 0px !important;
+  min-width: 0px !important;
+  padding: 24px 0px !important;
+  opacity: 0 !important;
+  border-right: none !important;
+  pointer-events: none;
+}
+
+/* Apple Style Window Controls Circles */
+.mac-window-controls {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.window-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+.dot-close { background: #ff5f56; border: 0.5px solid #e0443e; }
+.dot-minimize { background: #ffbd2e; border: 0.5px solid #dea123; }
+.dot-maximize { background: #27c93f; border: 0.5px solid #1aab29; }
+
+/* Profile Segment Box */
+.mac-profile-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.02);
+  border-radius: 8px;
+  margin-bottom: 24px;
+  border: 1px solid var(--mac-border-color);
+}
+
+.mac-profile-avatar {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  color: #ffffff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+.mac-profile-details { overflow: hidden; }
+.mac-profile-details h4 { margin: 0; font-size: 13px; font-weight: 600; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; }
+.role-tag { font-size: 11px; color: var(--mac-text-muted); }
+
+/* Internal Tree Element Rows */
+.sidebar-scrollable-tree {
+  flex: 1;
+  overflow-y: auto;
+}
+.sidebar-scrollable-tree::-webkit-scrollbar {
+  width: 0px;
+}
+
+.sidebar-group-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--mac-text-muted);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  padding-left: 8px;
+  display: block;
+}
+
+.mac-sidebar-menu { list-style: none; padding: 0; margin: 0; }
+.menu-node { margin-bottom: 4px; }
+
+.menu-row-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--mac-text-main);
+  transition: background 0.15s ease;
+}
+.menu-row-item:hover { background: rgba(0, 0, 0, 0.04); }
+.menu-row-item.row-active {
+  background: var(--mac-selection-bg);
+  color: var(--mac-selection-text);
+  font-weight: 500;
+}
+
+.menu-row-left { display: flex; align-items: center; gap: 10px; }
+.menu-title-text { text-overflow: ellipsis; overflow: hidden; white-space: nowrap; }
+
+/* Submenu Lists */
+.mac-sidebar-submenu { list-style: none; padding-left: 24px; margin: 4px 0; }
+.submenu-row-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  color: var(--mac-text-main);
+}
+.submenu-row-item:hover { background: rgba(0, 0, 0, 0.03); }
+
+/* client/src/styles/Sidebar.css */
+.mac-window-sidebar {
+  width: 260px;
+  background: var(--mac-blur-bg);
+  border-right: 1px solid var(--mac-border);
+  display: flex;
+  flex-direction: column;
+  padding: 16px 8px;
+  transition: width 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  backdrop-filter: blur(30px);
+}
+.mac-window-sidebar.collapsed { width: 0px; padding: 16px 0px; overflow: hidden; border-right: none; }
+.mac-window-controls { display: flex; gap: 8px; margin-bottom: 24px; padding-left: 8px; }
+.window-dot { width: 12px; height: 12px; border-radius: 50%; cursor: pointer; display: inline-block; }
+.dot-close { background: #ff5f56; }
+.dot-minimize { background: #ffbd2e; }
+.dot-maximize { background: #27c93f; }
+.mac-profile-card { display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.4); padding: 10px; border-radius: 8px; margin-bottom: 20px; }
+.mac-profile-avatar { width: 40px; height: 40px; border-radius: 50%; background: #3a4856; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; }
+.mac-profile-details h4 { margin: 0; font-size: 13px; color: #222; }
+.role-tag { font-size: 11px; color: #666; background: rgba(0,0,0,0.06); padding: 2px 6px; border-radius: 4px; }
+.sidebar-group-title { font-size: 11px; font-weight: 700; color: #777; text-transform: uppercase; padding-left: 8px; display: block; margin-bottom: 8px; }
+.mac-sidebar-menu, .mac-sidebar-submenu { list-style: none; padding: 0; margin: 0; }
+.menu-row-item, .submenu-row-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; border-radius: 6px; color: #333; text-decoration: none; font-size: 13px; cursor: pointer; margin-bottom: 2px; }
+.menu-row-item:hover, .submenu-row-item:hover { background: rgba(0, 0, 0, 0.05); }
+.row-active, .sub-active { background: #007aff !important; color: white !important; font-weight: 500; }
+.mac-sidebar-submenu { padding-left: 18px; margin-top: 2px; }
+.menu-row-left { display: flex; align-items: center; gap: 10px; }
+
+/* Custom Submenu Alignment Fixes */
+.mac-sidebar-submenu .submenu-row-item {
+  justify-content: flex-start !important; /* Forces items to stay together on the left */
+  padding-left: 12px;
+}
+
+.submenu-row-left {
+  display: flex;
+  align-items: center;
+  gap: 10px; /* Space between the folder icon and the text */
+  width: 100%;
+}
+
+.mac-sidebar-submenu {
+  padding-left: 20px; /* Indents the entire child block nicely under the parent */
+  margin-top: 2px;
+  margin-bottom: 6px;
+}

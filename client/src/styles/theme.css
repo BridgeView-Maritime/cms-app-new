@@ -1,0 +1,64 @@
+/* --- MULTI-SHIFT MARITIME HUD SYSTEM --- */
+
+/* 1. DAY SHIFT: Crisp Visibility, Slate Blue & Teal */
+:root, [data-theme="day"] {
+  --hull-bg: #e2e8f0;
+  --ocean-matrix: #1e293b;
+  --ocean-depth-glow: rgba(14, 116, 144, 0.04);
+  --panel-glass: rgba(255, 255, 255, 0.85);
+  --panel-border: rgba(14, 116, 144, 0.25);
+  
+  --chart-accent: #0e768e; 
+  --chart-accent-hover: #0369a1;
+  --chart-glow: rgba(14, 116, 144, 0.15);
+  
+  --deck-input-bg: #f8fafc;
+  --deck-input-border: #cbd5e1;
+  --deck-input-focus: #ffffff;
+  
+  --font-core: #0f172a;
+  --font-sub: #475569;
+  --font-muted: #94a3b8;
+}
+
+/* 2. AFTERNOON SHIFT: Deep Amber Horizon & Dusk Teal */
+[data-theme="afternoon"] {
+  --hull-bg: #1e1b4b; /* Deep Indigo Dusk Sky */
+  --ocean-matrix: #0f172a;
+  --ocean-depth-glow: rgba(245, 158, 11, 0.05); /* Amber Refraction */
+  --panel-glass: rgba(30, 27, 75, 0.75);
+  --panel-border: rgba(245, 158, 11, 0.3); /* Amber Chart Framing */
+  
+  --chart-accent: #f59e0b; /* Navigational Amber */
+  --chart-accent-hover: #fbbf24;
+  --chart-glow: rgba(245, 158, 11, 0.25);
+  
+  --deck-input-bg: #11103b;
+  --deck-input-border: #312e81;
+  --deck-input-focus: #0c0a2e;
+  
+  --font-core: #f8fafc;
+  --font-sub: #cbd5e1;
+  --font-muted: #6366f1;
+}
+
+/* 3. NIGHT SHIFT: Deep Deep Oceanic Blue & Luminescent Aurora Aqua */
+[data-theme="night"] {
+  --hull-bg: #030712; /* Midnight Depths Base */
+  --ocean-matrix: #070f22; /* Pure Ocean Blue Underlayment */
+  --ocean-depth-glow: rgba(20, 184, 166, 0.06);
+  --panel-glass: rgba(7, 15, 34, 0.8);
+  --panel-border: rgba(20, 184, 166, 0.25); /* Aurora Aqua Glow */
+  
+  --chart-accent: #14b8a6; 
+  --chart-accent-hover: #2dd4bf;
+  --chart-glow: rgba(20, 184, 166, 0.3);
+  
+  --deck-input-bg: #040a17;
+  --deck-input-border: #1e293b;
+  --deck-input-focus: #01040a;
+  
+  --font-core: #f8fafc;
+  --font-sub: #94a3b8;
+  --font-muted: #475569;
+}

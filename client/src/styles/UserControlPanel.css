@@ -1,0 +1,27 @@
+/* client/src/styles/UserControlPanel.css */
+.user-panel-wrapper { display: flex; flex-direction: column; gap: 20px; }
+.panel-action-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--mac-border); padding-bottom: 14px; }
+.panel-action-header h2 { margin: 0; font-size: 20px; font-weight: 600; color: #111; }
+.panel-action-header p { margin: 4px 0 0 0; font-size: 12px; color: #666; }
+.mac-btn-primary { background: #007aff; color: white; border: none; padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+.mac-btn-primary:hover { background: #0063cc; }
+.mac-btn-secondary { background: rgba(0,0,0,0.06); color: #333; border: none; padding: 6px 14px; border-radius: 6px; font-size: 12px; cursor: pointer; }
+.mac-form-sheet { background: rgba(0,0,0,0.02); border: 1px solid var(--mac-border); padding: 16px; border-radius: 8px; display: flex; flex-direction: column; gap: 12px; }
+.form-grid-inputs { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+.form-grid-inputs input { padding: 8px; border: 1px solid var(--mac-border); border-radius: 5px; font-size: 12px; background: white; }
+.form-actions-row { display: flex; justify-content: flex-end; gap: 10px; margin-top: 6px; }
+.mac-table-container { border: 1px solid var(--mac-border); border-radius: 8px; overflow: hidden; background: white; }
+.mac-data-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
+.mac-data-table th { background: rgba(0,0,0,0.03); padding: 10px 14px; font-weight: 600; color: #555; font-size: 12px; border-bottom: 1px solid var(--mac-border); }
+.mac-data-table td { padding: 10px 14px; border-bottom: 1px solid rgba(0,0,0,0.05); color: #333; vertical-align: middle; }
+.table-role-badge { display: inline-flex; align-items: center; gap: 4px; background: rgba(0,122,255,0.1); color: #007aff; padding: 2px 6px; border-radius: 4px; font-size: 11px; }
+.status-pill { display: inline-block; padding: 2px 6px; border-radius: 10px; font-size: 11px; font-weight: 500; }
+.status-pill.active { background: #e3fbeb; color: #1db954; }
+.status-pill.inactive { background: #f5f5f7; color: #777; }
+.status-pill.blocked { background: #ffebeb; color: #ff3b30; }
+.actions-cell-buttons { display: flex; gap: 8px; }
+.action-inline-btn { background: none; border: none; cursor: pointer; padding: 2px; display: flex; align-items: center; }
+.text-warn { color: #ff9500; }
+.text-danger { color: #ff3b30; }
+.text-success { color: #34c759; }
+.text-muted { color: #aeaeae; }

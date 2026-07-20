@@ -1,0 +1,342 @@
+/* ==========================================================================
+   ENTERPRISE DESKTOP DASHBOARD AND GRID SYSTEM SPECIFICATIONS
+   ========================================================================== */
+.enterprise-module-viewport {
+  width: 100%;
+  min-height: 100vh;
+  background: #f1f5f9;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: #0f172a;
+}
+
+[data-theme='night'] .enterprise-module-viewport {
+  background: #090d16;
+  color: #f1f5f9;
+}
+
+/* Administrative Dynamic Menu Title Bar */
+.mac-menu-action-bar {
+  height: 52px;
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 0 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+}
+
+[data-theme='night'] .mac-menu-action-bar {
+  background: #111827;
+  border-color: #1f2937;
+}
+
+.action-bar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.action-bar-brand h1 {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.brand-icon-accent { color: #0284c7; }
+
+/* Global System Action Triggers Buttons */
+.action-btn-primary {
+  height: 32px;
+  padding: 0 14px;
+  background: #0284c7;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.action-btn-primary:hover { background: #0369a1; }
+
+.action-btn-secondary {
+  height: 32px;
+  padding: 0 14px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #334155;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+[data-theme='night'] .action-btn-secondary {
+  background: #1f2937;
+  border-color: #374151;
+  color: #cbd5e1;
+}
+
+/* Toolbar Controls Filters */
+.grid-filter-toolbar {
+  display: flex;
+  gap: 12px;
+  margin: 24px auto 16px auto;
+  max-width: 1100px;
+  padding: 0 20px;
+}
+
+.search-input-wrapper {
+  position: relative;
+  flex: 1;
+}
+
+.search-input-wrapper input {
+  width: 100%;
+  height: 34px;
+  padding-left: 36px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 13px;
+  outline: none;
+}
+[data-theme='night'] .search-input-wrapper input {
+  background: #111827;
+  border-color: #374151;
+  color: #e5e7eb;
+}
+
+.search-icon {
+  position: absolute;
+  left: 12px;
+  top: 10px;
+  color: #94a3b8;
+}
+
+.filter-select-group {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.filter-select-group select {
+  height: 34px;
+  padding: 0 12px 0 32px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 13px;
+  outline: none;
+}
+[data-theme='night'] .filter-select-group select {
+  background: #111827;
+  border-color: #374151;
+  color: #e5e7eb;
+}
+
+.filter-icon {
+  position: absolute;
+  left: 10px;
+  color: #94a3b8;
+  pointer-events: none;
+}
+
+/* Professional Corporate Directory Data Grid Table */
+.mac-table-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.mac-data-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.01), 0 2px 4px -1px rgba(0,0,0,0.01);
+}
+[data-theme='night'] .mac-data-table {
+  background: #111827;
+  border-color: #1f2937;
+}
+
+.mac-data-table th {
+  background: #f8fafc;
+  padding: 12px 16px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  border-bottom: 1px solid #e2e8f0;
+  text-align: left;
+}
+[data-theme='night'] .mac-data-table th {
+  background: #1f2937;
+  color: #9ca3af;
+  border-bottom-color: #374151;
+}
+
+.mac-data-table td {
+  padding: 14px 16px;
+  font-size: 13px;
+  border-bottom: 1px solid #f1f5f9;
+  color: #334155;
+}
+[data-theme='night'] .mac-data-table td {
+  border-bottom-color: #1f2937;
+  color: #d1d5db;
+}
+
+.mac-data-table tr:last-child td { border-bottom: none; }
+
+.font-monospace-bold { font-family: monospace; font-weight: 700; color: #0f172a; }
+[data-theme='night'] .font-monospace-bold { color: #ffffff; }
+
+/* Lifecycle Operational State Badges Indicators */
+.status-badge-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.status-badge-pill.active { background: #dcfce7; color: #15803d; }
+.status-badge-pill.suspended { background: #fef3c7; color: #b45309; }
+.status-badge-pill.terminated { background: #fee2e2; color: #b91c1c; }
+
+[data-theme='night'] .status-badge-pill.active { background: rgba(21, 128, 61, 0.2); color: #4ade80; }
+[data-theme='night'] .status-badge-pill.suspended { background: rgba(180, 83, 9, 0.2); color: #fbbf24; }
+[data-theme='night'] .status-badge-pill.terminated { background: rgba(185, 28, 28, 0.2); color: #f87171; }
+
+.row-state-dimmed td { opacity: 0.6; }
+
+/* Control Button Interaction Clusters */
+.table-action-button-group {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.icon-btn-edit, .icon-btn-toggle {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  transition: background 0.1s;
+}
+
+.icon-btn-edit { color: #64748b; }
+.icon-btn-edit:hover { background: #f1f5f9; color: #0284c7; }
+[data-theme='night'] .icon-btn-edit:hover { background: #1f2937; }
+
+.icon-btn-toggle.active { color: #16a34a; }
+.icon-btn-toggle.inactive { color: #94a3b8; }
+
+/* Messaging Alert Banners Toast Layout Engine */
+.global-toast-banner {
+  position: fixed;
+  top: 68px;
+  right: 24px;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #ffffff;
+  box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+  animation: slideInLeftToast 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.global-toast-banner.success { background: #10b981; }
+.global-toast-banner.error { background: #ef4444; }
+
+@keyframes slideInLeftToast {
+  from { transform: translateX(120%); }
+  to { transform: translateX(0); }
+}
+
+.grid-loading-backdrop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 0;
+  gap: 12px;
+  color: #64748b;
+}
+
+.empty-grid-placeholder {
+  text-align: center;
+  padding: 40px 0 !important;
+  color: #94a3b8;
+  font-style: italic;
+}
+
+
+
+
+
+
+/* Container Viewport Rules matching your UI Layout */
+.employee-viewport-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+  box-sizing: border-box;
+}
+
+/* Scroll Container Engine Rule */
+.employee-scrollable-canvas {
+  flex: 1;
+  width: 100%;
+  overflow-y: auto;          /* Enables clean vertical scrolling */
+  overflow-x: hidden;
+  padding: 16px 20px 100px;  /* 100px bottom padding keeps content clear of the Dock */
+  box-sizing: border-box;
+  scroll-behavior: smooth;
+}
+
+/* Dynamic Wrapper Layout Fixes for Form Fields */
+.form-canvas-container {
+  width: 100%;
+  display: block;
+  box-sizing: border-box;
+}
+
+/* Ensure buttons stand out and remain clickable above layout boundaries */
+.form-canvas-container .form-actions-row,
+.employee-scrollable-canvas button[type="submit"] {
+  position: relative;
+  z-index: 10;
+  margin-top: 24px;
+  margin-bottom: 20px;
+}
+
+
+
+
+
+

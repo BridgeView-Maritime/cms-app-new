@@ -1,0 +1,287 @@
+/* ==========================================================================
+   DASHBOARD CORE (Viewport Shell & Standalone Scroll Containers)
+   ========================================================================== */
+
+/* 1. FORCE PARENT OVERRIDES */
+#root, 
+body, 
+html,
+div:has(> .mac-desktop-environment) {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100vw !important;
+  max-width: 100vw !important;
+  min-width: 100vw !important;
+  height: 100vh !important;
+  max-height: 100vh !important;
+  min-height: 100vh !important;
+  overflow: hidden !important;
+  display: block !important;
+}
+
+/* 2. DESIGN THEMES CONFIGURATIONS */
+:root {
+  --mac-statusbar-bg: #ffffff;
+  --mac-statusbar-text: #0f172a;
+  --mac-window-bg: #ffffff;
+  --mac-sidebar-bg: #f1f5f9;
+  --mac-viewport-bg: #ffffff;
+  --mac-text-main: #0f172a;
+  --mac-text-muted: #64748b;
+  --mac-border-color: #e2e8f0;
+  --mac-dock-bg: rgba(255, 255, 255, 0.85);
+  --mac-selection-bg: rgba(14, 165, 233, 0.1);
+  --mac-selection-text: #0284c7;
+}
+
+[data-theme='night'] {
+  --mac-statusbar-bg: #0f172a;
+  --mac-statusbar-text: #f8fafc;
+  --mac-window-bg: #0f172a;
+  --mac-sidebar-bg: #1e293b;
+  --mac-viewport-bg: #0f172a;
+  --mac-text-main: #f8fafc;
+  --mac-text-muted: #94a3b8;
+  --mac-border-color: #334155;
+  --mac-dock-bg: rgba(15, 23, 42, 0.85);
+  --mac-selection-bg: rgba(56, 189, 248, 0.15);
+  --mac-selection-text: #38bdf8;
+}
+
+/* 3. DESKTOP SYSTEM BOUNDARIES */
+.mac-desktop-environment {
+  width: 100vw !important;
+  height: 100vh !important;
+  max-width: 100vw !important;
+  max-height: 100vh !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+  background: var(--mac-viewport-bg);
+  box-sizing: border-box !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.mac-main-app-window {
+  flex: 1 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  display: flex !important;
+  flex-direction: row !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+  background: var(--mac-window-bg);
+}
+
+.mac-window-viewport {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: var(--mac-viewport-bg);
+  overflow: hidden !important;
+  box-sizing: border-box;
+}
+
+/* 4. INNER ACTION HEADERS & BREADCRUMBS */
+.viewport-inner-navbar {
+  height: 48px;
+  border-bottom: 1px solid var(--mac-border-color);
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+}
+
+.sidebar-expand-hamburger {
+  cursor: pointer;
+  margin-right: 12px;
+  color: var(--mac-text-main);
+}
+
+.viewport-breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+.text-muted-icon, .path-node { color: var(--mac-text-muted); }
+.path-div { color: var(--mac-border-color); margin: 0 2px; }
+.path-node-current { font-weight: 500; }
+
+/* 5. INTERNAL MAIN SCROLL CANVAS ENGINE */
+.viewport-content-container {
+  flex: 1;
+  padding: 24px;
+  overflow-y: auto; /* Activates internal scroll tracks isolated away from outer nodes */
+  overflow-x: hidden;
+  padding-bottom: 120px; /* Forces clear view past the floating desktop dock */
+  box-sizing: border-box;
+}
+
+/* 6. GLASS TELEMETRY BASEPLATES */
+.mac-stage-glass-plate {
+  border: 1px dashed var(--mac-border-color);
+  border-radius: 8px;
+  padding: 48px;
+  text-align: center;
+  max-width: 600px;
+  margin: 60px auto;
+}
+
+.slate-icon-wrapper { color: var(--mac-text-muted); margin-bottom: 16px; display: flex; justify-content: center; }
+.mac-stage-glass-plate h2 { font-size: 18px; font-weight: 600; margin-bottom: 8px; color: var(--mac-text-main); }
+.mac-stage-glass-plate p { font-size: 13px; color: var(--mac-text-muted); line-height: 1.5; }
+.highlight-text { color: var(--mac-selection-text); text-transform: capitalize; }
+
+/* 7. LOADING CANVAS PRELOADERS */
+.mac-loader-canvas {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f5f5f7;
+}
+
+.hud-spinner-element {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #e5e5ea;
+  border-top-color: #0071e3;
+  border-radius: 50%;
+  animation: macSpinnerOrbit 0.8s linear infinite;
+}
+
+@keyframes macSpinnerOrbit {
+  to { transform: rotate(360deg); }
+}
+
+.mac-desktop-environment.is-fullscreen .viewport-content-container {
+  padding-bottom: 40px; 
+}
+
+/* client/src/styles/Dashboard.css */
+:root {
+  --mac-blur-bg: rgba(230, 230, 230, 0.65);
+  --mac-border: rgba(0, 0, 0, 0.12);
+  --mac-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+  --mac-system-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+body {
+  margin: 0;
+  font-family: var(--mac-system-font);
+  background: radial-gradient(circle, #52637a 0%, #1e2630 100%);
+  overflow: hidden;
+  height: 100vh;
+}
+
+.mac-os-canvas-frame {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  position: relative;
+}
+
+.mac-workspace-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  padding-bottom: 75px; /* Leaves clear space for macOS Dock */
+}
+
+.mac-viewport-scroll-bed {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.mac-window-sheet-paper {
+  width: 100%;
+  max-width: 1400px;
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid var(--mac-border);
+  border-radius: 12px;
+  box-shadow: var(--mac-shadow);
+  backdrop-filter: blur(20px);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  min-height: 80vh;
+}
+
+
+
+
+
+/* Native Application Toast Engine styling */
+.native-system-toast {
+  position: fixed;
+  top: 40px;
+  right: 20px;
+  width: 340px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  z-index: 10000;
+  padding: 14px;
+  animation: toastFlyIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes toastFlyIn {
+  from { opacity: 0; transform: translateY(-20px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.toast-content-layout {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  position: relative;
+}
+
+.toast-text-block {
+  flex: 1;
+}
+
+.toast-text-block h5 {
+  margin: 0 0 4px 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.toast-text-block p {
+  margin: 0;
+  font-size: 12px;
+  color: #4b5563;
+  line-height: 1.4;
+}
+
+.toast-close-action {
+  background: none;
+  border: none;
+  color: #9ca3af;
+  cursor: pointer;
+  padding: 2px;
+  border-radius: 4px;
+  margin-top: -2px;
+}
+
+.toast-close-action:hover {
+  background-color: #f3f4f6;
+  color: #1f2937;
+}
+
+/* Variant Border Colors mapping risk categories */
+.toast-risk-critical { border-left: 4px solid #ef4444; }
+.toast-risk-high { border-left: 4px solid #f97316; }
+.toast-risk-medium { border-left: 4px solid #eab308; }
+
+.toast-risk-critical .toast-vector { color: #ef4444; }
+.toast-risk-high .toast-vector { color: #f97316; }

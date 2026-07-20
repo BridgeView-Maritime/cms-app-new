@@ -1,0 +1,174 @@
+/* Form Canvas Wrapper */
+.mac-form-wrapper-canvas {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  background-color: #ffffff;
+}
+
+/* Window Panel Shell */
+.mac-form-window-frame {
+  width: 100%;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  overflow: hidden;
+}
+
+/* Header Decorator Dots Bar */
+.mac-form-header {
+  background: #f8fafc;
+  padding: 12px 16px;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.window-dots-row {
+  display: flex;
+  gap: 6px;
+  position: absolute;
+  left: 16px;
+}
+
+.window-dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.dot-close { background-color: #ff5f56; }
+.dot-minimize { background-color: #ffbd2e; }
+.dot-maximize { background-color: #27c93f; }
+
+.window-title-text {
+  width: 100%;
+  text-align: center;
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+}
+
+/* Structural Section Headers */
+.section-pane-heading {
+  font-size: 12px;
+  text-transform: uppercase;
+  color: #475569;
+  letter-spacing: 0.05em;
+  margin: 0 0 15px 0;
+  display: flex;
+  align-items: center;
+  font-weight: 700;
+}
+
+.flex-split {
+  display: flex;
+  justify-content: space-between;
+}
+
+/* Grids & Control Blocks */
+.mac-form-grid-2x {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.mac-form-grid-3x {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.form-control-block {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-control-block label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #334155;
+}
+
+.form-control-block input[type="text"],
+.form-control-block input[type="email"],
+.form-control-block select {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 13px;
+  background-color: #ffffff;
+  color: #1e293b;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.15s ease;
+}
+
+.form-control-block input:focus,
+.form-control-block select:focus {
+  border-color: #3b82f6;
+}
+
+.req {
+  color: #ef4444;
+}
+
+/* Dynamic Row Repeat Cards */
+.mac-form-array-card {
+  transition: all 0.2s ease;
+}
+.mac-form-array-card:hover {
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+/* Shared Custom Buttons styling */
+.mac-btn-action {
+  background-color: #ffffff;
+  color: #334155;
+  border: 1px solid #cbd5e1;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.15s ease;
+}
+
+.mac-btn-action:hover {
+  background-color: #f8fafc;
+  border-color: #94a3b8;
+}
+
+.mac-btn-action.primary {
+  background-color: #2563eb;
+  color: #ffffff;
+  border: 1px solid #1d4ed8;
+}
+
+.mac-btn-action.primary:hover {
+  background-color: #1d4ed8;
+}
+
+.mac-btn-action:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Custom Scrollbars */
+.form-scroll-viewport::-webkit-scrollbar {
+  width: 6px;
+}
+.form-scroll-viewport::-webkit-scrollbar-track {
+  background: transparent;
+}
+.form-scroll-viewport::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}

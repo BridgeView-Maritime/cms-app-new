@@ -1,0 +1,70 @@
+/* client\src\styles\EmployeeDirectory.css */
+.directory-canvas { display: flex; flex-direction: column; gap: 20px; }
+.directory-header-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(0,0,0,0.08); padding-bottom: 14px; }
+.directory-header-row h2 { margin: 0; font-size: 20px; font-weight: 600; color: #111; }
+.directory-header-row p { margin: 4px 0 0 0; font-size: 12px; color: #666; }
+.mac-action-btn-blue { background: #007aff; color: white; border: none; padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+.mac-action-btn-blue:hover { background: #0063cc; }
+.directory-toolbar { display: flex; gap: 12px; width: 100%; }
+.search-input-wrapper { position: relative; flex: 1; }
+.search-icon-inside { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #888; }
+.search-input-wrapper input { width: 100%; box-sizing: border-box; padding: 8px 8px 8px 32px; border: 1px solid rgba(0,0,0,0.12); border-radius: 6px; font-size: 12px; background: rgba(0,0,0,0.02); }
+.search-input-wrapper input:focus { background: white; outline: 1px solid #007aff; border-color: transparent; }
+.mac-btn-outline-secondary { background: white; border: 1px solid rgba(0,0,0,0.15); border-radius: 6px; font-size: 12px; color: #444; padding: 0 12px; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+.directory-table-frame { border: 1px solid rgba(0,0,0,0.08); border-radius: 8px; overflow: hidden; background: white; }
+.directory-data-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
+.directory-data-table th { background: rgba(0,0,0,0.02); padding: 10px 14px; font-weight: 600; color: #555; border-bottom: 1px solid rgba(0,0,0,0.08); font-size: 12px; }
+.directory-data-table td { padding: 12px 14px; border-bottom: 1px solid rgba(0,0,0,0.04); color: #333; }
+.emp-code-id { color: #555; background: rgba(0,0,0,0.04); padding: 2px 4px; border-radius: 4px; font-size: 11px; }
+.emp-name-cell { font-weight: 500; color: #111; }
+.deployment-pill { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 500; }
+.deployment-pill.status-green { background: #e3fbeb; color: #1db954; }
+.deployment-pill.status-gray { background: #f5f5f7; color: #666; }
+.action-button-group-cell { display: flex; gap: 6px; }
+.icon-action-trigger { background: none; border: none; padding: 4px; border-radius: 4px; color: #666; cursor: pointer; }
+.icon-action-trigger:hover { background: rgba(0,0,0,0.05); color: #111; }
+
+
+/* client\src\styles\EmployeeDirectory.css */
+.directory-canvas { display: flex; flex-direction: column; gap: 20px; width: 100%; }
+.directory-header-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(0,0,0,0.08); padding-bottom: 14px; }
+.directory-header-row h2 { margin: 0; font-size: 20px; font-weight: 600; color: #111; }
+.directory-header-row p { margin: 4px 0 0 0; font-size: 12px; color: #666; }
+
+.mac-action-btn-blue { background: #007aff; color: white; border: none; padding: 7px 14px; border-radius: 6px; font-size: 12px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: background 0.15s ease; }
+.mac-action-btn-blue:hover { background: #0063cc; }
+
+.directory-toolbar { display: flex; gap: 12px; width: 100%; align-items: center; }
+.search-input-wrapper { position: relative; flex: 1; }
+.search-icon-inside { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #888; }
+.search-input-wrapper input { width: 100%; box-sizing: border-box; padding: 8px 8px 8px 32px; border: 1px solid rgba(0,0,0,0.12); border-radius: 6px; font-size: 12px; background: rgba(0,0,0,0.03); transition: all 0.2s; }
+.search-input-wrapper input:focus { background: white; outline: 1px solid #007aff; border-color: transparent; box-shadow: 0 0 0 3px rgba(0,122,255,0.15); }
+
+.filter-select-wrapper { position: relative; display: flex; align-items: center; background: white; border: 1px solid rgba(0,0,0,0.15); border-radius: 6px; padding: 0 8px 0 28px; }
+.filter-select-icon { position: absolute; left: 10px; color: #555; pointer-events: none; }
+.filter-select-wrapper select { border: none; background: transparent; height: 32px; font-size: 12px; color: #333; outline: none; cursor: pointer; padding-right: 8px; }
+
+.directory-table-frame { border: 1px solid rgba(0,0,0,0.08); border-radius: 8px; overflow: hidden; background: white; position: relative; min-height: 200px; }
+.directory-data-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
+.directory-data-table th { background: rgba(0,0,0,0.02); padding: 10px 14px; font-weight: 600; color: #555; border-bottom: 1px solid rgba(0,0,0,0.08); font-size: 12px; }
+.directory-data-table td { padding: 12px 14px; border-bottom: 1px solid rgba(0,0,0,0.04); color: #333; }
+
+.row-state-dimmed td { opacity: 0.65; }
+.emp-code-id { color: #444; background: rgba(0,0,0,0.05); padding: 2px 5px; border-radius: 4px; font-size: 11px; font-family: monospace; font-weight: bold; }
+.emp-name-cell { font-weight: 500; color: #111; }
+
+.deployment-pill { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 500; }
+.deployment-pill.status-green { background: #e3fbeb; color: #1db954; }
+.deployment-pill.status-gray { background: #f5f5f7; color: #777; }
+
+.action-button-group-cell { display: flex; gap: 8px; align-items: center; }
+.icon-action-trigger { background: none; border: none; padding: 4px; border-radius: 4px; color: #555; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.15s; }
+.icon-action-trigger:hover { background: rgba(0,0,0,0.06); color: #111; }
+.toggle-action-btn.active { color: #34c759; }
+.toggle-action-btn.inactive { color: #aeaeae; }
+
+.grid-loading-backdrop { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; gap: 10px; color: #666; font-size: 13px; }
+.animate-spin { animation: spin 1s linear infinite; color: #007aff; }
+.empty-grid-placeholder { text-align: center; color: #888; padding: 30px !important; font-style: italic; }
+
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }

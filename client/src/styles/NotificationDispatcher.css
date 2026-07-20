@@ -1,0 +1,370 @@
+/* client/src/styles/NotificationDispatcher.css */
+
+:root {
+  --nd-primary: #2563eb;
+  --nd-primary-hover: #1d4ed8;
+  --nd-primary-light: #eff6ff;
+  --nd-text-main: #1f2937;
+  --nd-text-muted: #4b5563;
+  --nd-text-light: #9ca3af;
+  --nd-bg-card: #ffffff;
+  --nd-bg-input: #f9fafb;
+  --nd-border-color: #d1d5db;
+  --nd-border-focus: #3b82f6;
+  --nd-success-bg: #ecfdf5;
+  --nd-success-text: #065f46;
+  --nd-error-bg: #fef2f2;
+  --nd-error-text: #991b1b;
+  --nd-radius: 8px;
+  --nd-radius-sm: 6px;
+  --nd-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  --nd-transition: all 0.2s ease-in-out;
+}
+
+/* 
+   PR-FIX: Constrained container layout with structural overflow bounds 
+   Prevents the component form elements from spilling outside the .mac-window-sheet-paper wrapper card.
+*/
+.nd-container {
+  width: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 32px;
+  background: var(--nd-bg-card);
+  border-radius: var(--nd-radius);
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  overflow: hidden; /* Lock the root component view boundaries */
+}
+
+.nd-header {
+  flex-shrink: 0; /* Keep header stationary */
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--nd-text-main);
+  margin: 0 0 24px 0;
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+
+/* 
+   PR-FIX: Added scrolling wrapper around form to house content seamlessly 
+   if viewport heights drop or fields extend.
+*/
+.nd-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+  overflow-y: auto; /* Enable vertical scroll internally inside the card */
+  padding-right: 8px; /* Offset space for scrollbar layout track */
+  box-sizing: border-box;
+}
+
+/* Custom Scrollbar configuration for cleaner modern appearance */
+.nd-form::-webkit-scrollbar,
+.nd-user-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.nd-form::-webkit-scrollbar-track,
+.nd-user-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.nd-form::-webkit-scrollbar-thumb,
+.nd-user-list::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+.nd-form::-webkit-scrollbar-thumb:hover,
+.nd-user-list::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+.nd-alert {
+  flex-shrink: 0;
+  padding: 12px 16px;
+  border-radius: var(--nd-radius-sm);
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.nd-alert-success {
+  background: var(--nd-success-bg);
+  color: var(--nd-success-text);
+  border: 1px solid #a7f3d0;
+}
+
+.nd-alert-error {
+  background: var(--nd-error-bg);
+  color: var(--nd-error-text);
+  border: 1px solid #fecaca;
+}
+
+.nd-form-group {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.nd-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 550;
+  margin-bottom: 8px;
+  font-size: 13px;
+  color: var(--nd-text-muted);
+}
+
+.nd-input,
+.nd-textarea {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--nd-border-color);
+  border-radius: var(--nd-radius-sm);
+  box-sizing: border-box;
+  font-size: 14px;
+  color: var(--nd-text-main);
+  background: #ffffff;
+  transition: var(--nd-transition);
+}
+
+.nd-input:focus,
+.nd-textarea:focus {
+  outline: none;
+  border-color: var(--nd-border-focus);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.nd-textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.nd-user-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  width: 100%;
+}
+
+.nd-link-btn {
+  background: none;
+  border: none;
+  color: var(--nd-primary);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  transition: var(--nd-transition);
+}
+
+.nd-link-btn:hover {
+  color: var(--nd-primary-hover);
+  text-decoration: underline;
+}
+
+.nd-user-list {
+  max-height: 140px;
+  overflow-y: auto;
+  border: 1px solid var(--nd-border-color);
+  border-radius: var(--nd-radius-sm);
+  padding: 6px;
+  background: var(--nd-bg-input);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.nd-empty-text {
+  display: block;
+  padding: 16px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--nd-text-light);
+}
+
+.nd-user-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  cursor: pointer;
+  font-size: 13.5px;
+  color: var(--nd-text-main);
+  border-radius: 4px;
+  transition: var(--nd-transition);
+}
+
+.nd-user-checkbox:hover {
+  background: #f3f4f6;
+}
+
+.nd-user-checkbox input[type="checkbox"] {
+  cursor: pointer;
+}
+
+.nd-email-text {
+  color: var(--nd-text-light);
+  font-size: 11.5px;
+  margin-left: 4px;
+}
+
+.nd-dropzone {
+  border: 2px dashed var(--nd-border-color);
+  border-radius: var(--nd-radius-sm);
+  padding: 24px 20px;
+  text-align: center;
+  cursor: pointer;
+  background: var(--nd-bg-input);
+  transition: var(--nd-transition);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.nd-dropzone:hover {
+  border-color: var(--nd-border-focus);
+  background: #f8fafc;
+}
+
+.nd-dropzone.dragging {
+  border-color: var(--nd-primary);
+  background: var(--nd-primary-light);
+}
+
+.nd-dropzone-icon {
+  color: var(--nd-text-light);
+  transition: var(--nd-transition);
+}
+
+.nd-dropzone:hover .nd-dropzone-icon {
+  color: var(--nd-primary);
+}
+
+.nd-dropzone-text {
+  margin: 0;
+  font-size: 13px;
+  color: var(--nd-text-muted);
+}
+
+.nd-browse-text {
+  color: var(--nd-primary);
+  font-weight: 600;
+}
+
+.nd-staged-container {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.nd-staged-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--nd-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.nd-file-pills {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.nd-file-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  color: var(--nd-text-main);
+  transition: var(--nd-transition);
+}
+
+.nd-file-pill:hover {
+  background: #e5e7eb;
+}
+
+.nd-remove-file-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  color: #9ca3af;
+  transition: var(--nd-transition);
+}
+
+.nd-remove-file-btn:hover {
+  color: #ef4444;
+}
+
+.nd-email-toggle-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 550;
+  color: var(--nd-text-muted);
+  margin-top: 4px;
+  align-self: flex-start;
+}
+
+.nd-submit-btn {
+  flex-shrink: 0; /* Ensures button isn't squished by parent display adjustments */
+  padding: 12px 24px;
+  color: #ffffff;
+  border: none;
+  border-radius: var(--nd-radius-sm);
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 12px;
+  transition: var(--nd-transition);
+  box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+  width: 100%;
+}
+
+.nd-submit-btn:not(:disabled) {
+  background: var(--nd-primary);
+  cursor: pointer;
+}
+
+.nd-submit-btn:not(:disabled):hover {
+  background: var(--nd-primary-hover);
+  box-shadow: 0 4px 6px rgba(37, 99, 235, 0.3);
+}
+
+.nd-submit-btn:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+  box-shadow: none;
+}
