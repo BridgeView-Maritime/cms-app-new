@@ -107,8 +107,8 @@ async function seedHRMSDynamicSystem() {
     const menuItems = [
       { menu_name: 'Dashboard Grid Overview', menu_icon: 'Layers', route: '/dashboard', sort_order: 1 },
       { menu_name: 'Dynamic Meta-Field Configurator', menu_icon: 'Settings', route: '/dashboard/meta-config', sort_order: 2 },
-      { menu_name: 'Broadcast Center Form', menu_icon: 'Send', route: '/dashboard/broadcast', sort_order: 3 },
-      { menu_name: 'My Advisory History', menu_icon: 'History', route: '/dashboard/my-history', sort_order: 4 }
+      { menu_name: 'Notification Center Form', menu_icon: 'Send', route: '/dashboard/broadcast', sort_order: 3 },
+      { menu_name: 'My Notification History', menu_icon: 'History', route: '/dashboard/my-history', sort_order: 4 }
     ];
 
     const seededMenuIds = [];
