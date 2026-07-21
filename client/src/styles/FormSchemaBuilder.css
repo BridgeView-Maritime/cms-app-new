@@ -1,0 +1,364 @@
+/* client/src/styles/FormSchemaBuilder.css */
+
+/* Layout Shell Container Override */
+.mac-form-window-frame.schema-builder-frame {
+  max-width: 1150px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* Header Adjustments */
+.mac-form-header.schema-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.schema-header-left,
+.schema-header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.schema-selector-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #f1f5f9;
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.schema-selector-dropdown {
+  background: transparent;
+  border: none;
+  font-size: 12px;
+  font-weight: 600;
+  color: #334155;
+  cursor: pointer;
+  outline: none;
+  max-width: 260px;
+  width: 100%;
+}
+
+/* Main Form Content Container */
+.mac-form-content-view {
+  padding: 25px;
+  box-sizing: border-box;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+/* Dynamic Sections Box Container */
+.dynamic-sections-container {
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  padding: 16px;
+  border-radius: 6px;
+  margin-bottom: 25px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.dynamic-sections-heading {
+  margin: 0 0 10px 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #334155;
+  font-weight: 700;
+}
+
+/* Dynamic Sections Creator Row */
+.section-creator-row {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  gap: 16px;
+  width: 100%;
+  margin-top: 16px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  box-sizing: border-box;
+}
+
+.section-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 2;
+  min-width: 220px;
+  box-sizing: border-box;
+}
+
+.section-label-text {
+  font-size: 12px;
+  font-weight: 500;
+  display: block;
+  color: #475569;
+}
+
+.section-input-field {
+  height: 110px;
+  width: 100%;
+  font-size: 13px;
+  color: #1e293b;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 0 12px;
+  box-sizing: border-box;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.section-input-field:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.section-input-field:disabled {
+  background-color: #f1f5f9;
+  cursor: not-allowed;
+}
+
+/* Icon Selector Grid Container */
+.section-icon-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 3;
+  min-width: 280px;
+  box-sizing: border-box;
+}
+
+.section-icon-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(36px, 1fr));
+  gap: 6px;
+  padding: 8px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: #f8fafc;
+  height: 110px;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
+.icon-select-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  outline: none;
+  height: 32px;
+  width: 32px;
+}
+
+.icon-select-btn:hover:not(:disabled) {
+  border-color: #cbd5e1;
+  background: #f1f5f9;
+}
+
+.icon-select-btn.selected {
+  border: 2px solid #2563eb;
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.icon-select-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Section Creator CTA Container */
+.section-button-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  justify-content: flex-end;
+  width: 100%;
+}
+
+.section-selected-tag {
+  font-size: 11px;
+  color: #64748b;
+  height: 14px;
+  display: block;
+}
+
+.btn-save-section {
+  height: 42px;
+  padding: 0 24px;
+  font-weight: 600;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+/* Dynamic Section Badges List */
+.sections-chips-wrap {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.section-badge-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  background-color: #eff6ff;
+  color: #1e40af;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid #bfdbfe;
+  transition: all 0.15s ease;
+  max-width: 100%;
+  box-sizing: border-box;
+  word-break: break-word;
+}
+
+.section-badge-chip.inactive {
+  background-color: #fef2f2;
+  color: #991b1b;
+  border-color: #fee2e2;
+  opacity: 0.65;
+}
+
+.section-chip-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border-left: 1px solid #cbd5e1;
+  padding-left: 6px;
+  margin-left: 2px;
+  flex-shrink: 0;
+}
+
+.chip-action-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Scroll Viewport Container */
+.form-scroll-viewport {
+  max-height: 600px;
+  overflow-y: auto;
+  padding-right: 5px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Footer Section */
+.mac-form-footer-action-row {
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.status-message {
+  font-size: 13px;
+}
+.status-message.success { color: #16a34a; }
+.status-message.error { color: #dc2626; }
+
+/* -------------------------------------------------------------------------- */
+/* Responsive Adaptation                                                      */
+/* -------------------------------------------------------------------------- */
+
+@media screen and (max-width: 768px) {
+  .mac-form-content-view {
+    padding: 12px;
+  }
+
+  .dynamic-sections-container {
+    padding: 12px;
+  }
+
+  .mac-form-header.schema-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .schema-header-left,
+  .schema-header-right {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .schema-header-right {
+    justify-content: space-between;
+  }
+
+  .section-creator-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .section-input-group,
+  .section-icon-group {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .btn-save-section {
+    width: 100%;
+  }
+
+  /* Responsive Section Badge Chips Layout */
+  .sections-chips-wrap {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .section-badge-chip {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .mac-form-footer-action-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .mac-form-footer-action-row button[type="submit"] {
+    width: 100%;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .section-icon-grid {
+    grid-template-columns: repeat(auto-fill, minmax(32px, 1fr));
+  }
+
+  .section-badge-chip {
+    font-size: 11px;
+    padding: 8px 10px;
+  }
+}

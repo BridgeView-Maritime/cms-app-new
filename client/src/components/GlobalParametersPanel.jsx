@@ -1,5 +1,6 @@
 import React from 'react';
 import { LayoutGrid, Briefcase, User, Shield, Settings, Folder, Database, FileText, Layers, Link2 } from 'lucide-react';
+import '../styles/GlobalParametersPanel.css';
 
 const MASTER_ICON_OPTIONS = [
   { value: 'Briefcase', label: 'Briefcase / HR Management', icon: Briefcase },
@@ -32,11 +33,11 @@ export default function GlobalParametersPanel({
   };
 
   return (
-    <div className="mac-form-grid-4x" style={{ marginBottom: '25px', gap: '15px' }}>
+    <div className="mac-form-grid-4x global-parameters-panel">
       
       {/* 1. Target Nav Bind Selector Block */}
       <div className="form-control-block">
-        <label style={{ display: 'flex', alignItems: 'center', gap: '4px', fontWeight: '600' }}>
+        <label className="param-label-flex">
           <Link2 size={13} /> Target Active App Menu Link
         </label>
         <select
@@ -76,7 +77,7 @@ export default function GlobalParametersPanel({
           value={formCode} 
           disabled 
           placeholder="Select a menu to generate code"
-          style={{ backgroundColor: '#f1f5f9', color: '#64748b', fontWeight: '700', cursor: 'not-allowed' }} 
+          className="param-input-disabled" 
         />
       </div>
 
@@ -92,14 +93,14 @@ export default function GlobalParametersPanel({
       </div>
 
       {/* 4. Display Configuration Split Options Matrix */}
-      <div className="form-control-block" style={{ borderLeft: '2px dashed #3b82f6', paddingLeft: '10px' }}>
-        <label style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#1e3a8a', fontWeight: 'bold' }}>
+      <div className="form-control-block param-mode-block">
+        <label className="param-mode-label">
           <LayoutGrid size={13} /> View Runtime Engine Mode
         </label>
         <select 
           value={targetLayoutMode} 
           onChange={(e) => setTargetLayoutMode(e.target.value)}
-          style={{ backgroundColor: '#eff6ff', borderColor: '#93c5fd', fontWeight: '600', color: '#1e40af' }}
+          className="param-mode-select"
         >
           <option value="LISTING_AND_FORM">LISTING_AND_FORM (Ledger Table & Editor Split)</option>
           <option value="FORM_ONLY">FORM_ONLY (Direct Input Form Wizard Matrix)</option>

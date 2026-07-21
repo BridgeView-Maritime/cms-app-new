@@ -1,0 +1,234 @@
+/* client/src/styles/FieldControlCard.css */
+
+/* Main Card Shell */
+.field-control-card {
+  padding: 18px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e2e8f0;
+  box-sizing: border-box;
+  transition: all 0.2s ease-in-out;
+}
+
+.field-control-card.active-node {
+  background-color: #ffffff;
+  border-left: 4px solid #3b82f6;
+}
+
+.field-control-card.soft-deleted-node {
+  background-color: #fef2f2;
+  border-left: 4px solid #ef4444;
+}
+
+/* Header Action Row */
+.field-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  border-bottom: 1px dashed #e2e8f0;
+  padding-bottom: 8px;
+  gap: 10px;
+}
+
+.field-card-title {
+  font-weight: 600;
+  color: #1e293b;
+  font-size: 14px;
+}
+
+.field-card-actions {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.field-action-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0;
+}
+
+.field-action-btn.delete-btn {
+  color: #ef4444;
+}
+
+.field-action-text {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Base Field Controls Grid */
+.field-controls-grid {
+  gap: 12px;
+}
+
+/* Sub-panels (Options, Lookup, Validations, Roles) */
+.field-subpanel {
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+.field-subpanel.options-panel {
+  background-color: #eff6ff;
+  border: 1px solid #bfdbfe;
+}
+
+.field-subpanel.lookup-panel {
+  background-color: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  gap: 12px;
+}
+
+.field-subpanel.validations-panel {
+  margin-top: 14px;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+/* Subpanel Labels & Input Overrides */
+.field-subpanel-label {
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.options-panel .field-subpanel-label {
+  color: #1e40af;
+}
+
+.lookup-panel .field-subpanel-label {
+  color: #166534;
+}
+
+.validations-panel .field-subpanel-label {
+  color: #64748b;
+  margin-bottom: 8px;
+}
+
+.options-panel input {
+  border-color: #60a5fa;
+  background-color: #ffffff;
+}
+
+.lookup-panel select {
+  border-color: #86efac;
+  background-color: #ffffff;
+}
+
+/* Validations Internal Layouts */
+.validations-grid-3x {
+  gap: 10px;
+}
+
+.validations-checkbox-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.validations-checkbox-label {
+  margin: 0;
+  font-weight: 500;
+  font-size: 12px;
+}
+
+.validations-small-label {
+  font-size: 11px;
+}
+
+.validations-regex-grid {
+  gap: 10px;
+  margin-top: 10px;
+  border-top: 1px dashed #e2e8f0;
+  padding-top: 8px;
+}
+
+.regex-input-code {
+  font-family: monospace;
+}
+
+/* Roles Access Section */
+.field-roles-panel {
+  margin-top: 12px;
+  font-size: 12px;
+}
+
+.field-roles-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #475569;
+  font-weight: 700;
+}
+
+.field-roles-list {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+
+.field-role-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: normal;
+  cursor: pointer;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Responsive Breakpoints                                                    */
+/* -------------------------------------------------------------------------- */
+
+/* Tablet Viewports (1024px and below) */
+@media screen and (max-width: 1024px) {
+  .field-controls-grid.mac-form-grid-4x {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Mobile Viewports (768px and below) */
+@media screen and (max-width: 768px) {
+  .field-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .field-card-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .field-controls-grid.mac-form-grid-4x,
+  .lookup-panel.mac-form-grid-2x,
+  .validations-grid-3x.mac-form-grid-3x,
+  .validations-regex-grid.mac-form-grid-2x {
+    grid-template-columns: 1fr;
+  }
+
+  .field-roles-list {
+    gap: 10px 12px;
+  }
+}
+
+/* Extra Small Mobile Viewports (480px and below) */
+@media screen and (max-width: 480px) {
+  .field-control-card {
+    padding: 12px;
+  }
+
+  .field-subpanel {
+    padding: 10px;
+  }
+}

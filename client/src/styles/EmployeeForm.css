@@ -1,11 +1,12 @@
 /* ==========================================================================
-   ENTERPRISE DESKTOP FORM STYLING PARADIGM SPECIFICATION
+   ENTERPRISE DESKTOP & MOBILE FORM STYLING PARADIGM SPECIFICATION
    ========================================================================== */
 .mac-form-wrapper-canvas {
   width: 100%;
   max-width: 1100px;
   margin: 20px auto;
   padding: 0 20px;
+  box-sizing: border-box;
 }
 
 .mac-form-window-frame {
@@ -33,6 +34,7 @@
   align-items: center;
   padding: 0 16px;
   position: relative;
+  box-sizing: border-box;
 }
 
 .window-dots-row {
@@ -57,7 +59,8 @@
 /* Tab Split Content Configurations Blueprint Grid */
 .mac-form-layout-body {
   display: flex;
-  height: 620px;
+  min-height: 550px;
+  height: auto;
 }
 
 .mac-form-tabs-sidebar {
@@ -68,6 +71,8 @@
   display: flex;
   flex-direction: column;
   gap: 3px;
+  flex-shrink: 0;
+  box-sizing: border-box;
 }
 
 .tab-btn {
@@ -85,6 +90,8 @@
   text-align: left;
   cursor: pointer;
   transition: background 0.15s;
+  box-sizing: border-box;
+  white-space: nowrap;
 }
 
 [data-theme='night'] .tab-btn { color: #cbd5e1; }
@@ -103,6 +110,7 @@
   display: flex;
   flex-direction: column;
   background: #ffffff;
+  min-width: 0; /* Keeps inputs from overflowing flex parent */
 }
 
 [data-theme='night'] .mac-form-content-view { background: #0b0f19; }
@@ -111,6 +119,7 @@
   flex: 1;
   padding: 24px;
   overflow-y: auto;
+  box-sizing: border-box;
 }
 
 .form-fade-view {
@@ -136,7 +145,7 @@
 /* Grid Responsive Core Columns Specifications Engine */
 .mac-form-grid-3x { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 20px; }
 .mac-form-grid-4x { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
-.mac-form-grid-2x { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+.mac-form-grid-2x { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-bottom: 20px; }
 
 .form-control-block {
   display: flex;
@@ -155,7 +164,7 @@
 .form-scroll-viewport input[type='number'],
 .form-scroll-viewport input[type='date'],
 .form-scroll-viewport select {
-  height: 32px;
+  height: 36px;
   padding: 0 10px;
   background: #f8fafc;
   border: 1px solid #cbd5e1;
@@ -163,6 +172,8 @@
   font-size: 13px;
   color: #1e293b;
   outline: none;
+  box-sizing: border-box;
+  width: 100%;
   transition: border 0.15s, box-shadow 0.15s;
 }
 
@@ -191,6 +202,7 @@
   border-radius: 8px;
   padding: 14px;
   margin-bottom: 12px;
+  box-sizing: border-box;
 }
 
 [data-theme='night'] .mac-form-array-card { background: rgba(255,255,255,0.01); border-color: rgba(255,255,255,0.06); }
@@ -208,71 +220,39 @@
 .action-del { color: #ef4444; cursor: pointer; transition: opacity 0.1s; }
 .action-del:hover { opacity: 0.7; }
 
-.flex-split { display: flex; justify-content: space-between; align-items: center; }
+.flex-split { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
 .mt-20 { margin-top: 20px; }
-
-/* Control Bar Action Row */
-.mac-form-footer-action-row {
-  height: 54px;
-  border-top: 1px solid rgba(0,0,0,0.06);
-  padding: 0 24px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: rgba(0,0,0,0.01);
-}
-
-.action-buttons-end-group { display: flex; gap: 10px; margin-left: auto; }
-
-.mac-btn-action {
-  height: 32px;
-  padding: 0 16px;
-  border-radius: 6px;
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  border: none;
-  transition: background 0.15s;
-}
-
-.mac-btn-action.primary { background: #0284c7; color: #ffffff; }
-.mac-btn-action.primary:hover { background: #0369a1; }
-.mac-btn-action.secondary { background: #e2e8f0; color: #334155; }
-
-.form-inline-alert { display: flex; align-items: center; gap: 8px; font-size: 12.5px; font-weight: 500; }
-.form-inline-alert.success { color: #16a34a; }
-.form-inline-alert.error { color: #dc2626; }
-
-
-
-
 
 /* Footer Control Row Structural Matrix */
 .mac-form-footer-action-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 10px;
+  padding: 12px 20px;
   background: #f8f9fa;
   border-top: 1px solid #e9ecef;
-  gap: 10px;
-  min-height: 70px;
+  gap: 12px;
+  min-height: 64px;
   box-sizing: border-box;
+  flex-wrap: wrap;
+}
+
+[data-theme='night'] .mac-form-footer-action-row {
+  background: rgba(22, 28, 45, 0.95);
+  border-color: rgba(255, 255, 255, 0.08);
 }
 
 /* Alert Container Constraints */
 .form-inline-alert {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
   padding: 8px 14px;
   border-radius: 6px;
   font-size: 13px;
   max-width: 60%;
   flex-shrink: 1;
+  box-sizing: border-box;
 }
 
 .form-inline-alert.error {
@@ -308,7 +288,7 @@
   align-items: center;
   justify-content: center;
   padding: 10px 20px;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
   border-radius: 6px;
   cursor: pointer;
@@ -316,6 +296,8 @@
   border: 1px solid transparent;
   min-width: 100px;
   height: 38px;
+  box-sizing: border-box;
+  white-space: nowrap;
 }
 
 /* Primary Styling Action Module */
@@ -329,13 +311,15 @@
 }
 
 /* Premium Restructured Reset Design Mapping */
-.mac-btn-action.secondary-reset {
+.mac-btn-action.secondary-reset,
+.mac-btn-action.secondary {
   background-color: #ffffff;
   border: 1px solid #d1d1d6;
   color: #48484a;
 }
 
-.mac-btn-action.secondary-reset:hover:not(:disabled) {
+.mac-btn-action.secondary-reset:hover:not(:disabled),
+.mac-btn-action.secondary:hover:not(:disabled) {
   background-color: #f2f2f7;
   border-color: #aeaeae;
   color: #000000;
@@ -345,4 +329,79 @@
 .mac-btn-action:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Responsive Layout Breakpoints                                              */
+/* -------------------------------------------------------------------------- */
+
+/* Tablet Viewports */
+@media screen and (max-width: 900px) {
+  .mac-form-grid-4x {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .mac-form-grid-3x {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Mobile Viewports */
+@media screen and (max-width: 768px) {
+  .mac-form-wrapper-canvas {
+    padding: 0 10px;
+    margin: 10px auto;
+  }
+
+  /* Transform layout into single vertical column on phone screens */
+  .mac-form-layout-body {
+    flex-direction: column;
+    height: auto;
+  }
+
+  .mac-form-tabs-sidebar {
+    width: 100%;
+    flex-direction: row;
+    overflow-x: auto;
+    border-right: none;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    padding: 8px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .tab-btn {
+    width: auto;
+    padding: 8px 12px;
+  }
+
+  .form-scroll-viewport {
+    padding: 16px;
+  }
+
+  .mac-form-grid-4x,
+  .mac-form-grid-3x,
+  .mac-form-grid-2x {
+    grid-template-columns: 1fr;
+  }
+
+  .mac-form-footer-action-row {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 12px 16px;
+  }
+
+  .form-inline-alert {
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .action-buttons-end-group {
+    margin-left: 0;
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .mac-btn-action {
+    flex: 1;
+  }
 }

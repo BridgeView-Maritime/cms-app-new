@@ -1,9 +1,12 @@
+/* client/src/styles/FormBuilder.css */
+
 /* Form Canvas Wrapper */
 .mac-form-wrapper-canvas {
   width: 100%;
   display: flex;
   justify-content: center;
   background-color: #ffffff;
+  box-sizing: border-box;
 }
 
 /* Window Panel Shell */
@@ -14,6 +17,7 @@
   border-radius: 8px;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
   overflow: hidden;
+  box-sizing: border-box;
 }
 
 /* Header Decorator Dots Bar */
@@ -24,6 +28,7 @@
   display: flex;
   align-items: center;
   position: relative;
+  box-sizing: border-box;
 }
 
 .window-dots-row {
@@ -67,23 +72,35 @@
 .flex-split {
   display: flex;
   justify-content: space-between;
+  align-items: center;
 }
 
-/* Grids & Control Blocks */
+/* Base Form Grids */
 .mac-form-grid-2x {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
 }
 
 .mac-form-grid-3x {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
 }
 
+.mac-form-grid-4x {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+/* Control Blocks & Input Base Styling */
 .form-control-block {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .form-control-block label {
@@ -94,6 +111,9 @@
 
 .form-control-block input[type="text"],
 .form-control-block input[type="email"],
+.form-control-block input[type="password"],
+.form-control-block input[type="number"],
+.form-control-block input[type="url"],
 .form-control-block select {
   width: 100%;
   padding: 8px 12px;
@@ -119,13 +139,15 @@
 /* Dynamic Row Repeat Cards */
 .mac-form-array-card {
   transition: all 0.2s ease;
-}
-.mac-form-array-card:hover {
-  border-color: #cbd5e1 !important;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+  box-sizing: border-box;
 }
 
-/* Shared Custom Buttons styling */
+.mac-form-array-card:hover {
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+/* Shared Custom Buttons Styling */
 .mac-btn-action {
   background-color: #ffffff;
   color: #334155;
@@ -137,8 +159,10 @@
   cursor: pointer;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 4px;
   transition: all 0.15s ease;
+  box-sizing: border-box;
 }
 
 .mac-btn-action:hover {
@@ -171,4 +195,55 @@
 .form-scroll-viewport::-webkit-scrollbar-thumb {
   background: #cbd5e1;
   border-radius: 10px;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Responsive Layout Breakpoints                                              */
+/* -------------------------------------------------------------------------- */
+
+/* Tablet & Medium Desktop Screens (1024px and below) */
+@media screen and (max-width: 1024px) {
+  .mac-form-grid-4x {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Small Tablets & Large Phones (768px and below) */
+@media screen and (max-width: 768px) {
+  .mac-form-header {
+    padding: 10px 12px;
+  }
+
+  .window-dots-row {
+    position: static;
+    margin-right: 10px;
+  }
+
+  .window-title-text {
+    text-align: left;
+    font-size: 12px;
+  }
+
+  .flex-split {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .mac-form-grid-3x {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Mobile Devices (576px and below) */
+@media screen and (max-width: 576px) {
+  .mac-form-grid-2x,
+  .mac-form-grid-3x,
+  .mac-form-grid-4x {
+    grid-template-columns: 1fr;
+  }
+
+  .mac-btn-action {
+    width: 100%;
+  }
 }

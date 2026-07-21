@@ -4,6 +4,23 @@ import * as Icons from 'lucide-react';
 import '../styles/UserHistoryLog.css';
 import { AUTH_ENDPOINTS } from '../config/api';
 
+// Helper function to format timestamp into DD/MM/YYYY, HH:MM:SS AM/PM
+const formatDateTime = (dateString) => {
+  if (!dateString) return 'N/A';
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) return 'N/A';
+
+  return date.toLocaleString('en-GB', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: true
+  });
+};
+
 export default function UserHistoryLog({ 
   currentUserId, 
   currentUserRole, 
@@ -130,6 +147,7 @@ export default function UserHistoryLog({
                 <tr>
                   <th>Sender Identity</th>
                   <th>Title Heading</th>
+                  <th>Sent Date &amp; Time</th>
                   <th style={{ width: '120px' }}>Read Status</th>
                   <th style={{ width: '160px', textAlign: 'center' }}>Actions</th>
                 </tr>
@@ -138,6 +156,7 @@ export default function UserHistoryLog({
                 {localLogs.map((item, index) => {
                   const title = item.notificationId?.title || item.title;
                   const sender = item.notificationId?.senderId || item.senderId;
+                  const createdAt = item.notificationId?.createdAt || item.createdAt;
                   
                   let senderText = 'Bridgeview Admin';
                   if (sender && typeof sender === 'object') {
@@ -151,6 +170,7 @@ export default function UserHistoryLog({
                     >
                       <td className="cell-sender">{senderText}</td>
                       <td className="cell-title">{title}</td>
+                      <td className="cell-timestamp">{formatDateTime(createdAt)}</td>
                       <td>
                         <span className={`status-badge ${item.isRead ? 'status-read' : 'status-unread'}`}>
                           {item.isRead ? '✓ Read' : '● Unread'}
@@ -179,6 +199,7 @@ export default function UserHistoryLog({
         const modalTitle = activeModalItem.notificationId?.title || activeModalItem.title;
         const modalMessage = activeModalItem.notificationId?.message || activeModalItem.message;
         const modalSender = activeModalItem.notificationId?.senderId || activeModalItem.senderId;
+        const modalCreatedAt = activeModalItem.notificationId?.createdAt || activeModalItem.createdAt;
         const modalAttachments = activeModalItem.notificationId?.attachments || activeModalItem.attachments || [];
         
         let modalSenderText = 'Bridgeview Admin';
@@ -204,8 +225,9 @@ export default function UserHistoryLog({
                 </button>
               </div>
 
-              <div className="modal-meta-bar">
+              <div className="modal-meta-bar" style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <span><strong>Sender Identity:</strong> {modalSenderText}</span>
+                <span><strong>Sent:</strong> {formatDateTime(modalCreatedAt)}</span>
               </div>
 
               <div className="modal-body custom-scrollbar">

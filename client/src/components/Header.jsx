@@ -1,5 +1,6 @@
 // client/src/components/Header.jsx
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Search, Bell, SlidersHorizontal, AlertTriangle, ShieldCheck, X } from 'lucide-react';
 import '../styles/Header.css';
 
@@ -9,11 +10,34 @@ const formatTopBarDate = (date) => {
     ' ' + date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
 };
 
+// Formats timestamp as DD/MM/YYYY, HH:MM:SS AM/PM
+const formatNotificationDate = (dateString) => {
+  if (!dateString) return 'Just now';
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) return 'Just now';
+
+  return date.toLocaleString('en-GB', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: true
+  });
+};
+
 export default function Header({ currentTime, notifications = [] }) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null); 
+  const navigate = useNavigate();
 
   const toggleDropdown = () => setIsOpen(!isOpen);
+
+  const handleNotificationClick = () => {
+    setIsOpen(false);
+    navigate('/dashboard/my-history');
+  };
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -31,7 +55,7 @@ export default function Header({ currentTime, notifications = [] }) {
     };
   }, [isOpen]);
 
-  // Filter out any entries that have already been marked as read to calculate active unread alerts count
+  // Filter out any entries that have already been marked as read
   const unreadNotifications = notifications.filter(n => !n.isRead);
 
   return (
@@ -81,13 +105,17 @@ export default function Header({ currentTime, notifications = [] }) {
                   </div>
                 ) : (
                   unreadNotifications.map((item, index) => {
-                    // Check if object structure comes wrapped in populating schema or direct socket payload
                     const title = item.notificationId?.title || item.title || 'System Alert';
                     const message = item.notificationId?.message || item.message || '';
                     const time = item.notificationId?.createdAt || item.createdAt || null;
 
                     return (
-                      <div key={item._id || index} className="notification-item-card risk-high">
+                      <div 
+                        key={item._id || index} 
+                        className="notification-item-card risk-high"
+                        onClick={handleNotificationClick}
+                        style={{ cursor: 'pointer' }}
+                      >
                         <div className="item-title-row">
                           <AlertTriangle size={14} className="risk-alert-icon" />
                           <h4>{title}</h4>
@@ -101,7 +129,7 @@ export default function Header({ currentTime, notifications = [] }) {
                         )}
 
                         <span className="item-timestamp">
-                          {time ? new Date(time).toLocaleTimeString() : 'Just now'}
+                          {formatNotificationDate(time)}
                         </span>
                       </div>
                     );

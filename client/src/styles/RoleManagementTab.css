@@ -1,0 +1,278 @@
+/* client/src/styles/RoleManagementTab.css */
+
+.role-management-container {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 24px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* --- Form Column --- */
+.role-form-card {
+  background-color: #f8fafc;
+  padding: 16px;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-sizing: border-box;
+  height: fit-content;
+}
+
+.role-form-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #64748b;
+  letter-spacing: 0.05em;
+  margin: 0 0 4px 0;
+}
+
+.role-field-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.role-field-label {
+  font-size: 12px;
+  font-weight: 500;
+  display: block;
+  margin-bottom: 4px;
+  color: #334155;
+}
+
+.role-text-input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  font-size: 13px;
+  box-sizing: border-box;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.role-text-input:focus {
+  border-color: #2563eb;
+}
+
+.role-menu-checkbox-container {
+  max-height: 160px;
+  overflow-y: auto;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  padding: 8px;
+  background-color: #ffffff;
+  box-sizing: border-box;
+}
+
+.role-menu-checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  margin-bottom: 6px;
+  cursor: pointer;
+  color: #1e293b;
+}
+
+.role-menu-checkbox-item:last-child {
+  margin-bottom: 0;
+}
+
+.role-form-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.role-btn-submit {
+  flex: 1;
+  background-color: #2563eb;
+  color: #ffffff;
+  border: 0;
+  padding: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.role-btn-submit:hover {
+  background-color: #1d4ed8;
+}
+
+.role-btn-cancel {
+  background-color: #64748b;
+  color: #ffffff;
+  border: 0;
+  padding: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.role-btn-cancel:hover {
+  background-color: #475569;
+}
+
+/* --- Tree/List Column --- */
+.role-list-column {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.role-list-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #94a3b8;
+  letter-spacing: 0.05em;
+  margin: 0;
+}
+
+.role-item-card {
+  padding: 12px;
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  transition: opacity 0.2s ease;
+}
+
+.role-item-card.is-dimmed {
+  opacity: 0.6;
+}
+
+.role-item-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.role-item-heading {
+  margin: 0 0 2px 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: #1e293b;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.role-status-badge {
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.role-status-badge.active {
+  background-color: #dcfce7;
+  color: #15803d;
+}
+
+.role-status-badge.inactive {
+  background-color: #fee2e2;
+  color: #b91c1c;
+}
+
+.role-item-code {
+  font-size: 11px;
+  font-family: monospace;
+  color: #64748b;
+}
+
+.role-item-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.role-module-count-pill {
+  font-size: 11px;
+  background-color: #f1f5f9;
+  padding: 4px 8px;
+  border-radius: 4px;
+  color: #475569;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.role-btn-edit {
+  background: none;
+  border: none;
+  color: #2563eb;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+}
+
+.role-btn-edit:hover {
+  text-decoration: underline;
+}
+
+.role-btn-toggle {
+  background: none;
+  border: none;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+}
+
+.role-btn-toggle.deactivate {
+  color: #dc2626;
+}
+
+.role-btn-toggle.activate {
+  color: #16a34a;
+}
+
+.role-btn-toggle:hover {
+  text-decoration: underline;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Responsive Layout Adjustments                                             */
+/* -------------------------------------------------------------------------- */
+
+/* Tablet Viewports */
+@media screen and (max-width: 900px) {
+  .role-management-container {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}
+
+/* Small Mobile Viewports */
+@media screen and (max-width: 576px) {
+  .role-item-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .role-item-controls {
+    width: 100%;
+    justify-content: space-between;
+    border-top: 1px dashed #e2e8f0;
+    padding-top: 8px;
+  }
+
+  .role-btn-submit,
+  .role-btn-cancel {
+    padding: 12px; /* Touch-friendly tap areas */
+  }
+}

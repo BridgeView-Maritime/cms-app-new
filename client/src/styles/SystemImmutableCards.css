@@ -1,0 +1,47 @@
+/* client/src/styles/SystemImmutableCards.css */
+
+.system-immutable-card {
+  opacity: 0.75;
+  background-color: #f1f5f9;
+  border-left: 4px solid #64748b;
+  padding: 12px;
+  margin-bottom: 10px;
+  box-sizing: border-box;
+  border-radius: 4px;
+}
+
+.system-immutable-badge {
+  font-size: 11px;
+  color: #475569;
+  font-weight: 700;
+  display: block;
+  letter-spacing: 0.03em;
+}
+
+.system-immutable-grid {
+  gap: 10px;
+  margin-top: 5px;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Responsive Breakpoints                                                     */
+/* -------------------------------------------------------------------------- */
+
+/* Tablet Viewports */
+@media screen and (max-width: 900px) {
+  .system-immutable-grid.mac-form-grid-3x {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Mobile Viewports */
+@media screen and (max-width: 576px) {
+  .system-immutable-card {
+    padding: 10px;
+  }
+
+  .system-immutable-grid.mac-form-grid-3x {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+}

@@ -2,7 +2,7 @@
 
 .history-log-container {
   padding: 24px;
-  max-width: calc(100% - 40px);
+  width: 100%;
   box-sizing: border-box;
 }
 
@@ -33,6 +33,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 16px;
   background-color: #fafafa;
 }
 
@@ -60,6 +61,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
+  white-space: nowrap;
   transition: background-color 0.15s ease;
 }
 
@@ -89,14 +91,16 @@
   font-size: 14px;
 }
 
-/* Scrollable Container Wrapper for Table Layout */
+/* Table Wrapper for Fluid Horizontal Scroll on Small Screens */
 .history-table-wrapper {
   overflow-x: auto;
-  max-width: 100%;
+  width: 100%;
+  -webkit-overflow-scrolling: touch;
 }
 
 .history-table-wrapper table {
-  min-width: 100%;
+  width: 100%;
+  min-width: 650px; /* Ensures table headers don't squish on small mobile screens */
   border-collapse: collapse;
   text-align: left;
 }
@@ -111,6 +115,7 @@
   font-size: 11px;
   font-weight: 600;
   color: #555555;
+  white-space: nowrap;
 }
 
 .history-table-wrapper tbody {
@@ -135,26 +140,33 @@
   padding: 16px 20px;
   font-weight: 500;
   color: #111111;
+  white-space: nowrap;
 }
 
 .cell-title {
   padding: 16px 20px;
   font-weight: 600;
   color: #000000;
+  word-break: break-word;
+}
+
+.cell-timestamp {
+  white-space: nowrap;
+  color: #666666;
 }
 
 .history-table-wrapper td {
   padding: 16px 20px;
-  white-space: nowrap;
 }
 
 .status-badge {
   display: inline-flex;
   align-items: center;
   padding: 4px 10px;
-  borderRadius: 12px;
+  border-radius: 12px;
   font-size: 11px;
   font-weight: 500;
+  white-space: nowrap;
 }
 
 .status-read {
@@ -170,6 +182,7 @@
 .btn-review-dispatch {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
   padding: 6px 14px;
   border-radius: 6px;
@@ -179,6 +192,7 @@
   color: #0066cc;
   border: 1px solid #0066cc;
   cursor: pointer;
+  white-space: nowrap;
   transition: all 0.15s ease;
 }
 
@@ -201,6 +215,7 @@
   align-items: center;
   z-index: 1000;
   padding: 20px;
+  box-sizing: border-box;
 }
 
 .modal-container {
@@ -213,6 +228,7 @@
   flex-direction: column;
   max-height: 85vh;
   animation: fadeIn 0.2s ease;
+  overflow: hidden;
 }
 
 @keyframes fadeIn {
@@ -225,7 +241,8 @@
   border-bottom: 1px solid #f0f0f0;
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
+  gap: 12px;
 }
 
 .modal-subtitle {
@@ -241,6 +258,7 @@
   font-size: 16px;
   font-weight: 600;
   color: #1a1a1a;
+  word-break: break-word;
 }
 
 .btn-modal-close {
@@ -252,6 +270,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
   transition: color 0.15s ease;
 }
 
@@ -260,14 +279,19 @@
 }
 
 .modal-meta-bar {
-  padding: 16px 24px;
+  padding: 12px 24px;
   background-color: #fafafa;
   border-bottom: 1px solid #f0f0f0;
   font-size: 12px;
   color: #666666;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
-/* Scrollable Scrollbar Window Body */
+/* Scrollable Window Body */
 .modal-body {
   padding: 24px;
   overflow-y: auto;
@@ -287,6 +311,7 @@
   color: #333333;
   line-height: 1.6;
   white-space: pre-wrap;
+  word-break: break-word;
   background-color: #f8fafc;
   padding: 16px;
   border-radius: 8px;
@@ -316,6 +341,7 @@
   border: 1px solid #e2e8f0;
   border-radius: 8px;
   gap: 12px;
+  flex-wrap: wrap;
 }
 
 .attachment-info {
@@ -323,6 +349,8 @@
   align-items: center;
   gap: 8px;
   overflow: hidden;
+  min-width: 0;
+  flex: 1;
 }
 
 .icon-file {
@@ -351,6 +379,7 @@
   font-size: 12px;
   font-weight: 600;
   box-shadow: 0 2px 4px rgba(0, 102, 204, 0.1);
+  white-space: nowrap;
   transition: background-color 0.15s ease;
 }
 
@@ -391,7 +420,7 @@
   background-color: #cbd5e1;
 }
 
-/* Custom Uniform System Scroller Engine */
+/* Custom Scrollbar */
 .custom-scrollbar::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -411,28 +440,64 @@
   background: #a6a6a6;
 }
 
-/* client/src/styles/UserHistoryLog.css */
+/* -------------------------------------------------------------------------- */
+/* Responsive Media Queries                                                  */
+/* -------------------------------------------------------------------------- */
 
-.history-log-container {
-  padding: 24px;
-  /* Allow the container to fill out completely so layout scrollers 
-     are captured at the higher parent viewport layer */
-  width: 100%;
-  box-sizing: border-box;
+@media screen and (max-width: 768px) {
+  .history-log-container {
+    padding: 16px;
+  }
+
+  .history-log-header {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 16px;
+  }
+
+  .btn-sync-log {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .history-table-wrapper th,
+  .history-table-wrapper td {
+    padding: 12px 14px;
+  }
+
+  .modal-backdrop {
+    padding: 12px;
+  }
+
+  .modal-header,
+  .modal-meta-bar,
+  .modal-body,
+  .modal-footer {
+    padding: 16px;
+  }
+
+  .modal-meta-bar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }
 
-/* ... keep other styles unchanged ... */
+@media screen and (max-width: 480px) {
+  .history-log-container {
+    padding: 10px;
+  }
 
-/* Scrollable Container Wrapper for Table Layout */
-.history-table-wrapper {
-  /* Remove local overflow hiding so layout renders outside the inner box */
-  overflow-x: visible; 
-  max-width: 100%;
-}
+  .attachment-item {
+    flex-direction: column;
+    align-items: stretch;
+  }
 
-/* Ensure the layout behaves responsively without squishing text labels */
-.history-table-wrapper table {
-  width: 100%;
-  border-collapse: collapse;
-  text-align: left;
+  .btn-download-attachment {
+    justify-content: center;
+    width: 100%;
+  }
+
+  .btn-dismiss-modal {
+    width: 100%;
+  }
 }

@@ -11,10 +11,10 @@ import SystemImmutableCards from './SystemImmutableCards';
 import FieldControlCard from './FieldControlCard';
 
 import '../styles/FormBuilder.css';
+import '../styles/FormSchemaBuilder.css';
 import { AUTH_ENDPOINTS } from '../config/api';
 
 const AVAILABLE_SECTION_ICONS = [
-  // Originally from AVAILABLE_SECTION_ICONS
   { name: 'User', component: User },
   { name: 'Briefcase', component: Briefcase },
   { name: 'MapPin', component: MapPin },
@@ -23,8 +23,6 @@ const AVAILABLE_SECTION_ICONS = [
   { name: 'ShieldAlert', component: ShieldAlert },
   { name: 'FileText', component: FileText },
   { name: 'HelpCircle', component: HelpCircle },
-
-  // Added from UserControlPanel icons
   { name: 'Shield', component: Shield },
   { name: 'Anchor', component: Anchor },
   { name: 'Settings', component: Settings },
@@ -63,7 +61,6 @@ export default function FormSchemaBuilder({ activeFormCode = 'EMPLOYEE_MASTER_DI
   const [targetLayoutMode, setTargetLayoutMode] = useState('LISTING_AND_FORM');
   const [menuId, setMenuId] = useState('');
   
-  // Dynamic Section State driven directly by form_sections database collections
   const [sections, setSections] = useState([]);
   const [isLoadingSections, setIsLoadingSections] = useState(false);
   const [newSectionLabel, setNewSectionLabel] = useState('');
@@ -99,7 +96,6 @@ export default function FormSchemaBuilder({ activeFormCode = 'EMPLOYEE_MASTER_DI
   const isEmployeeFormType = formCode === 'EMPLOYEE_MASTER_DIRECTORY';
   const effectiveFixedFields = isEmployeeFormType ? employeeSystemFixedFields : [];
 
-  // Fetch sections corresponding to this specific form layout from the backend form_sections collection
   const fetchFormSectionsFromDb = async (targetCode = formCode) => {
     if (!targetCode) return;
     setIsLoadingSections(true);
@@ -186,7 +182,6 @@ export default function FormSchemaBuilder({ activeFormCode = 'EMPLOYEE_MASTER_DI
     loadWorkspaceOptionsList();
   }, []);
 
-  // Whenever the active form layout changes, completely rebuild form context fields and linked database section indices
   useEffect(() => {
     if (formCode) {
       fetchSchemaMetadata(formCode);
@@ -211,7 +206,6 @@ export default function FormSchemaBuilder({ activeFormCode = 'EMPLOYEE_MASTER_DI
     setIsEditMode(true); 
   };
 
-  // Triggers an immediate document insert into the form_sections collection mapped to the active form_code
   const handleCreateNewSectionCollectionNode = async () => {
     const trimmedLabel = newSectionLabel.trim();
     if (!trimmedLabel || !formCode) return;
@@ -240,7 +234,6 @@ export default function FormSchemaBuilder({ activeFormCode = 'EMPLOYEE_MASTER_DI
       });
       const data = await response.json();
       if (data.success) {
-        // Optimistically push or simply re-fetch from primary source collection database pipeline
         setSections([...sections, data.section || payload]);
         setNewSectionLabel('');
         setNewSectionIcon('FileText');
@@ -420,14 +413,13 @@ export default function FormSchemaBuilder({ activeFormCode = 'EMPLOYEE_MASTER_DI
 
   return (
     <div className="mac-form-wrapper-canvas">
-      <div className="mac-form-window-frame" style={{ maxWidth: '1150px' }}>
-        <header className="mac-form-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+      <div className="mac-form-window-frame schema-builder-frame">
+        <header className="mac-form-header schema-header">
+          <div className="schema-header-left">
             <h2 className="window-title-text">Blueprint Engine System Designer</h2>
           </div>
           
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            {/* RESTORED: Toggle Edit Mode button context wrapper */}
+          <div className="schema-header-right">
             <button 
               type="button" 
               onClick={() => {
@@ -435,18 +427,17 @@ export default function FormSchemaBuilder({ activeFormCode = 'EMPLOYEE_MASTER_DI
                 if (!isEditMode) fetchSchemaMetadata(); 
               }}
               className={`mac-btn-action small ${isEditMode ? 'danger' : 'secondary'}`}
-              style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 12px' }}
             >
               <Edit3 size={14} />
               {isEditMode ? "Cancel Schema Edit Mode" : "Modify Configurations"}
             </button>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#f1f5f9', padding: '4px 8px', borderRadius: '6px', border: '1px solid #cbd5e1' }}>
-              <Layers3 size={14} style={{ color: '#475569' }} />
+            <div className="schema-selector-badge">
+              <Layers3 size={14} color="#475569" />
               <select 
+                className="schema-selector-dropdown"
                 value={formCode} 
                 onChange={(e) => handleDropdownSelectionChange(e.target.value)}
-                style={{ background: 'transparent', border: 'none', fontSize: '12px', fontWeight: '600', color: '#334155', cursor: 'pointer', outline: 'none' }}
               >
                 <option value="">-- Start Fresh Design Map --</option>
                 {availableForms.map(f => (
@@ -459,7 +450,7 @@ export default function FormSchemaBuilder({ activeFormCode = 'EMPLOYEE_MASTER_DI
           </div>
         </header>
 
-        <form className="mac-form-content-view" onSubmit={handleSaveSchema} style={{ padding: '25px' }}>
+        <form className="mac-form-content-view" onSubmit={handleSaveSchema}>
           <h3 className="section-pane-heading"><Settings size={16} /> Global System Parameters</h3>
           
           <GlobalParametersPanel 
@@ -473,171 +464,71 @@ export default function FormSchemaBuilder({ activeFormCode = 'EMPLOYEE_MASTER_DI
           />
 
           {/* DYNAMIC FORM SECTION WIDGET MANAGER CONNECTED TO form_sections COLLECTION */}
-          <div style={{ backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', padding: '16px', borderRadius: '6px', marginBottom: '25px' }}>
-            <h4 style={{ margin: '0 0 10px 0', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: '#334155', fontWeight: '700' }}>
+          <div className="dynamic-sections-container">
+            <h4 className="dynamic-sections-heading">
               <FolderPlus size={16} color="#475569" /> Dynamic `form_sections` Collection Engine (Linked to: {formCode || 'NONE'})
             </h4>
             
-            {/* <div style={{ display: 'flex', gap: '10px', marginBottom: '12px', alignItems: 'center' }}> */}
-              <div style={{ 
-                    display: 'flex', 
-                    flexDirection: 'row', 
-                    alignItems: 'flex-end',  // Ensures the label heights don't push things out of vertical alignment
-                    gap: '16px', 
-                    width: '100%', 
-                    marginTop: '16px',
-                    flexWrap: 'wrap'        // Allows natural wrapping on smaller displays
-                    }}>
+            <div className="section-creator-row">
+              <div className="section-input-group">
+                <label className="section-label-text">Section UI Label</label>
+                <input 
+                  type="text" 
+                  className="section-input-field"
+                  value={newSectionLabel} 
+                  onChange={e => setNewSectionLabel(e.target.value)} 
+                  placeholder="e.g., Security Rules" 
+                  disabled={!formCode}
+                />
+              </div>
 
-                    {/* 1. INPUT ELEMENT CONTAINER */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flex: '2', minWidth: '220px' }}>
-                        <label style={{ fontSize: '12px', fontWeight: '500', display: 'block', color: '#475569' }}>
-                        Section UI Label
-                        </label>
-                        <input 
-                        type="text" 
-                        value={newSectionLabel} 
-                        onChange={e => setNewSectionLabel(e.target.value)} 
-                        placeholder="e.g., Security Rules" 
+              <div className="section-icon-group">
+                <label className="section-label-text">Select Section Icon</label>
+                <div className="section-icon-grid">
+                  {AVAILABLE_SECTION_ICONS.map((i) => {
+                    const isSelected = newSectionIcon === i.name;
+                    return (
+                      <button
+                        key={i.name}
+                        type="button"
+                        title={i.name}
                         disabled={!formCode}
-                        style={{
-                            height: '110px', // Matches the exact height bounds of the Icon Grid next to it
-                            width: '100%',
-                            fontSize: '13px',
-                            color: '#1e293b',
-                            background: !formCode ? '#f1f5f9' : '#ffffff',
-                            border: '1px solid #cbd5e1',
-                            borderRadius: '6px',
-                            padding: '0 12px',
-                            boxSizing: 'border-box',
-                            outline: 'none',
-                            transition: 'border-color 0.15s ease, box-shadow 0.15s ease',
-                            cursor: !formCode ? 'not-allowed' : 'text',
-                        }}
-                        onFocus={(e) => {
-                            e.target.style.borderColor = '#2563eb';
-                            e.target.style.boxShadow = '0 0 0 3px rgba(37, 99, 235, 0.1)';
-                        }}
-                        onBlur={(e) => {
-                            e.target.style.borderColor = '#cbd5e1';
-                            e.target.style.boxShadow = 'none';
-                        }}
-                        />
-                    </div>
+                        onClick={() => setNewSectionIcon(i.name)}
+                        className={`icon-select-btn ${isSelected ? 'selected' : ''}`}
+                      >
+                        <SectionIconRenderer iconName={i.name} size={16} />
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
 
-                    {/* 2. ICON SELECTOR CONTAINER */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flex: '3', minWidth: '320px' }}>
-                        <label style={{ fontSize: '12px', fontWeight: '500', display: 'block', color: '#475569' }}>
-                        Select Section Icon
-                        </label>
-                        
-                        <div style={{
-                        display: 'grid',
-                        gridTemplateColumns: 'repeat(auto-fill, minmax(36px, 1fr))',
-                        gap: '6px',
-                        padding: '8px',
-                        border: '1px solid #cbd5e1',
-                        borderRadius: '6px',
-                        background: '#f8fafc',
-                        height: '110px', // Matches the input field height perfectly
-                        boxSizing: 'border-box',
-                        overflowY: 'auto'
-                        }}>
-                        {AVAILABLE_SECTION_ICONS.map((i) => {
-                            const isSelected = newSectionIcon === i.name;
-
-                            return (
-                            <button
-                                key={i.name}
-                                type="button"
-                                title={i.name}
-                                disabled={!formCode}
-                                onClick={() => setNewSectionIcon(i.name)}
-                                style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                padding: '6px',
-                                border: isSelected ? '2px solid #2563eb' : '1px solid #e2e8f0',
-                                borderRadius: '6px',
-                                background: isSelected ? '#eff6ff' : '#ffffff',
-                                color: isSelected ? '#2563eb' : '#475569',
-                                cursor: !formCode ? 'not-allowed' : 'pointer',
-                                opacity: !formCode ? 0.6 : 1,
-                                transition: 'all 0.15s ease',
-                                outline: 'none',
-                                height: '32px',
-                                width: '32px'
-                                }}
-                                onMouseEnter={(e) => {
-                                if (!isSelected && formCode) {
-                                    e.currentTarget.style.borderColor = '#cbd5e1';
-                                    e.currentTarget.style.background = '#f1f5f9';
-                                }
-                                }}
-                                onMouseLeave={(e) => {
-                                if (!isSelected && formCode) {
-                                    e.currentTarget.style.borderColor = '#e2e8f0';
-                                    e.currentTarget.style.background = '#ffffff';
-                                }
-                                }}
-                            >
-                                <SectionIconRenderer iconName={i.name} size={16} />
-                            </button>
-                            );
-                        })}
-                        </div>
-                    </div>
-
-                    {/* 3. BUTTON CONTAINER */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', justifyContent: 'flex-end' }}>
-                        {/* Optional sub-label to display selected icon below or keep space aligned */}
-                        <span style={{ fontSize: '11px', color: '#64748b', height: '14px', display: 'block', visibility: newSectionIcon ? 'visible' : 'hidden' }}>
-                        Selected: <strong>{newSectionIcon}</strong>
-                        </span>
-                        <button 
-                        type="button" 
-                        className="mac-btn-action primary small" 
-                        onClick={handleCreateNewSectionCollectionNode}
-                        disabled={!formCode}
-                        style={{ 
-                            height: '42px', // Comfortable, professional desktop CTA height
-                            padding: '0 24px',
-                            fontWeight: '600',
-                            borderRadius: '6px',
-                            cursor: !formCode ? 'not-allowed' : 'pointer',
-                            whiteSpace: 'nowrap'
-                        }} 
-                        >
-                        Save to form_sections
-                        </button>
-                    </div>
-
+              <div className="section-button-group">
+                <span className="section-selected-tag" style={{ visibility: newSectionIcon ? 'visible' : 'hidden' }}>
+                  Selected: <strong>{newSectionIcon}</strong>
+                </span>
+                <button 
+                  type="button" 
+                  className="mac-btn-action primary small btn-save-section" 
+                  onClick={handleCreateNewSectionCollectionNode}
+                  disabled={!formCode}
+                >
+                  Save to form_sections
+                </button>
+              </div>
             </div>
 
             {isLoadingSections ? (
               <div style={{ fontSize: '12px', color: '#64748b' }}>Querying layout metadata collection...</div>
             ) : (
-              <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+              <div className="sections-chips-wrap">
                 {sections.map((sec) => {
                   const isEditing = editingSectionId === sec.id;
                   
                   return (
                     <div 
                       key={sec.id} 
-                      style={{ 
-                        display: 'inline-flex', 
-                        alignItems: 'center', 
-                        gap: '8px', 
-                        backgroundColor: !sec.is_active ? '#fef2f2' : '#eff6ff', 
-                        color: !sec.is_active ? '#991b1b' : '#1e40af', 
-                        padding: '6px 12px', 
-                        borderRadius: '8px', 
-                        fontSize: '12px', 
-                        fontWeight: '600', 
-                        border: !sec.is_active ? '1px solid #fee2e2' : '1px solid #bfdbfe',
-                        opacity: sec.is_active ? 1 : 0.65
-                      }}
+                      className={`section-badge-chip ${!sec.is_active ? 'inactive' : ''}`}
                     >
                       {isEditing ? (
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -660,10 +551,10 @@ export default function FormSchemaBuilder({ activeFormCode = 'EMPLOYEE_MASTER_DI
                             </select>
                           </div>
 
-                          <button type="button" onClick={handleUpdateSectionProperties} style={{ background: 'none', border: 'none', color: '#16a34a' }}>
+                          <button type="button" onClick={handleUpdateSectionProperties} className="chip-action-btn" style={{ color: '#16a34a' }}>
                             <Check size={14} />
                           </button>
-                          <button type="button" onClick={() => setEditingSectionId(null)} style={{ background: 'none', border: 'none', color: '#dc2626' }}>
+                          <button type="button" onClick={() => setEditingSectionId(null)} className="chip-action-btn" style={{ color: '#dc2626' }}>
                             <X size={14} />
                           </button>
                         </div>
@@ -674,14 +565,14 @@ export default function FormSchemaBuilder({ activeFormCode = 'EMPLOYEE_MASTER_DI
                             {sec.label} <code style={{ fontSize: '10px', opacity: 0.5 }}>[{sec.form_code || formCode}]</code>
                           </span>
                           
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', borderLeft: '1px solid #cbd5e1', paddingLeft: '6px', marginLeft: '2px' }}>
-                            <button type="button" title="Modify Display Property" onClick={() => startEditingSection(sec)} style={{ background: 'none', border: 'none', color: '#475569', padding: 0 }}>
+                          <div className="section-chip-actions">
+                            <button type="button" title="Modify Display Property" onClick={() => startEditingSection(sec)} className="chip-action-btn" style={{ color: '#475569' }}>
                               <Edit2 size={12} />
                             </button>
-                            <button type="button" title="Toggle visibility status" onClick={() => toggleSectionActiveStatus(sec.id)} style={{ background: 'none', border: 'none', color: sec.is_active ? '#3b82f6' : '#ef4444', padding: 0 }}>
+                            <button type="button" title="Toggle visibility status" onClick={() => toggleSectionActiveStatus(sec.id)} className="chip-action-btn" style={{ color: sec.is_active ? '#3b82f6' : '#ef4444' }}>
                               {sec.is_active ? <Eye size={12} /> : <EyeOff size={12} />}
                             </button>
-                            <button type="button" title="Drop Section Collection Record" onClick={() => handleHardDeleteSectionCollectionNode(sec.id)} style={{ background: 'none', border: 'none', color: '#ef4444', padding: 0 }}>
+                            <button type="button" title="Drop Section Collection Record" onClick={() => handleHardDeleteSectionCollectionNode(sec.id)} className="chip-action-btn" style={{ color: '#ef4444' }}>
                               <Trash2 size={12} />
                             </button>
                           </div>
@@ -701,7 +592,7 @@ export default function FormSchemaBuilder({ activeFormCode = 'EMPLOYEE_MASTER_DI
             </button>
           </div>
 
-          <div className="form-scroll-viewport" style={{ maxHeight: '600px', overflowY: 'auto', paddingRight: '5px' }}>
+          <div className="form-scroll-viewport">
             <SystemImmutableCards effectiveFixedFields={effectiveFixedFields} />
 
             {fields.map((field, idx) => (
@@ -719,10 +610,10 @@ export default function FormSchemaBuilder({ activeFormCode = 'EMPLOYEE_MASTER_DI
             ))}
           </div>
 
-          <footer className="mac-form-footer-action-row" style={{ marginTop: '20px', paddingTop: '15px', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between' }}>
+          <footer className="mac-form-footer-action-row">
             <div>
               {status && (
-                <span style={{ color: status.type === 'success' ? '#16a34a' : '#dc2626', fontSize: '13px' }}>
+                <span className={`status-message ${status.type}`}>
                   {status.message}
                 </span>
               )}
