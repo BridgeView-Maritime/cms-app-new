@@ -1,254 +1,307 @@
 /* ==========================================================================
-   FOOTER COMPONENT (macOS Floating Bottom Application Dock Layout)
+   MACOS FLOATING DOCK & PORTAL SUBMENU STYLES
    ========================================================================== */
 
+/* Outer Dock Position Container */
 .mac-os-dock-container {
   position: fixed;
   bottom: 12px;
   left: 50%;
   transform: translateX(-50%);
-  z-index: 9999;
+  z-index: 999999;
   pointer-events: none;
-  max-width: 95vw;
+  width: auto;
+  max-width: 96vw;
   display: flex;
   justify-content: center;
 }
 
+/* Glassmorphism Dock Shelf */
 .mac-os-dock-shelf {
   display: flex;
   align-items: flex-end;
-  gap: 12px;
-  background: rgba(255, 255, 255, 0.35);
+  gap: 10px;
+  background: var(--mac-dock-bg, rgba(255, 255, 255, 0.65));
   backdrop-filter: blur(25px);
   -webkit-backdrop-filter: blur(25px);
-  padding: 8px 16px;
-  border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  padding: 8px 14px;
+  border-radius: 20px;
+  border: 1px solid var(--mac-border-color, rgba(255, 255, 255, 0.6));
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18), 0 2px 6px rgba(0, 0, 0, 0.08);
   pointer-events: auto;
   max-width: 100%;
+  position: relative;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
+.mac-os-dock-shelf::-webkit-scrollbar {
+  display: none;
+}
+
+/* Dock Item Wrapper */
 .dock-item-wrapper {
-  position: relative !important;
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   cursor: pointer;
+  flex-shrink: 0;
   transition: transform 0.2s cubic-bezier(0.25, 1, 0.5, 1);
   transform-origin: bottom center;
 }
 
+/* NavLink Reset */
+.dock-icon-sphere-link {
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Icon Sphere Base */
 .dock-icon-sphere {
   width: 44px;
   height: 44px;
-  background: rgba(255, 255, 255, 0.8);
-  border: 1px solid rgba(0, 0, 0, 0.05);
-  border-radius: 10px;
-  color: var(--mac-text-main, #333);
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+  color: var(--mac-text-main, #2c3e50);
   display: flex;
   align-items: center;
   justify-content: center;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s;
+  transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
 }
 
-/* Hover Physics for Desktop */
-@media (min-width: 1025px) {
-  .dock-item-wrapper:hover .dock-icon-sphere { 
-    transform: scale(1.18) translateY(-6px); 
+@media (hover: hover) and (pointer: fine) {
+  .dock-item-wrapper:hover .dock-icon-sphere {
+    transform: scale(1.18) translateY(-6px);
   }
 }
 
+/* Active State */
 .dock-item-active .dock-icon-sphere {
   background: linear-gradient(135deg, #007aff 0%, #0056b3 100%) !important;
   color: #ffffff !important;
 }
 
-.logout-sphere { color: #ef4444; }
-.dock-item-wrapper.logout-dock-trigger:hover .logout-sphere { background: #ef4444; color: #ffffff; }
+/* Logout Button */
+.logout-sphere {
+  color: #ef4444;
+}
 
+@media (hover: hover) and (pointer: fine) {
+  .dock-item-wrapper.logout-dock-trigger:hover .logout-sphere {
+    background: #ef4444 !important;
+    color: #ffffff !important;
+  }
+}
+
+/* Status Indicator Dot */
 .dock-active-indicator-dot {
   width: 4px;
   height: 4px;
   background: rgba(0, 0, 0, 0.6);
   border-radius: 50%;
-  margin-top: 3px;
+  margin-top: 4px;
   opacity: 0;
-}
-.dock-item-active .dock-active-indicator-dot { 
-  opacity: 1; 
-  background: #007aff; 
-}
-
-.dock-separator-line { 
-  width: 1px; 
-  background: rgba(0, 0, 0, 0.2); 
-  height: 40px; 
-  align-self: center; 
-  margin: 0 4px; 
+  transition: opacity 0.2s ease, background 0.2s ease;
   flex-shrink: 0;
 }
 
-/* Tooltip Title Bubble */
+.dock-item-active .dock-active-indicator-dot {
+  opacity: 1;
+  background: #007aff;
+}
+
+/* Separator Line */
+.dock-separator-line {
+  width: 1px;
+  background: var(--mac-border-color, rgba(0, 0, 0, 0.15));
+  height: 36px;
+  align-self: center;
+  margin: 0 2px;
+  flex-shrink: 0;
+}
+
+/* Tooltip Bubble */
 .dock-tooltip-bubble {
   position: absolute;
-  top: -45px;
-  background: rgba(0, 0, 0, 0.8);
-  color: white;
+  top: -42px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(15, 23, 42, 0.92);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #ffffff;
   padding: 4px 10px;
   border-radius: 6px;
   font-size: 11px;
+  font-weight: 500;
   white-space: nowrap;
-  display: none;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  z-index: 10000;
+  display: none;
+  pointer-events: none;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  z-index: 1000000;
 }
 
-@media (min-width: 1025px) {
-  .dock-item-wrapper:hover .dock-tooltip-bubble { 
-    display: block; 
-  }
-  .dock-item-wrapper:has(.dock-submenu-flyout-panel) .dock-tooltip-bubble {
-    display: none !important; 
+@media (hover: hover) and (pointer: fine) {
+  .dock-item-wrapper:hover .dock-tooltip-bubble {
+    display: block;
   }
 }
 
-/* Floating Vertical Submenu List Panel */
-.dock-submenu-flyout-panel {
-  position: absolute;
-  bottom: 65px;
-  width: 200px;
+.dock-item-wrapper.flyout-visible .dock-tooltip-bubble {
+  display: none !important;
+}
+
+/* ==========================================================================
+   BODY PORTAL SUBMENU (UNCLIPPED DIRECT VIEWPORT MOUNT)
+   ========================================================================== */
+
+.dock-flyout-portal-panel {
+  position: fixed !important;
+  transform: translateX(-50%);
+  width: 220px;
+  max-height: 320px;
+  overflow-y: auto;
+  overflow-x: hidden;
   background: rgba(255, 255, 255, 0.96);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border: 1px solid var(--mac-border, rgba(0,0,0,0.15));
-  border-radius: 10px;
-  box-shadow: var(--mac-shadow, 0 10px 25px rgba(0,0,0,0.15));
-  padding: 6px;
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 14px;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.22), 0 2px 8px rgba(0, 0, 0, 0.08);
+  padding: 8px;
   display: flex;
   flex-direction: column;
-  z-index: 10001;
-  animation: dockFlyoutReveal 0.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+  z-index: 99999999 !important;
+  animation: portalFlyoutReveal 0.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
   pointer-events: auto;
 }
 
-@keyframes dockFlyoutReveal {
-  from { opacity: 0; transform: translateY(10px) scale(0.95); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
+@keyframes portalFlyoutReveal {
+  from { opacity: 0; transform: translate(-50%, 10px) scale(0.95); }
+  to { opacity: 1; transform: translate(-50%, 0) scale(1); }
 }
 
 .flyout-panel-header {
   font-size: 11px;
-  color: #888;
-  font-weight: bold;
-  padding: 4px 8px;
+  font-weight: 700;
+  color: #64748b;
   text-transform: uppercase;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  letter-spacing: 0.6px;
+  padding: 6px 10px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
   margin-bottom: 4px;
 }
 
 .flyout-submenu-list {
   list-style: none;
-  padding: 0;
   margin: 0;
+  padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
 }
 
 .flyout-submenu-item {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 6px 10px;
-  border-radius: 6px;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  cursor: pointer;
   text-decoration: none;
-  color: #333;
-  font-size: 12px;
-  transition: background 0.15s ease, color 0.15s ease;
+  color: #1e293b;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.15s ease;
 }
 
-.flyout-submenu-item:hover { 
-  background: #007aff; 
-  color: white; 
+.flyout-icon-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+}
+
+.flyout-submenu-item:hover {
+  background: #007aff;
+  color: #ffffff;
 }
 
 .flyout-submenu-item.flyout-item-active {
-  background: rgba(0, 122, 255, 0.15);
+  background: rgba(0, 122, 255, 0.12);
   color: #007aff;
-  font-weight: bold;
+  font-weight: 600;
 }
-.flyout-item-text { white-space: nowrap; }
 
-/* Triangle Anchor Arrow pointing downwards */
+.flyout-item-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .dock-flyout-arrow-down {
   position: absolute;
   bottom: -6px;
-  left: 50%;
   transform: translateX(-50%) rotate(45deg);
   width: 12px;
   height: 12px;
   background: rgba(255, 255, 255, 0.96);
-  border-right: 1px solid var(--mac-border, rgba(0,0,0,0.15));
-  border-bottom: 1px solid var(--mac-border, rgba(0,0,0,0.15));
+  border-right: 1px solid rgba(0, 0, 0, 0.12);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
   z-index: -1;
 }
 
 /* ==========================================================================
-   RESPONSIVE SCROLLER AND MOBILE OVERRIDES
+   RESPONSIVE BREAKPOINTS
    ========================================================================== */
 
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
   .mac-os-dock-container {
     bottom: 8px;
-    width: 92vw;
+    max-width: 98vw;
   }
 
   .mac-os-dock-shelf {
     gap: 8px;
     padding: 6px 10px;
-    border-radius: 14px;
-    overflow-x: auto; /* Turn dock layer into an internal responsive horizontal container swipe row */
-    overflow-y: hidden;
-    scrollbar-width: none; /* Hide standard desktop scroll tracks on mobile viewports */
-    -webkit-overflow-scrolling: touch;
-    align-items: center;
-  }
-
-  .mac-os-dock-shelf::-webkit-scrollbar {
-    display: none;
+    border-radius: 16px;
+    justify-content: flex-start;
   }
 
   .dock-icon-sphere {
     width: 38px;
     height: 38px;
-    border-radius: 8px;
+    border-radius: 10px;
   }
 
   .dock-separator-line {
-    height: 28px;
-    margin: 0 2px;
+    height: 26px;
+    margin: 0 1px;
   }
 
-  /* Center the flyout panels perfectly above their respective horizontal touch coordinates */
-  .dock-submenu-flyout-panel {
-    bottom: 56px;
-    position: fixed;
-    left: 50% !important;
-    transform: translateX(-50%) !important;
-    width: 85vw;
-    max-height: 45vh; /* Safe scroll lock viewport restriction on short phones */
-    overflow-y: auto;
+  .dock-flyout-portal-panel {
+    width: 200px;
+    max-height: 240px;
+  }
+}
+
+@media (max-width: 400px) {
+  .mac-os-dock-shelf {
+    gap: 6px;
+    padding: 5px 8px;
   }
 
-  @keyframes dockFlyoutReveal {
-    from { opacity: 0; transform: translate(-50%, 10px) scale(0.98); }
-    to { opacity: 1; transform: translate(-50%, 0) scale(1); }
-  }
-
-  /* Hide the downward arrow anchor on small screens to maintain a clean card layout */
-  .dock-flyout-arrow-down {
-    display: none;
+  .dock-icon-sphere {
+    width: 34px;
+    height: 34px;
   }
 }

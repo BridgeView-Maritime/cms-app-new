@@ -17,7 +17,7 @@ export default function UserManagementTab({
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '24px' }}>
       <form onSubmit={handleUserCreation} style={{ backgroundColor: '#f8fafc', padding: '16px', borderRadius: '6px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '12px' }}>
         <h3 style={{ fontSize: '11px', fontWeight: '700', textTransform: 'uppercase', color: '#64748b', letterSpacing: '0.05em', margin: '0 0 8px 0' }}>
-          {editingUserId ? 'Modify Access Credentials' : 'Deploy Access Credentials'}
+          {editingUserId ? 'Modify Access Credentials' : 'Access Credentials'}
         </h3>
         
         {errors.general && (
@@ -27,7 +27,7 @@ export default function UserManagementTab({
         )}
 
         <div>
-          <label style={{ fontSize: '12px', fontWeight: '500', display: 'block', marginBottom: '4px' }}>Anchor Workforce Employee *</label>
+          <label style={{ fontSize: '12px', fontWeight: '500', display: 'block', marginBottom: '4px' }}>Employee *</label>
           <select 
             required 
             disabled={!!editingUserId}
@@ -46,7 +46,7 @@ export default function UserManagementTab({
         </div>
 
         <div>
-          <label style={{ fontSize: '12px', fontWeight: '500', display: 'block', marginBottom: '4px' }}>Username Alpha String *</label>
+          <label style={{ fontSize: '12px', fontWeight: '500', display: 'block', marginBottom: '4px' }}>Username *</label>
           <input type="text" required value={userForm.username} onChange={e => setUserForm({...userForm, username: e.target.value})} style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1', borderRadius: '4px', fontSize: '13px' }} />
           {errors.username && <span style={{ color: '#ef4444', fontSize: '11px' }}>{errors.username}</span>}
         </div>
@@ -59,7 +59,7 @@ export default function UserManagementTab({
 
         <div>
           <label style={{ fontSize: '12px', fontWeight: '500', display: 'block', marginBottom: '4px' }}>
-            Secure Passphrase {editingUserId ? '(Leave blank to retain)' : '*'}
+            Secure Password {editingUserId ? '(Leave blank to retain)' : '*'}
           </label>
           <input type="password" required={!editingUserId} value={userForm.password} onChange={e => setUserForm({...userForm, password: e.target.value})} style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1', borderRadius: '4px', fontSize: '13px' }} placeholder="••••••••" />
           {errors.password && <span style={{ color: '#ef4444', fontSize: '11px' }}>{errors.password}</span>}
@@ -95,13 +95,13 @@ export default function UserManagementTab({
       </form>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-        <h3 style={{ fontSize: '11px', fontWeight: '700', textTransform: 'uppercase', color: '#94a3b8', letterSpacing: '0.05em', margin: 0 }}>Active Core Security Node Registrations</h3>
+        <h3 style={{ fontSize: '11px', fontWeight: '700', textTransform: 'uppercase', color: '#94a3b8', letterSpacing: '0.05em', margin: 0 }}>Active Users</h3>
         <div style={{ border: '1px solid #e2e8f0', borderRadius: '6px', overflow: 'hidden', backgroundColor: '#ffffff' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px' }}>
             <thead>
               <tr style={{ backgroundColor: '#f8fafc', borderBottom: '1px solid #e2e8f0', color: '#64748b', fontSize: '11px', textTransform: 'uppercase' }}>
-                <th style={{ padding: '10px' }}>User Context</th>
-                <th style={{ padding: '10px' }}>Access Channel Email</th>
+                <th style={{ padding: '10px' }}>User</th>
+                <th style={{ padding: '10px' }}>Email</th>
                 <th style={{ padding: '10px' }}>Role</th>
                 <th style={{ padding: '10px' }}>Status</th>
                 <th style={{ padding: '10px', textAlign: 'right' }}>Actions</th>

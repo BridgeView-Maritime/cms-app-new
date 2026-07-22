@@ -1,3 +1,4 @@
+// client/src/components/RoleManagementTab.jsx
 import React from 'react';
 import '../styles/RoleManagementTab.css';
 
@@ -5,14 +6,57 @@ export default function RoleManagementTab({
   roleForm,
   setRoleForm,
   editingRoleId,
-  menuList,
-  roleList,
+  menuList = [],
+  roleList = [],
   handleRoleSubmission,
   cancelRoleEdit,
   startEditRole,
   toggleRoleStatus,
   toggleMenuPermission
 }) {
+  /**
+   * Helper function to check if a menu is permitted in roleForm.allowed_menus.
+   * Handles both array of string IDs: ['60d5...', '60d6...'] 
+   * and array of populated objects: [{ _id: '60d5...', menu_name: '...' }]
+   */
+  const isMenuChecked = (menuId) => {
+    if (!roleForm?.allowed_menus || !Array.isArray(roleForm.allowed_menus)) {
+      return false;
+    }
+
+    return roleForm.allowed_menus.some((allowed) => {
+      if (!allowed) return false;
+      const allowedId = typeof allowed === 'object' ? allowed._id : allowed;
+      return String(allowedId) === String(menuId);
+    });
+  };
+
+  /**
+   * Determines if all available menus are currently selected
+   */
+  const areAllMenusSelected =
+    menuList.length > 0 && menuList.every((menu) => isMenuChecked(menu._id));
+
+  /**
+   * Toggles selecting all menus or clearing selection
+   */
+  const handleSelectAllMenus = () => {
+    if (areAllMenusSelected) {
+      // Deselect All
+      setRoleForm({
+        ...roleForm,
+        allowed_menus: []
+      });
+    } else {
+      // Select All
+      const allMenuIds = menuList.map((menu) => menu._id);
+      setRoleForm({
+        ...roleForm,
+        allowed_menus: allMenuIds
+      });
+    }
+  };
+
   return (
     <div className="role-management-container">
       {/* Form Section */}
@@ -27,8 +71,8 @@ export default function RoleManagementTab({
             type="text" 
             placeholder="e.g. OPERATIONS_DESK" 
             required 
-            value={roleForm.role_code} 
-            onChange={e => setRoleForm({...roleForm, role_code: e.target.value.toUpperCase()})} 
+            value={roleForm.role_code || ''} 
+            onChange={e => setRoleForm({ ...roleForm, role_code: e.target.value.toUpperCase() })} 
             className="role-text-input" 
           />
         </div>
@@ -39,20 +83,40 @@ export default function RoleManagementTab({
             type="text" 
             placeholder="e.g. Vessel Control Officer" 
             required 
-            value={roleForm.role_name} 
-            onChange={e => setRoleForm({...roleForm, role_name: e.target.value})} 
+            value={roleForm.role_name || ''} 
+            onChange={e => setRoleForm({ ...roleForm, role_name: e.target.value })} 
             className="role-text-input" 
           />
         </div>
 
         <div className="role-field-group">
-          <label className="role-field-label">Assign Navigation Components (Live Binding)</label>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+            <label className="role-field-label" style={{ margin: 0 }}>
+              Assign Navigation Components (Live Binding)
+            </label>
+            
+            {/* Select All Toggle */}
+            {menuList.length > 0 && (
+              <label 
+                className="role-select-all-label" 
+                style={{ fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 600, color: '#3b82f6' }}
+              >
+                <input 
+                  type="checkbox" 
+                  checked={areAllMenusSelected} 
+                  onChange={handleSelectAllMenus} 
+                />
+                Select All
+              </label>
+            )}
+          </div>
+
           <div className="role-menu-checkbox-container">
             {menuList.map(menu => (
               <label key={menu._id} className="role-menu-checkbox-item">
                 <input 
                   type="checkbox" 
-                  checked={roleForm.allowed_menus.includes(menu._id)} 
+                  checked={isMenuChecked(menu._id)} 
                   onChange={() => toggleMenuPermission(menu._id)} 
                 />
                 {menu.menu_name}
@@ -75,10 +139,10 @@ export default function RoleManagementTab({
 
       {/* Role Listing Column */}
       <div className="role-list-column">
-        <h3 className="role-list-title">Functional Authorization Tree Structures</h3>
+        <h3 className="role-list-title">Role Authorization Structures</h3>
         {roleList.map((role, idx) => (
           <div 
-            key={idx} 
+            key={role._id || idx} 
             className={`role-item-card ${role.is_active === false ? 'is-dimmed' : ''}`}
           >
             <div className="role-item-info">

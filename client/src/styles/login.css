@@ -116,12 +116,39 @@
   border-bottom: 1px solid var(--panel-border);
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
+  position: relative;
 }
-.hud-identity { display: flex; align-items: center; gap: 12px; }
-.hud-anchor-icon { color: var(--chart-accent); display: flex; transition: color 0.6s ease; }
-.hud-brand-name { font-size: 15px; font-weight: 800; color: var(--font-core); letter-spacing: 0.01em; margin: 0; }
-.hud-tagline { font-size: 11px; color: var(--font-sub); margin: 1px 0 0 0; }
+
+.hud-identity { 
+  display: flex; 
+  flex-direction: column;
+  align-items: center; 
+  justify-content: center;
+  text-align: center;
+  gap: 4px; 
+}
+
+.hud-anchor-icon { 
+  color: var(--chart-accent); 
+  display: flex; 
+  transition: color 0.6s ease; 
+  margin-bottom: 4px;
+}
+
+.hud-brand-name { 
+  font-size: 15px; 
+  font-weight: 800; 
+  color: var(--font-core); 
+  letter-spacing: 0.01em; 
+  margin: 0; 
+}
+
+.hud-tagline { 
+  font-size: 11px; 
+  color: var(--font-sub); 
+  margin: 1px 0 0 0; 
+}
 
 .hud-mode-toggle {
   background: var(--deck-input-bg); 

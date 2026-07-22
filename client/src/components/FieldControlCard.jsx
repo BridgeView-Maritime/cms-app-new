@@ -15,6 +15,21 @@ export default function FieldControlCard({
   const selectedSourceForm = availableForms.find(formItem => formItem.form_code === field.lookup_form_code);
   const sourceFields = selectedSourceForm && Array.isArray(selectedSourceForm.fields) ? selectedSourceForm.fields : [];
 
+  // Helper function to auto-slugify Label into a Database Key
+  const handleLabelChange = (e) => {
+    const newLabel = e.target.value;
+    handleFieldChange(idx, 'label', newLabel);
+
+    // Converts "Identity Status" -> "identity_status"
+    const generatedKey = newLabel
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9\s_]/g, '') // Remove non-alphanumeric chars except space/underscore
+      .replace(/\s+/g, '_');         // Replace spaces with underscores
+
+    handleFieldChange(idx, 'field_key', generatedKey);
+  };
+
   return (
     <div className={`mac-form-array-card field-control-card ${field.is_active ? 'active-node' : 'soft-deleted-node'}`}>
       
@@ -36,12 +51,22 @@ export default function FieldControlCard({
       <div className="mac-form-grid-4x field-controls-grid">
         <div className="form-control-block">
           <label>UI Label Display</label>
-          <input type="text" value={field.label} onChange={e => handleFieldChange(idx, 'label', e.target.value)} placeholder="e.g. Identity Status" />
+          <input 
+            type="text" 
+            value={field.label || ''} 
+            onChange={handleLabelChange} 
+            placeholder="e.g. Identity Status" 
+          />
         </div>
 
         <div className="form-control-block">
           <label>Database Key Name</label>
-          <input type="text" value={field.field_key} onChange={e => handleFieldChange(idx, 'field_key', e.target.value)} placeholder="e.g. identity_status" />
+          <input 
+            type="text" 
+            value={field.field_key || ''} 
+            disabled 
+            placeholder="e.g. identity_status" 
+          />
         </div>
         
         <div className="form-control-block">
@@ -81,7 +106,6 @@ export default function FieldControlCard({
         <div className="form-control-block">
           <label>Target Workspace Section</label>
           <select value={field.section} onChange={e => handleFieldChange(idx, 'section', e.target.value)}>
-            {/* Iterates dynamically through custom runtime sections instead of hardcoded strings */}
             {sections.map(sectionItem => (
               <option key={sectionItem.id} value={sectionItem.id}>
                 {sectionItem.label}

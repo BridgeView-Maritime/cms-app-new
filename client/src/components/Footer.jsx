@@ -1,32 +1,113 @@
 // client/src/components/Footer.jsx
-import React, { useMemo, useEffect, useRef } from 'react';
+import React, { useMemo, useEffect, useRef, useState, useCallback } from 'react';
+import ReactDOM from 'react-dom';
 import { NavLink, useLocation } from 'react-router-dom';
 import { LogOut } from 'lucide-react';
 import '../styles/Footer.css';
 
-export default function Footer({ 
-  structuredMenu, 
-  activeDockFlyout, 
-  setActiveDockFlyout, 
-  isClickLocked, 
-  setIsClickLocked, 
-  leaveTimeoutRef, 
-  renderIcon, 
-  onLogout 
+// Separate Portal Component to render submenu directly to document.body
+const DockFlyoutPortal = ({ menu, activeSubMenus, normalizePath, renderIcon, triggerRef, onClose }) => {
+  const [coords, setCoords] = useState({ bottom: 70, left: 0, arrowLeft: '50%' });
+
+  const updatePosition = useCallback(() => {
+    if (!triggerRef.current) return;
+    const rect = triggerRef.current.getBoundingClientRect();
+    const panelWidth = 220; // Matches panel CSS width
+    const viewportWidth = window.innerWidth;
+
+    let computedLeft = rect.left + rect.width / 2;
+    let arrowOffset = '50%';
+
+    // Screen edge protection for Mobile & Small viewports
+    if (computedLeft - panelWidth / 2 < 12) {
+      // Near left edge
+      computedLeft = 12 + panelWidth / 2;
+      arrowOffset = `${Math.max(16, rect.left + rect.width / 2 - 12)}px`;
+    } else if (computedLeft + panelWidth / 2 > viewportWidth - 12) {
+      // Near right edge
+      computedLeft = viewportWidth - 12 - panelWidth / 2;
+      arrowOffset = `${Math.min(panelWidth - 16, rect.left + rect.width / 2 - (viewportWidth - 12 - panelWidth))}px`;
+    }
+
+    setCoords({
+      bottom: window.innerHeight - rect.top + 10,
+      left: computedLeft,
+      arrowLeft: arrowOffset
+    });
+  }, [triggerRef]);
+
+  useEffect(() => {
+    updatePosition();
+    window.addEventListener('resize', updatePosition);
+    window.addEventListener('scroll', updatePosition, true);
+    return () => {
+      window.removeEventListener('resize', updatePosition);
+      window.removeEventListener('scroll', updatePosition, true);
+    };
+  }, [updatePosition]);
+
+  return ReactDOM.createPortal(
+    <div
+      className="dock-flyout-portal-panel"
+      style={{
+        bottom: `${coords.bottom}px`,
+        left: `${coords.left}px`
+      }}
+      onClick={(e) => e.stopPropagation()}
+    >
+      <div className="flyout-panel-header">{menu.menu_name}</div>
+      <ul className="flyout-submenu-list">
+        {activeSubMenus.map(sub => (
+          <li key={sub.id}>
+            <NavLink
+              to={normalizePath(sub.route)}
+              className={({ isActive }) => `flyout-submenu-item ${isActive ? 'flyout-item-active' : ''}`}
+              onClick={onClose}
+            >
+              <div className="flyout-icon-box">{renderIcon(sub.menu_icon)}</div>
+              <span className="flyout-item-text">{sub.menu_name}</span>
+            </NavLink>
+          </li>
+        ))}
+      </ul>
+      <div className="dock-flyout-arrow-down" style={{ left: coords.arrowLeft }} />
+    </div>,
+    document.body
+  );
+};
+
+export default function Footer({
+  structuredMenu,
+  activeDockFlyout,
+  setActiveDockFlyout,
+  isClickLocked,
+  setIsClickLocked,
+  leaveTimeoutRef,
+  renderIcon,
+  onLogout
 }) {
   const location = useLocation();
-  const dockRef = useRef(null); // Ref added to capture the dock footprint boundary
+  const dockRef = useRef(null);
+  const itemRefs = useRef({});
 
-  // Global Outside Click Event Interceptor
+  // Close flyouts on click/tap outside dock
   useEffect(() => {
     const handleGlobalClickOutside = (event) => {
       if (dockRef.current && !dockRef.current.contains(event.target)) {
+        // Check if click was inside portal menu
+        const portal = document.querySelector('.dock-flyout-portal-panel');
+        if (portal && portal.contains(event.target)) return;
+
         setActiveDockFlyout(null);
         setIsClickLocked(false);
       }
     };
     document.addEventListener('mousedown', handleGlobalClickOutside);
-    return () => document.removeEventListener('mousedown', handleGlobalClickOutside);
+    document.addEventListener('touchstart', handleGlobalClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleGlobalClickOutside);
+      document.removeEventListener('touchstart', handleGlobalClickOutside);
+    };
   }, [setActiveDockFlyout, setIsClickLocked]);
 
   const normalizePath = (routeStr) => {
@@ -34,7 +115,7 @@ export default function Footer({
     if (routeStr === '/' || routeStr === '/dashboard') return "/dashboard";
     
     if (
-      routeStr.startsWith('/app/workspace/') || 
+      routeStr.startsWith('/app/workspace/') ||
       routeStr.startsWith('/dashboard/') ||
       routeStr === '/dashboard/broadcast' ||
       routeStr === '/dashboard/my-history'
@@ -46,7 +127,6 @@ export default function Footer({
   };
 
   const handleDockItemMouseEnter = (menuId, hasChildren) => {
-    // Only process hover flyouts if user is on a desktop device
     if (window.innerWidth <= 1024) return;
     if (leaveTimeoutRef.current) clearTimeout(leaveTimeoutRef.current);
     if (!isClickLocked && hasChildren) setActiveDockFlyout(menuId);
@@ -60,8 +140,8 @@ export default function Footer({
   };
 
   const activeMenus = useMemo(() => {
-    const rawItems = Array.isArray(structuredMenu) 
-      ? structuredMenu 
+    const rawItems = Array.isArray(structuredMenu)
+      ? structuredMenu
       : (structuredMenu && Array.isArray(structuredMenu.data) ? structuredMenu.data : []);
 
     const itemMap = {};
@@ -112,23 +192,25 @@ export default function Footer({
   return (
     <footer className="mac-os-dock-container" ref={dockRef}>
       <div className="mac-os-dock-shelf">
-        {activeMenus.map(menu => {
+        {activeMenus.map((menu) => {
           const activeSubMenus = menu.subMenus || [];
           const hasChildren = activeSubMenus.length > 0;
           const absoluteTarget = normalizePath(menu.route);
           
-          const isSelected = location.pathname === absoluteTarget || 
+          const isSelected = location.pathname === absoluteTarget ||
             (hasChildren && activeSubMenus.some(s => location.pathname === normalizePath(s.route)));
             
           const isFlyoutOpen = activeDockFlyout === menu.id;
 
           return (
-            <div 
-              key={menu.id} 
+            <div
+              key={menu.id}
+              ref={(el) => (itemRefs.current[menu.id] = el)}
               className={`dock-item-wrapper ${isSelected ? 'dock-item-active' : ''} ${isFlyoutOpen ? 'flyout-visible' : ''}`}
               onMouseEnter={() => handleDockItemMouseEnter(menu.id, hasChildren)}
               onMouseLeave={handleDockItemMouseLeave}
-              onClick={() => {
+              onClick={(e) => {
+                e.stopPropagation();
                 if (hasChildren) {
                   setIsClickLocked(prev => !prev || activeDockFlyout !== menu.id);
                   setActiveDockFlyout(activeDockFlyout === menu.id ? null : menu.id);
@@ -138,30 +220,17 @@ export default function Footer({
               <div className="dock-tooltip-bubble">{menu.menu_name}</div>
 
               {hasChildren && isFlyoutOpen && (
-                <div 
-                  className="dock-submenu-flyout-panel"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <div className="flyout-panel-header">{menu.menu_name}</div>
-                  <ul className="flyout-submenu-list">
-                    {activeSubMenus.map(sub => (
-                      <li key={sub.id}>
-                        <NavLink 
-                          to={normalizePath(sub.route)}
-                          className={({ isActive }) => `flyout-submenu-item ${isActive ? 'flyout-item-active' : ''}`}
-                          onClick={() => {
-                            setActiveDockFlyout(null);
-                            setIsClickLocked(false);
-                          }}
-                        >
-                          <div className="flyout-icon-box">{renderIcon(sub.menu_icon)}</div>
-                          <span className="flyout-item-text">{sub.menu_name}</span>
-                        </NavLink>
-                      </li>
-                    ))}
-                  </ul>
-                  <div className="dock-flyout-arrow-down" />
-                </div>
+                <DockFlyoutPortal
+                  menu={menu}
+                  activeSubMenus={activeSubMenus}
+                  normalizePath={normalizePath}
+                  renderIcon={renderIcon}
+                  triggerRef={{ current: itemRefs.current[menu.id] }}
+                  onClose={() => {
+                    setActiveDockFlyout(null);
+                    setIsClickLocked(false);
+                  }}
+                />
               )}
 
               {hasChildren ? (

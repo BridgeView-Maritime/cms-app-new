@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   Shield, Anchor, Briefcase, FileText, User, Settings, Bell, Layers, Grid, Cpu, Database, 
   Folder, Activity, BarChart, Lock, MapPin, Landmark, GraduationCap, ShieldAlert, HelpCircle, 
-  Plus, Save, Eye, Edit3, Layers3, FolderPlus, Trash2, Edit2, Check, X, EyeOff
+  Plus, Save, Eye, Edit3, Layers3, FolderPlus, Trash2, Edit2, Check, X, EyeOff, Search, SlidersHorizontal, AlertTriangle, ShieldCheck, Globe, ChevronDown
 } from 'lucide-react';
 
 import GlobalParametersPanel from './GlobalParametersPanel';
@@ -45,7 +45,13 @@ const AVAILABLE_SECTION_ICONS = [
   { name: 'Edit2', component: Edit2 },
   { name: 'Check', component: Check },
   { name: 'X', component: X },
-  { name: 'EyeOff', component: EyeOff }
+  { name: 'EyeOff', component: EyeOff },
+  { name: 'Search', component: Search },
+  { name: 'SlidersHorizontal', component: SlidersHorizontal },
+  { name: 'AlertTriangle', component: AlertTriangle },
+  { name: 'ShieldCheck', component: ShieldCheck },
+  { name: 'Globe', component: Globe },
+  { name: 'ChevronDown', component: ChevronDown }
 ];
 
 const SectionIconRenderer = ({ iconName, size = 14, ...props }) => {

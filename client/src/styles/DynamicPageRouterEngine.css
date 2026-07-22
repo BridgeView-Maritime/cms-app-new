@@ -1,0 +1,106 @@
+/* ==========================================
+   DYNAMIC PAGE ROUTER ENGINE STYLES
+   ========================================== */
+
+/* Main Container Shell */
+.dynamic-workspace-engine-shell {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 24px;
+  box-sizing: border-box;
+  background-color: #f8fafc;
+  min-height: calc(100vh - 70px);
+}
+
+/* Loading & Empty States */
+.dynamic-workspace-engine-shell .engine-loading-state,
+.dynamic-workspace-engine-shell .engine-empty-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 60px 20px;
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: #475569;
+  text-align: center;
+  margin-top: 20px;
+}
+
+/* ------------------------------------------
+   SPLIT WORKSPACE LAYOUT (LISTING_AND_FORM)
+   ------------------------------------------ */
+.split-workspace-layout-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  align-items: start;
+  width: 100%;
+}
+
+/* Individual Panel Wrapping Enhancements */
+.split-workspace-layout-grid > * {
+  min-width: 0; /* Prevents flex/grid children from overflowing boundaries */
+  background: #ffffff;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  padding: 16px;
+  box-sizing: border-box;
+  transition: box-shadow 0.2s ease-in-out;
+}
+
+.split-workspace-layout-grid > *:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.07);
+}
+
+/* ------------------------------------------
+   RESPONSIVE & ADAPTIVE BREAKPOINTS
+   ------------------------------------------ */
+
+/* Large Desktop Displays */
+@media (min-width: 1600px) {
+  .dynamic-workspace-engine-shell {
+    max-width: 1600px;
+  }
+  .split-workspace-layout-grid {
+    gap: 32px;
+  }
+}
+
+/* Laptops & Standard Desktops (Collapse Split Grid under 1024px) */
+@media (max-width: 1024px) {
+  .split-workspace-layout-grid {
+    grid-template-columns: 1fr !important; /* Forces side-by-side to stacked */
+    gap: 20px;
+  }
+}
+
+/* Tablets & Mobile Devices */
+@media (max-width: 768px) {
+  .dynamic-workspace-engine-shell {
+    padding: 12px;
+  }
+
+  .split-workspace-layout-grid > * {
+    padding: 12px;
+    border-radius: 8px;
+  }
+}
+
+/* Small Mobile Screens */
+@media (max-width: 480px) {
+  .dynamic-workspace-engine-shell {
+    padding: 8px;
+  }
+
+  .dynamic-workspace-engine-shell .engine-loading-state,
+  .dynamic-workspace-engine-shell .engine-empty-state {
+    padding: 40px 15px;
+    font-size: 0.95rem;
+  }
+}

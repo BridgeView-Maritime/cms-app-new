@@ -6,50 +6,8 @@ import '../styles/theme.css';
 import '../styles/login.css';
 import '../styles/Dashboard.css';
 
-const BASE_STATIC_CONTENT = {
-  brand: "Bridgeview Maritime",
-  tagline: "Maritime ERP & Crew Management System",
-  formTitle: "Log-In",
-  formSubtitle: "Access your dashboard",
-  userLabel: "username",
-  userPlaceholder: "user@bridgeview.com",
-  passLabel: "Password",
-  passPlaceholder: "••••••••••••",
-  forgot: "Forgot Password?",
-  submit: "Submit",
-  submitting: "Please wait...",
-  successText: "Login Successfully",
-  successSub: "Token verified successfully...",
-  copyright: "2026 Bridgeview Maritime. All Rights Reserved.",
-  
-  otpTitle: "Security Clearance",
-  otpSubtitle: "Enter verification token",
-  otpLabel: "OTP Token",
-  otpPlaceholder: "6-Digit Secure Code",
-  errorOtp: "Verification token code is required",
-
-  forgotTitle: "Reset Password",
-  forgotSubtitle: "Enter your registered email address to recover your account.",
-  emailLabel: "Email Address",
-  emailPlaceholder: "email@bridgeview.com",
-  errorEmail: "Valid email address is required",
-  backToLogin: "Back to Log-In",
-  resetSubmit: "Send Recovery OTP"
-};
-
-const SHIFTS = ['night', 'afternoon', 'day'];
-const LANGUAGES = [
-  { code: 'en', label: 'ENG' },
-  { code: 'hi', label: 'हिन् (HI)' },
-  { code: 'mr', label: 'मरा (MR)' }
-];
-
 export default function LoginPage() {
   const navigate = useNavigate();
-  const [shiftIndex, setShiftIndex] = useState(2); 
-  const [currentLang, setCurrentLang] = useState('en');
-  const [localizedContent, setLocalizedContent] = useState(BASE_STATIC_CONTENT);
-  const [translating, setTranslating] = useState(false);
 
   // Application operational views workflow context pipeline
   // Stages managed: 'credentials' | 'otp' | 'forgot' | 'forgot_otp' | 'reset_password'
@@ -71,6 +29,7 @@ export default function LoginPage() {
   const [apiSuccessMessage, setApiSuccessMessage] = useState('');
   const [errors, setErrors] = useState({ user: '', pass: '', otp: '', email: '', newPass: '', confirmPass: '', server: '' });
 
+
   // Safety Route Guard Check Matrix
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
@@ -78,83 +37,6 @@ export default function LoginPage() {
       navigate('/dashboard', { replace: true });
     }
   }, [navigate]);
-
-  // Environment Style Sync
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', SHIFTS[shiftIndex]);
-  }, [shiftIndex]);
-
-  // Unified Multi-Language Translation Mapping Logic
-  const fetchAiTranslation = async (targetLang) => {
-    if (targetLang === 'en') return BASE_STATIC_CONTENT;
-    await new Promise(resolve => setTimeout(resolve, 500));
-
-    if (targetLang === 'hi') {
-      return {
-        ...BASE_STATIC_CONTENT,
-        brand: "ब्रिजव्यू मैरीटाइम",
-        tagline: "समुद्री ईआरपी और चालक दल प्रबंधन प्रणाली",
-        formTitle: "लॉग-इन",
-        formSubtitle: "अपने डैशबोर्ड तक पहुंचें",
-        userLabel: "यूज़रनेम",
-        userPlaceholder: "officer.id@bridgeview.com",
-        passLabel: "पासवर्ड",
-        passPlaceholder: "••••••••••••",
-        forgot: "पासवर्ड भूल गए?",
-        submit: "जमा करें",
-        submitting: "कृपया प्रतीक्षा करें...",
-        successText: "लॉगिन सफलतापूर्वक संपन्न हुआ",
-        successSub: "उच्च आवृत्ति वाले बेड़े की टेलीमेट्री को डिक्रिप्ट किया जा रहा है...",
-        errorUser: "यूज़रनेम आवश्यक है",
-        errorPass: "पासवर्ड आवश्यक है",
-        copyright: "2026 ब्रिजव्यू मैरीटाइम। सर्वाधिकार सुरक्षित।"
-      };
-    }
-
-    if (targetLang === 'mr') {
-      return {
-        ...BASE_STATIC_CONTENT,
-        brand: "ब्रिजव्ह्यू मरीन",
-        tagline: "मॅरिटाईम ईआरपी आणि क्रू व्यवस्थापन प्रणाली",
-        formTitle: "लॉग-इन",
-        formSubtitle: "तुमच्या डॅशबोर्डवर जा",
-        userLabel: "वापरकर्तानाव",
-        userPlaceholder: "officer.id@bridgeview.com",
-        passLabel: "पासवर्ड",
-        passPlaceholder: "••••••••••••",
-        forgot: "पासवर्ड विसरलात?",
-        submit: "सबमिट करा",
-        submitting: "कृपया प्रतीक्षा करा...",
-        successText: "लॉगिन यशस्वी झाले",
-        successSub: "उच्च-वारंवारता फ्लीट टेलिमेट्री डिक्रिप्ट करत आहे...",
-        errorUser: "वापरकर्तानाव आवश्यक आहे",
-        errorPass: "पासवर्ड आवश्यक आहे",
-        copyright: "2026 ब्रिजव्ह्यू मरीन. सर्व हक्क सुरक्षित."
-      };
-    }
-    return BASE_STATIC_CONTENT;
-  };
-
-  useEffect(() => {
-    let isMounted = true;
-    async function translateFields() {
-      setTranslating(true);
-      try {
-        const data = await fetchAiTranslation(currentLang);
-        if (isMounted) setLocalizedContent(data);
-      } catch (err) {
-        console.error("AI Translation connection exception:", err);
-      } finally {
-        if (isMounted) setTranslating(false);
-      }
-    }
-    translateFields();
-    return () => { isMounted = false; };
-  }, [currentLang]);
-
-  const handleShiftRotation = () => {
-    setShiftIndex((prevIndex) => (prevIndex + 1) % SHIFTS.length);
-  };
 
   // Field Level Validation Utilities
   const handleValidateCredentials = useCallback(() => {
@@ -167,17 +49,17 @@ export default function LoginPage() {
 
   const handleValidateOtp = useCallback(() => {
     const nextErr = { user: '', pass: '', otp: '', email: '', newPass: '', confirmPass: '', server: '' };
-    if (!otpCode.trim()) nextErr.otp = localizedContent.errorOtp;
+    if (!otpCode.trim()) nextErr.otp = "Verification token code is required";
     setErrors(nextErr);
     return !nextErr.otp;
-  }, [otpCode, localizedContent]);
+  }, [otpCode]);
 
   const handleValidateForgotEmail = useCallback(() => {
     const nextErr = { user: '', pass: '', otp: '', email: '', newPass: '', confirmPass: '', server: '' };
-    if (!forgotEmail.trim() || !forgotEmail.includes('@')) nextErr.email = localizedContent.errorEmail;
+    if (!forgotEmail.trim() || !forgotEmail.includes('@')) nextErr.email = "Valid email address is required";
     setErrors(nextErr);
     return !nextErr.email;
-  }, [forgotEmail, localizedContent]);
+  }, [forgotEmail]);
 
   const handleValidateForgotOtp = useCallback(() => {
     const nextErr = { user: '', pass: '', otp: '', email: '', newPass: '', confirmPass: '', server: '' };
@@ -326,8 +208,11 @@ export default function LoginPage() {
   };
 
   return (
-    <div className={`hud-deck-wrapper ${translating ? 'hud-translating-blur' : ''}`}>
+    <div className="hud-deck-wrapper">
       
+      {/* Hidden Native Google Translate Target Element */}
+      <div id="google_translate_element_login" style={{ display: 'none' }}></div>
+
       {/* BACKGROUND DEEP SEA ANIMATION PIPELINE */}
       <div className="dynamic-ocean-floor">
         <div className="ambient-sonar-wave" />
@@ -357,29 +242,11 @@ export default function LoginPage() {
               </svg>
             </div>
             <div>
-              <h1 className="hud-brand-name">{localizedContent.brand}</h1>
-              <p className="hud-tagline">{localizedContent.tagline}</p>
+              <h1 className="hud-brand-name">Bridgeview Maritime</h1>
+              <p className="hud-tagline">Maritime ERP & Crew Management System</p>
             </div>
           </div>
 
-          <div className="hud-controls-cluster">
-            <div className="hud-lang-selector-wrapper">
-              <select 
-                className="hud-dropdown-native"
-                value={currentLang} 
-                onChange={(e) => setCurrentLang(e.target.value)}
-                disabled={translating || loading}
-              >
-                {LANGUAGES.map(lang => (
-                  <option key={lang.code} value={lang.code}>{lang.label}</option>
-                ))}
-              </select>
-            </div>
-
-            <button type="button" className="hud-mode-toggle" onClick={handleShiftRotation}>
-              <span className="hud-mode-text-label">{SHIFTS[shiftIndex]}</span>
-            </button>
-          </div>
         </div>
 
         {/* WORKSPACE OPERATIONS RENDERING VIEWPORT */}
@@ -387,15 +254,15 @@ export default function LoginPage() {
           <div className="hud-form-block">
             <div className="hud-form-headers">
               <h2 className="hud-main-heading">
-                {authStage === 'credentials' && localizedContent.formTitle}
-                {authStage === 'otp' && localizedContent.otpTitle}
+                {authStage === 'credentials' && "Log-In"}
+                {authStage === 'otp' && "Security Clearance"}
                 {authStage === 'forgot' && "Account Recovery"}
                 {authStage === 'forgot_otp' && "Verification Clearance"}
                 {authStage === 'reset_password' && "New Password Engine"}
               </h2>
               <p className="hud-sub-heading">
-                {authStage === 'credentials' && localizedContent.formSubtitle}
-                {authStage === 'otp' && localizedContent.otpSubtitle}
+                {authStage === 'credentials' && "Access your dashboard"}
+                {authStage === 'otp' && "Enter verification token"}
                 {authStage === 'forgot' && "Request security code to update baseline values"}
                 {authStage === 'forgot_otp' && `Input the code dispatched to ${forgotEmail}`}
                 {authStage === 'reset_password' && "Create strong password combinations"}
@@ -418,17 +285,17 @@ export default function LoginPage() {
             {authStage === 'credentials' && (
               <form onSubmit={handleCredentialSubmit} noValidate className="hud-native-form">
                 <div className="hud-input-row">
-                  <label className="hud-input-label">{localizedContent.userLabel}</label>
+                  <label className="hud-input-label">Username</label>
                   <div className={`hud-input-field-container ${errors.user ? 'hud-faulted' : ''}`}>
-                    <input type="text" className="hud-native-input" placeholder={localizedContent.userPlaceholder} value={username} onChange={e => setUsername(e.target.value)} />
+                    <input type="text" className="hud-native-input" placeholder="user@bridgeview.com" value={username} onChange={e => setUsername(e.target.value)} />
                   </div>
                   {errors.user && <span className="hud-error-hint">{errors.user}</span>}
                 </div>
 
                 <div className="hud-input-row">
-                  <label className="hud-input-label">{localizedContent.passLabel}</label>
+                  <label className="hud-input-label">Password</label>
                   <div className={`hud-input-field-container ${errors.pass ? 'hud-faulted' : ''}`}>
-                    <input type={showPass ? 'text' : 'password'} className="hud-native-input" placeholder={localizedContent.passPlaceholder} value={password} onChange={e => setPassword(e.target.value)} />
+                    <input type={showPass ? 'text' : 'password'} className="hud-native-input" placeholder="••••••••••••" value={password} onChange={e => setPassword(e.target.value)} />
                   </div>
                   {errors.pass && <span className="hud-error-hint">{errors.pass}</span>}
                 </div>
@@ -439,12 +306,12 @@ export default function LoginPage() {
                     Show Password
                   </label>
                   <button type="button" className="hud-forgot-trigger-btn" onClick={() => { setErrors({}); setApiSuccessMessage(''); setAuthStage('forgot'); }} style={{ background: 'none', border: 'none', color: '#0077ff', fontSize: '12px', cursor: 'pointer', padding: 0 }}>
-                    {localizedContent.forgot}
+                    Forgot Password?
                   </button>
                 </div>
 
-                <button type="submit" className="hud-submit-action" disabled={loading || translating}>
-                  {loading ? <div className="hud-spinner-element" /> : <span>{localizedContent.submit}</span>}
+                <button type="submit" className="hud-submit-action" disabled={loading}>
+                  {loading ? <div className="hud-spinner-element" /> : <span>Submit</span>}
                 </button>
               </form>
             )}
@@ -453,14 +320,14 @@ export default function LoginPage() {
             {authStage === 'otp' && (
               <form onSubmit={handleOtpSubmit} noValidate className="hud-native-form">
                 <div className="hud-input-row">
-                  <label className="hud-input-label">{localizedContent.otpLabel}</label>
+                  <label className="hud-input-label">OTP Token</label>
                   <div className={`hud-input-field-container ${errors.otp ? 'hud-faulted' : ''}`}>
                     <input 
                       type="text" 
                       maxLength={6}
                       className="hud-native-input" 
                       style={{ textAlign: 'center', letterSpacing: '0.3em', fontSize: '18px', fontWeight: 'bold' }}
-                      placeholder={localizedContent.otpPlaceholder} 
+                      placeholder="6-Digit Secure Code" 
                       value={otpCode} 
                       onChange={e => setOtpCode(e.target.value.replace(/\D/g, ''))} 
                     />
@@ -468,31 +335,8 @@ export default function LoginPage() {
                   {errors.otp && <span className="hud-error-hint">{errors.otp}</span>}
                 </div>
 
-                <button type="submit" className="hud-submit-action" disabled={loading || translating}>
+                <button type="submit" className="hud-submit-action" disabled={loading}>
                   {loading ? <div className="hud-spinner-element" /> : <span>Verify OTP Token</span>}
-                </button>
-              </form>
-            )}
-
-            {/* STAGE 3: RECOVERY EMAIL DISPATCH FORM */}
-            {authStage === 'forgot' && (
-              <form onSubmit={handleForgotPasswordSubmit} noValidate className="hud-native-form">
-                <div className="hud-input-row">
-                  <label className="hud-input-label">{localizedContent.emailLabel}</label>
-                  <div className={`hud-input-field-container ${errors.email ? 'hud-faulted' : ''}`}>
-                    <input 
-                      type="email" 
-                      className="hud-native-input" 
-                      placeholder={localizedContent.emailPlaceholder} 
-                      value={forgotEmail} 
-                      onChange={e => setForgotEmail(e.target.value)} 
-                    />
-                  </div>
-                  {errors.email && <span className="hud-error-hint">{errors.email}</span>}
-                </div>
-
-                <button type="submit" className="hud-submit-action" style={{ marginBottom: '12px' }} disabled={loading || translating}>
-                  {loading ? <div className="hud-spinner-element" /> : <span>{localizedContent.resetSubmit}</span>}
                 </button>
 
                 <button 
@@ -501,7 +345,39 @@ export default function LoginPage() {
                   onClick={() => { setErrors({}); setApiSuccessMessage(''); setAuthStage('credentials'); }}
                   style={{ width: '100%', background: 'transparent', border: '1px solid var(--mac-border)', padding: '10px', borderRadius: '6px', color: 'var(--text-muted)', fontSize: '12px', cursor: 'pointer' }}
                 >
-                  {localizedContent.backToLogin}
+                  Back to Log-In
+                </button>
+              </form>
+            )}
+
+            {/* STAGE 3: RECOVERY EMAIL DISPATCH FORM */}
+            {authStage === 'forgot' && (
+              <form onSubmit={handleForgotPasswordSubmit} noValidate className="hud-native-form">
+                <div className="hud-input-row">
+                  <label className="hud-input-label">Email Address</label>
+                  <div className={`hud-input-field-container ${errors.email ? 'hud-faulted' : ''}`}>
+                    <input 
+                      type="email" 
+                      className="hud-native-input" 
+                      placeholder="email@bridgeview.com" 
+                      value={forgotEmail} 
+                      onChange={e => setForgotEmail(e.target.value)} 
+                    />
+                  </div>
+                  {errors.email && <span className="hud-error-hint">{errors.email}</span>}
+                </div>
+
+                <button type="submit" className="hud-submit-action" style={{ marginBottom: '12px' }} disabled={loading}>
+                  {loading ? <div className="hud-spinner-element" /> : <span>Send Recovery OTP</span>}
+                </button>
+
+                <button 
+                  type="button" 
+                  className="hud-back-btn" 
+                  onClick={() => { setErrors({}); setApiSuccessMessage(''); setAuthStage('credentials'); }}
+                  style={{ width: '100%', background: 'transparent', border: '1px solid var(--mac-border)', padding: '10px', borderRadius: '6px', color: 'var(--text-muted)', fontSize: '12px', cursor: 'pointer' }}
+                >
+                  Back to Log-In
                 </button>
               </form>
             )}
@@ -559,7 +435,7 @@ export default function LoginPage() {
                   {errors.confirmPass && <span className="hud-error-hint">{errors.confirmPass}</span>}
                 </div>
 
-                <button type="submit" className="hud-submit-action" disabled={loading || translating}>
+                <button type="submit" className="hud-submit-action" disabled={loading}>
                   {loading ? <div className="hud-spinner-element" /> : <span>Update Account Credentials</span>}
                 </button>
               </form>
@@ -568,7 +444,7 @@ export default function LoginPage() {
         </div>
 
         <div className="hud-footer-bar">
-          <span className="hud-copyright-string">{localizedContent.copyright}</span>
+          <span className="hud-copyright-string">2026 Bridgeview Maritime. All Rights Reserved.</span>
         </div>
       </div>
     </div>

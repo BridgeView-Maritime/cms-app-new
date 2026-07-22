@@ -4,6 +4,7 @@ import { useLocation, useParams } from 'react-router-dom';
 import DynamicFormRenderer from './DynamicFormRenderer';
 import DynamicListingTable from './DynamicListingTable';
 import { AUTH_ENDPOINTS } from '../../config/api';
+import '../../styles/DynamicPageRouterEngine.css';
 
 export default function DynamicPageRouterEngine() {
   const { formCode } = useParams();
