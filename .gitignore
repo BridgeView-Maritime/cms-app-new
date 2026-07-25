@@ -5,6 +5,10 @@ node_modules/
 # Environment variables
 .env
 **/.env
+.env.local
+**/.env.local
+# misnamed env file currently used in server/ (contains live secrets)
+server/env
 
 # Logs
 logs
@@ -28,3 +32,7 @@ client/dist/
 
 # Coverage
 coverage/
+
+# User-uploaded files
+server/uploads/*
+!server/uploads/.gitkeep
