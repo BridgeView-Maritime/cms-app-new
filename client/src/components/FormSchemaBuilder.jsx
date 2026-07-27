@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import { 
   Shield, Anchor, Briefcase, FileText, User, Settings, Bell, Layers, Grid, Cpu, Database, 
   Folder, Activity, BarChart, Lock, MapPin, Landmark, GraduationCap, ShieldAlert, HelpCircle, 
-  Plus, Save, Eye, Edit3, Layers3, FolderPlus, Trash2, Edit2, Check, X, EyeOff, Search, SlidersHorizontal, AlertTriangle, ShieldCheck, Globe, ChevronDown
+  Plus, Save, Eye, Edit3, Layers3, FolderPlus, Trash2, Edit2, Check, X, EyeOff, Search, SlidersHorizontal, AlertTriangle, ShieldCheck, Globe, ChevronDown, FileCode
 } from 'lucide-react';
 
 import GlobalParametersPanel from './GlobalParametersPanel';
@@ -61,6 +62,7 @@ const SectionIconRenderer = ({ iconName, size = 14, ...props }) => {
 };
 
 export default function FormSchemaBuilder({ activeFormCode = 'EMPLOYEE_MASTER_DIRECTORY', onSaveSuccess, menuList = [] }) {
+  const navigate = useNavigate();
   const [formCode, setFormCode] = useState(activeFormCode.trim().toUpperCase());
   const [formName, setFormName] = useState('Employee Master Directory Entry Form');
   const [formIcon, setFormIcon] = useState('Briefcase');
@@ -364,8 +366,11 @@ export default function FormSchemaBuilder({ activeFormCode = 'EMPLOYEE_MASTER_DI
     setFields(updated);
   };
 
-  const handleSaveSchema = async (e) => {
-    e.preventDefault();
+  /**
+   * Primary Schema Layout Saver Engine
+   */
+  const handleSaveSchema = async (e, createCustomFile = false) => {
+    if (e && e.preventDefault) e.preventDefault();
     setIsSaving(true);
     setStatus(null);
 
@@ -382,7 +387,8 @@ export default function FormSchemaBuilder({ activeFormCode = 'EMPLOYEE_MASTER_DI
     });
 
     const cleanFormCode = formCode.trim().toUpperCase().replace(/[^A-Z0-9_]/g, '_');
-    const computedRoutePath = `/app/workspace/${cleanFormCode.toLowerCase().replace(/_/g, '-')}`;
+    const routeSlug = cleanFormCode.toLowerCase().replace(/_/g, '-');
+    const computedRoutePath = `/app/workspace/${routeSlug}`;
 
     const finalPayload = {
       form_code: cleanFormCode,
@@ -391,25 +397,68 @@ export default function FormSchemaBuilder({ activeFormCode = 'EMPLOYEE_MASTER_DI
       target_layout_mode: targetLayoutMode,
       menu_id: menuId, 
       app_route_path: computedRoutePath, 
+      has_custom_page: createCustomFile ? 1 : 0,
       fields: [...effectiveFixedFields, ...processedCustomFields]
     };
 
     try {
       const token = localStorage.getItem('accessToken');
+      
+      // 1. Save Form Schema Metadata
       const response = await fetch(`${AUTH_ENDPOINTS.REACT_APP_API_URL}/api/admin/metadata/form/create`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify(finalPayload)
       });
       const data = await response.json();
-      if (response.ok || data.success) {
-        setStatus({ type: 'success', message: 'Successful save' });
-        setIsEditMode(false); 
-        loadWorkspaceOptionsList(); 
-        if (onSaveSuccess) onSaveSuccess(cleanFormCode);
-      } else {
+
+      if (!response.ok && !data.success) {
         setStatus({ type: 'error', message: data.message || 'Validation error saving configuration layouts.' });
+        setIsSaving(false);
+        return;
       }
+
+      // 2. Handle Custom Page File Creation if Requested via Button
+      if (createCustomFile) {
+        // Check if file already exists
+        const checkRes = await fetch(`${AUTH_ENDPOINTS.REACT_APP_API_URL}/api/admin/metadata/custom-page/check/${cleanFormCode}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const checkData = await checkRes.json();
+
+        if (checkData.exists) {
+          const overwrite = confirm(`Custom file client/src/pages/custom/${cleanFormCode.toLowerCase()}.jsx already exists. Would you like to re-synchronize it?`);
+          if (!overwrite) {
+            setStatus({ type: 'success', message: 'Saved layout schema. Custom page kept intact.' });
+            setIsSaving(false);
+            return;
+          }
+        }
+
+        // Trigger custom page file creation endpoint
+        const toggleRes = await fetch(`${AUTH_ENDPOINTS.REACT_APP_API_URL}/api/admin/metadata/custom-page/toggle`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          body: JSON.stringify({
+            form_code: cleanFormCode,
+            form_name: formName,
+            create: true
+          })
+        });
+        const toggleData = await toggleRes.json();
+
+        if (!toggleData.success) {
+          setStatus({ type: 'error', message: `Schema saved, but custom file creation failed: ${toggleData.message}` });
+          setIsSaving(false);
+          return;
+        }
+      }
+
+      setStatus({ type: 'success', message: 'Successfully saved!' });
+      setIsEditMode(false); 
+      loadWorkspaceOptionsList(); 
+      if (onSaveSuccess) onSaveSuccess(cleanFormCode);
+
     } catch (err) {
       setStatus({ type: 'error', message: `Submission break: ${err.message}` });
     } finally {
@@ -456,7 +505,7 @@ export default function FormSchemaBuilder({ activeFormCode = 'EMPLOYEE_MASTER_DI
           </div>
         </header>
 
-        <form className="mac-form-content-view" onSubmit={handleSaveSchema}>
+        <form className="mac-form-content-view" onSubmit={(e) => handleSaveSchema(e, false)}>
           <h3 className="section-pane-heading"><Settings size={16} /> Global System Parameters</h3>
           
           <GlobalParametersPanel 
@@ -624,9 +673,21 @@ export default function FormSchemaBuilder({ activeFormCode = 'EMPLOYEE_MASTER_DI
                 </span>
               )}
             </div>
-            <button type="submit" className="mac-btn-action primary" disabled={isSaving || !formCode}>
-              <Save size={16}/> {isSaving ? 'Synchronizing...' : 'Save Layout'}
-            </button>
+            
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button 
+                type="button" 
+                className="mac-btn-action secondary" 
+                onClick={(e) => handleSaveSchema(e, true)}
+                disabled={isSaving || !formCode}
+              >
+                <FileCode size={16}/> Save Layout with new custom file
+              </button>
+
+              <button type="submit" className="mac-btn-action primary" disabled={isSaving || !formCode}>
+                <Save size={16}/> {isSaving ? 'Synchronizing...' : 'Save Layout'}
+              </button>
+            </div>
           </footer>
         </form>
       </div>

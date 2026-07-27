@@ -1,5 +1,5 @@
 // client/src/components/dynamic-engine/DynamicPageRouterEngine.jsx
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, Suspense } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import DynamicFormRenderer from './DynamicFormRenderer';
 import DynamicListingTable from './DynamicListingTable';
@@ -50,9 +50,48 @@ export default function DynamicPageRouterEngine() {
     setRefreshTrigger(prev => prev + 1); // Triggers key re-mount to pull fresh data
   }, []);
 
+  // Dynamically load custom component if has_custom_page is enabled
+  const CustomPageComponent = useMemo(() => {
+    if (!schema || !schema.has_custom_page) return null;
+
+    const fileSlug = activeCode.toLowerCase();
+    
+    return React.lazy(() => 
+      import(`../../pages/custom/${fileSlug}.jsx`)
+        .catch(err => {
+          console.error(`Failed to load custom page component at pages/custom/${fileSlug}.jsx:`, err);
+          // Return a dummy fallback component if the file is missing on disk
+          return {
+            default: () => (
+              <div style={{ padding: '20px', color: '#dc2626' }}>
+                Custom page file <code>client/src/pages/custom/{fileSlug}.jsx</code> could not be loaded.
+              </div>
+            )
+          };
+        })
+    );
+  }, [schema, activeCode]);
+
   if (loading) return <div style={{ padding: '30px', textAlign: 'center' }}>Loading Workspace Architecture...</div>;
   if (!schema || !schema.fields) return <div style={{ padding: '30px', textAlign: 'center' }}>404 Custom Workspace Schema Template Not Found</div>;
 
+  // 1. RENDER CUSTOM PAGE IF FLAG IS ACTIVE (e.g., has_custom_page === 1 or true)
+  if (schema.has_custom_page && CustomPageComponent) {
+    return (
+      <div className="dynamic-workspace-engine-shell">
+        <Suspense fallback={<div style={{ padding: '30px', textAlign: 'center' }}>Loading Custom Page...</div>}>
+          <CustomPageComponent 
+            schema={schema}
+            selectedRecordId={selectedRecordId}
+            onEditRecord={handleEditRecord}
+            onSaveSuccess={handleSaveSuccess}
+          />
+        </Suspense>
+      </div>
+    );
+  }
+
+  // 2. STANDARD DYNAMIC LAYOUT ENGINE FALLBACK
   return (
     <div className="dynamic-workspace-engine-shell">
       {schema.target_layout_mode === 'LISTING_ONLY' && (

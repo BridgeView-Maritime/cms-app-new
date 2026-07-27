@@ -141,4 +141,20 @@ router.delete('/:formCode/delete/:id', authenticateToken, async (req, res) => {
   }
 });
 
+router.get('/:formCode', authenticateToken, async (req, res) => {
+  try {
+    const { formCode } = req.params;
+    const DynamicModel = getDynamicModel(formCode);
+
+    const records = await DynamicModel.find({}).sort({ createdAt: -1 }).lean();
+
+    return res.status(200).json({
+      success: true,
+      data: records
+    });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: `Read failure: ${err.message}` });
+  }
+});
+
 export default router;
