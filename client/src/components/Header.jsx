@@ -264,9 +264,9 @@ export default function Header({ currentTime, notifications = [] }) {
         </div>
 
         {/* Search Icon */}
-        <button type="button" className="status-icon-btn" aria-label="Search">
+        {/* <button type="button" className="status-icon-btn" aria-label="Search">
           <Search size={14} className="status-bar-icon" />
-        </button>
+        </button> */}
 
         {/* Notifications Dropdown */}
         <div ref={dropdownRef} className="notification-trigger-wrapper">
@@ -341,9 +341,9 @@ export default function Header({ currentTime, notifications = [] }) {
         </div>
 
         {/* Sliders Icon */}
-        <button type="button" className="status-icon-btn" aria-label="Settings">
+        {/* <button type="button" className="status-icon-btn" aria-label="Settings">
           <SlidersHorizontal size={14} className="status-bar-icon" />
-        </button>
+        </button> */}
 
         {/* Multi-City Clocks Bar (Desktop View) */}
         <div className="multi-city-clock-bar">
