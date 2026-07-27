@@ -16,7 +16,6 @@ import formSectionRoutes from './routes/formSectionRoutes.js';
 import { FormMeta } from './models/DynamicMetaSchemas.js';
 import { UserRole, AppMenu } from './models/AdminManagementModels.js'; 
 
-// FIXED: Corrected default import from named import statement execution syntax
 import UkmtoScraperService from './services/UkmtoScraperService.js';
 import notificationRoutes from './routes/notificationRoutes.js';
 
@@ -26,16 +25,7 @@ const app = express();
 // Create HTTP server wrapper around Express for Socket.IO integration
 const server = http.createServer(app);
 
-// FIXED: Added 'PATCH' explicitly to the methods array to resolve your CORS error
-const allowedOrigin = process.env.APP_URL || 'http://localhost:5173' || 'https://elliptic-thinning-credit.ngrok-free.dev';
-// app.use(cors({
-//   origin: true,
-//   credentials: true,
-//   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
-// }));
-
 app.use(cors());
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -52,7 +42,6 @@ const io = new Server(server, {
 io.on('connection', (socket) => {
   console.log(`🔌 Client connected to WebSocket: ${socket.id}`);
 
-  // Setup channel tracking rooms
   socket.on('join-room', (roomName) => {
     socket.join(roomName);
     console.log(`📡 Socket client ${socket.id} joined room: ${roomName}`);
@@ -74,13 +63,15 @@ app.use('/api/notifications', notificationRoutes);
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/cms_new_db';
 
+/**
+ * Dynamic Seeding Engine
+ */
 async function seedHRMSDynamicSystem() {
   try {
-    console.log('🔄 Checking dynamic application configurations...');
+    console.log('🔄 Running HRMS Dynamic System Seeder...');
 
-    // 1. Seed complete dynamic workspace inputs ONLY if the form meta schema does not exist yet
+    // 1. Seed FormMeta Schema
     const existingFormMeta = await FormMeta.findOne({ form_code: 'EMPLOYEE_MASTER_DIRECTORY' });
-    
     if (!existingFormMeta) {
       console.log('🌱 Form schema configuration missing. Initializing default FormMeta...');
       await FormMeta.create({
@@ -100,10 +91,10 @@ async function seedHRMSDynamicSystem() {
       });
       console.log('✅ FormMeta default template initialized.');
     } else {
-      console.log('⚠️ Employee Master Directory schema already exists. Skipping write to protect dynamic custom fields.');
+      console.log('⚠️ Employee Master Directory schema already exists. Skipping...');
     }
 
-    // 2. Seed default App Menus (skip or update safely without breaking associations)
+    // 2. Seed Default App Menus
     const menuItems = [
       { menu_name: 'Dashboard Grid Overview', menu_icon: 'Layers', route: '/dashboard', sort_order: 1 },
       { menu_name: 'Dynamic Meta-Field Configurator', menu_icon: 'Settings', route: '/dashboard/meta-config', sort_order: 2 },
@@ -126,7 +117,7 @@ async function seedHRMSDynamicSystem() {
       seededMenuIds.push(menu._id);
     }
 
-    // 3. Seed Dynamic UserRole if not initialized
+    // 3. Seed Dynamic User Role
     const existingRole = await UserRole.findOne({ role_code: 'SUPER_ADMIN' });
     if (!existingRole) {
       console.log('🌱 Super Admin user role missing. Creating definition entry...');
@@ -141,7 +132,7 @@ async function seedHRMSDynamicSystem() {
       await existingRole.save();
     }
 
-    console.log('🏁 Dynamic Matrix Seeding run check complete.');
+    console.log('🏁 Dynamic Matrix Seeding run complete.');
   } catch (err) {
     console.error('❌ Data seed runtime exception error occurred:', err);
   }
@@ -150,25 +141,25 @@ async function seedHRMSDynamicSystem() {
 mongoose.connect(MONGO_URI)
   .then(async () => {
     console.log('🔌 Successfully integrated with MongoDB Database.');
-    await seedHRMSDynamicSystem();
-    
-    // Initialize UKMTO Background Scraper Service tied directly to our Socket instance
-    // const ukmtoScraper = new UkmtoScraperService(io);
-    
-    // // Execute a sync cycle immediately on boot
-    // ukmtoScraper.scrapeAndIngest();
+
+    // CONTROL SEEDING EXECUTION VIA .env FLAG OR COMMAND LINE ARGS
+    const shouldSeed = process.env.RUN_SEED === 'true' || process.argv.includes('--seed');
+
+    if (shouldSeed) {
+      await seedHRMSDynamicSystem();
+    } else {
+      console.log('⚡ Skipping seed execution. (Set RUN_SEED=true in .env to run on startup)');
+    }
 
     const scraper = new UkmtoScraperService(io);
     scraper.scrapeAndIngest();
-    
 
-    // Schedule automated RSS checks to run every 20 minutes
+    // Schedule automated RSS checks every 20 minutes
     setInterval(() => {
       console.log('🔄 Cron interval trigger: Initiating UKMTO security warning sync...');
       scraper.scrapeAndIngest();
     }, 20 * 60 * 1000);
 
-    // CRITICAL CHANGE: Listen via the 'server' instance wrapper (not app.listen) to mount WebSockets correctly
     server.listen(PORT, () => {
       console.log(`🚀 Server fully synchronized and running on Port ${PORT}`);
     });

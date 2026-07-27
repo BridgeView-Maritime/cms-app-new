@@ -1,26 +1,42 @@
 import express from 'express';
 import bcrypt from 'bcryptjs';
 import mongoose from 'mongoose';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { AppMenu, UserRole } from '../models/AdminManagementModels.js';
 import { FormMeta } from '../models/DynamicMetaSchemas.js';
 import { authenticateToken } from '../middleware/authMiddleware.js';
 import { authorizeRoles } from '../middleware/roleMiddleware.js';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const router = express.Router();
 const User = mongoose.models.User || mongoose.model('User');
 const Employee = mongoose.models.Employee || mongoose.model('Employee');
-
-
 
 // =========================================================================
 // DYNAMIC FORM SCHEMA CREATION & CONFIGURATOR (WITH SUPER_ADMIN PRIVILEGES)
 // =========================================================================
 router.post('/metadata/form/create', authenticateToken, async (req, res) => {
   try {
-    const { form_code, form_name, form_icon, target_layout_mode, app_route_path, menu_id, fields } = req.body;
+    const { 
+      form_code, 
+      form_name, 
+      form_icon, 
+      target_layout_mode, 
+      app_route_path, 
+      menu_id, 
+      has_custom_page, 
+      fields 
+    } = req.body;
     
     if (!form_code || !form_name || !fields || fields.length === 0) {
-      return res.status(400).json({ success: false, message: 'Missing structural schema configuration details.' });
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Missing structural schema configuration details.' 
+      });
     }
 
     const normalizedCode = form_code.trim().toUpperCase();
@@ -54,11 +70,33 @@ router.post('/metadata/form/create', authenticateToken, async (req, res) => {
       }
     }
 
+    // Process & Normalize incoming field attributes prior to MongoDB persistence
+    const processedFields = fields.map(field => {
+      const isSameLineBool = field.same_line !== undefined 
+        ? Boolean(field.same_line) 
+        : (field.is_same_line !== undefined ? Boolean(field.is_same_line) : false);
+      const spanVal = String(field.grid_span || field.grid_width_span || '12');
+
+      return {
+        ...field,
+        // Same line configuration & responsive layout grid width span
+        same_line: isSameLineBool,
+        is_same_line: isSameLineBool,
+        same_line_group: field.same_line_group || '',
+        grid_span: spanVal,
+        grid_width_span: spanVal,
+
+        // Disclaimer feature configurations
+        has_disclaimer: field.has_disclaimer !== undefined ? Boolean(field.has_disclaimer) : false,
+        disclaimer_text: field.has_disclaimer ? (field.disclaimer_text || '') : ''
+      };
+    });
+
     // Compute uniform routing target parameters path cleanly
     const fallbackRoute = `/app/workspace/${normalizedCode.toLowerCase().replace(/_/g, '-')}`;
     const cleanRoutePath = app_route_path || fallbackRoute;
 
-    // Update Form Schema Meta Document
+    // Update Form Schema Meta Document in MongoDB
     const schemaUpdate = await FormMeta.findOneAndUpdate(
       { form_code: normalizedCode },
       { 
@@ -67,7 +105,8 @@ router.post('/metadata/form/create', authenticateToken, async (req, res) => {
         target_layout_mode: target_layout_mode || 'LISTING_AND_FORM', 
         app_route_path: cleanRoutePath,
         menu_id: menu_id || null, 
-        fields 
+        has_custom_page: has_custom_page !== undefined ? Number(has_custom_page) : 0,
+        fields: processedFields 
       },
       { upsert: true, new: true }
     );
@@ -103,7 +142,6 @@ router.post('/metadata/form/create', authenticateToken, async (req, res) => {
   }
 });
 
-
 // GET ROUTE: Safely fallback to a clean configuration structure if blueprint is not initialized yet
 router.get('/metadata/form/:formCode', authenticateToken, async (req, res) => {
   try {
@@ -121,6 +159,7 @@ router.get('/metadata/form/:formCode', authenticateToken, async (req, res) => {
         target_layout_mode: 'LISTING_AND_FORM',
         app_route_path: `/app/workspace/${normalizedCode.toLowerCase().replace(/_/g, '-')}`,
         menu_id: null, // Pristine blueprint defaults to unlinked
+        has_custom_page: 0,
         fields: []
       });
     }
@@ -239,7 +278,10 @@ router.post('/users/create', authenticateToken, authorizeRoles('SUPER_ADMIN'), a
     } else {
       // If it is completely fresh data, run standard generation
       if (!password || password.length < 6) {
-        return res.status(422).json({ success: false, errors: { password: 'Password requires minimum 6 characters for new accounts.' } });
+        return res.status(422).json({ 
+          success: false, 
+          errors: { password: 'Password requires minimum 6 characters for new accounts.' } 
+        });
       }
 
       isNewUser = true;
@@ -303,7 +345,7 @@ router.get('/metadata/forms/list-all', authenticateToken, async (req, res) => {
     // Selects only the identifying properties needed for selection lists
     const activeBlueprints = await FormMeta.find(
       { is_active: true }, 
-      'form_code form_name form_icon target_layout_mode app_route_path'
+      'form_code form_name form_icon target_layout_mode app_route_path has_custom_page'
     );
     
     return res.status(200).json({ 
@@ -384,6 +426,86 @@ router.get('/metadata/lookup/:formCode/:fieldKey', authenticateToken, async (req
   }
 });
 
+// =========================================================================
+// DYNAMIC CUSTOM PAGE FILE MANAGEMENT (VERIFICATION & TOGGLE)
+// =========================================================================
+
+// 1. Check if custom page file exists in client/src/pages/custom/{formCode}.jsx
+router.get('/metadata/custom-page/check/:formCode', authenticateToken, async (req, res) => {
+  try {
+    const { formCode } = req.params;
+    const targetFilePath = path.join(__dirname, '../../client/src/pages/custom', `${formCode.toLowerCase()}.jsx`);
+    const exists = fs.existsSync(targetFilePath);
+
+    return res.status(200).json({ success: true, exists, path: targetFilePath });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// 2. Create or dynamic-sync/delete custom page file
+router.post('/metadata/custom-page/toggle', authenticateToken, async (req, res) => {
+  try {
+    const { form_code, form_name, create } = req.body;
+    if (!form_code) {
+      return res.status(400).json({ success: false, message: 'Form code is required.' });
+    }
+
+    const customDir = path.join(__dirname, '../../client/src/pages/custom');
+    const targetFilePath = path.join(customDir, `${form_code.toLowerCase()}.jsx`);
+
+    // Ensure client/src/pages/custom directory exists
+    if (!fs.existsSync(customDir)) {
+      fs.mkdirSync(customDir, { recursive: true });
+    }
+
+    if (create) {
+      // Dynamic component class name generator
+      const componentName = form_code
+        .split('_')
+        .map(part => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+        .join('');
+
+      const templateContent = `import React from 'react';
+import DynamicFormRenderer from '../../components/dynamic-engine/DynamicFormRenderer';
+
+/**
+ * Dynamic Custom Page for Form Code: ${form_code.toUpperCase()}
+ * Label: ${form_name || form_code}
+ * Path: client/src/pages/custom/${form_code.toLowerCase()}.jsx
+ */
+export default function ${componentName}CustomPage() {
+  return (
+    <div className="custom-page-container">
+      <div className="custom-page-header">
+        <h2>${form_name || form_code} Workspace</h2>
+      </div>
+      <DynamicFormRenderer formCode="${form_code.toUpperCase()}" />
+    </div>
+  );
+}
+`;
+
+      fs.writeFileSync(targetFilePath, templateContent, 'utf8');
+      return res.status(200).json({
+        success: true,
+        message: `Custom file generated at client/src/pages/custom/${form_code.toLowerCase()}.jsx`,
+        exists: true
+      });
+    } else {
+      if (fs.existsSync(targetFilePath)) {
+        fs.unlinkSync(targetFilePath);
+      }
+      return res.status(200).json({
+        success: true,
+        message: `Custom file removed for ${form_code}`,
+        exists: false
+      });
+    }
+  } catch (err) {
+    return res.status(500).json({ success: false, message: err.message });
+  }
+});
 
 // =========================================================================
 // MISSING UPDATES & SOFT-DELETE STATUS TOGGLES
