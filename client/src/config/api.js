@@ -35,6 +35,7 @@ export const AUTH_ENDPOINTS = {
   LOGIN: `${API_BASE_URL}/auth/login`,
   VERIFY_OTP: `${API_BASE_URL}/auth/verify-otp`,
   FORGOT_PASSWORD: `${API_BASE_URL}/auth/forgot-password`,
+  RESET_PASSWORD: `${API_BASE_URL}/auth/reset-password`,
   MENUS: `${API_BASE_URL}/users/dashboard-init`,
   EMPLOYEE_LIST: `${API_BASE_URL}/employees/list`,
   EMPLOYEE_REGISTER: `${API_BASE_URL}/employees/register`,

@@ -22,7 +22,7 @@ import '../styles/Dashboard.css';
 import { AUTH_ENDPOINTS } from '../config/api';
 
 export default function MacDynamicDashboard({ onLogout }) {
-  const [userProfile, setUserProfile] = useState({ id: null, firstName: '', lastName: '', roleName: '' });
+  const [userProfile, setUserProfile] = useState({ id: null, firstName: '', lastName: '', roleName: '', email: '' });
   const [menuData, setMenuData] = useState([]);
   const [expandedMenus, setExpandedMenus] = useState({});
   const [activeDockFlyout, setActiveDockFlyout] = useState(null);
@@ -69,7 +69,8 @@ export default function MacDynamicDashboard({ onLogout }) {
             id: userId || null,
             firstName: resData.user.first_name || 'Bridgeview',
             lastName: resData.user.last_name || '',
-            roleName: resData.user.role_name || 'Super Administrator'
+            roleName: resData.user.role_name || 'Super Administrator',
+            email: resData.user.email || ''
           });
           setMenuData(resData.menus || []);
         } else {

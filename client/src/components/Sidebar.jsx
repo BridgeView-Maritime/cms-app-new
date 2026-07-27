@@ -1,7 +1,8 @@
 // client/src/components/Sidebar.jsx
-import React, { useMemo, useEffect } from 'react';
+import React, { useMemo, useEffect, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { ChevronDown, ChevronRight } from 'lucide-react';
+import { ChevronDown, ChevronRight, KeyRound } from 'lucide-react';
+import ChangePasswordModal from './ChangePasswordModal';
 import '../styles/Sidebar.css';
 
 export default function Sidebar({ 
@@ -16,7 +17,8 @@ export default function Sidebar({
   renderIcon 
 }) {
   const location = useLocation();
-  
+  const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
+
   // 1. Automatic Responsive Device Minimizer/Maximizer Listener
   useEffect(() => {
     const handleDeviceAdaptation = () => {
@@ -140,8 +142,21 @@ export default function Sidebar({
           </div>
         </div>
 
+        {isChangePasswordOpen && (
+          <ChangePasswordModal
+            email={userProfile?.email}
+            onClose={() => setIsChangePasswordOpen(false)}
+          />
+        )}
+
         <div className="sidebar-scrollable-tree">
           <span className="sidebar-group-title">Navigation Hierarchy</span>
+
+          <button className="cp-trigger-btn" onClick={() => setIsChangePasswordOpen(true)}>
+            <KeyRound size={13} />
+            Change Password
+          </button>
+
           <ul className="mac-sidebar-menu">
             {activeMenus.map(menu => {
               const activeSubMenus = menu.subMenus || [];
