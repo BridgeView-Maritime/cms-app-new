@@ -156,6 +156,7 @@ export default function LoginPage() {
       const data = await response.json();
 
       if (response.ok) {
+        setUserId(data.userId);
         setApiSuccessMessage(data.message || "Verification code sent successfully.");
         setAuthStage('forgot_otp');
       } else {
@@ -182,10 +183,10 @@ export default function LoginPage() {
     setErrors(p => ({ ...p, server: '' }));
 
     try {
-      const response = await fetch(`${AUTH_ENDPOINTS.FORGOT_PASSWORD}/reset`, {
+      const response = await fetch(AUTH_ENDPOINTS.RESET_PASSWORD, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: forgotEmail, otp: forgotOtp, newPassword })
+        body: JSON.stringify({ userId, otpCode: forgotOtp, newPassword })
       });
       const data = await response.json();
 
@@ -197,6 +198,7 @@ export default function LoginPage() {
         setForgotOtp('');
         setNewPassword('');
         setConfirmPassword('');
+        setUserId(null);
       } else {
         setErrors(p => ({ ...p, server: data.message || "Failed to apply secure update attributes." }));
       }
