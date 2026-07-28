@@ -1,19 +1,20 @@
 // client/src/components/Sidebar.jsx
 import React, { useMemo, useEffect } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { ChevronDown, ChevronRight } from 'lucide-react';
+import { ChevronDown, ChevronRight, ArrowRightLeft } from 'lucide-react';
 import '../styles/Sidebar.css';
 
-export default function Sidebar({ 
-  isSidebarCollapsed, 
-  setIsSidebarCollapsed, 
-  onLogout, 
-  toggleNativeFullscreen, 
-  userProfile, 
-  structuredMenu, 
-  expandedMenus, 
-  toggleSubmenu, 
-  renderIcon 
+export default function Sidebar({
+  isSidebarCollapsed,
+  setIsSidebarCollapsed,
+  onLogout,
+  toggleNativeFullscreen,
+  userProfile,
+  structuredMenu,
+  expandedMenus,
+  toggleSubmenu,
+  renderIcon,
+  isSuperAdmin
 }) {
   const location = useLocation();
 
@@ -194,6 +195,21 @@ export default function Sidebar({
                 </li>
               );
             })}
+
+            {isSuperAdmin && (
+              <li className="menu-node">
+                <NavLink
+                  to="/dashboard/migration"
+                  end
+                  className={({ isActive }) => `menu-row-item ${isActive ? 'row-active' : ''}`}
+                >
+                  <div className="menu-row-left">
+                    <ArrowRightLeft size={16} className="sidebar-vector-glyph" />
+                    <span className="menu-title-text">MySQL &rarr; MongoDB Migration</span>
+                  </div>
+                </NavLink>
+              </li>
+            )}
           </ul>
         </div>
       </aside>

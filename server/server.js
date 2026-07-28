@@ -11,6 +11,7 @@ import employeeRoutes from './routes/employeeRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 import collectionsRoutes from './routes/collectionRoutes.js';
 import formSectionRoutes from './routes/formSectionRoutes.js';
+import migrationRoutes from './routes/migrationRoutes.js';
 
 // Fixed imports: Importing models from their actual respective files
 import { FormMeta } from './models/DynamicMetaSchemas.js';
@@ -38,6 +39,9 @@ const io = new Server(server, {
   }
 });
 
+// Expose io on the app so route controllers (e.g. migration progress) can emit to rooms
+app.set('io', io);
+
 // Configure Socket.IO connection orchestration channels
 io.on('connection', (socket) => {
   console.log(`🔌 Client connected to WebSocket: ${socket.id}`);
@@ -59,6 +63,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/collections', collectionsRoutes);
 app.use('/api/form_sections', formSectionRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/migration', migrationRoutes);
 
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/cms_new_db';
