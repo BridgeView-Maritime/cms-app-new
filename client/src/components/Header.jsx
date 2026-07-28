@@ -1,10 +1,11 @@
 // client/src/components/Header.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  Search, Bell, SlidersHorizontal, AlertTriangle, ShieldCheck, 
-  X, Globe, ChevronDown, Languages, Sun, Moon 
+import {
+  Search, Bell, SlidersHorizontal, AlertTriangle, ShieldCheck,
+  X, Globe, ChevronDown, Languages, Sun, Moon, KeyRound
 } from 'lucide-react';
+import ChangePasswordModal from './ChangePasswordModal';
 import '../styles/Header.css';
 
 // Formats timestamp as DD/MM/YYYY, HH:MM:SS AM/PM
@@ -39,11 +40,12 @@ const formatCityTime = (date, timeZone) => {
   }
 };
 
-export default function Header({ currentTime, notifications = [] }) {
+export default function Header({ currentTime, notifications = [], userProfile }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isClockMenuOpen, setIsClockMenuOpen] = useState(false);
   const [isTranslateOpen, setIsTranslateOpen] = useState(false);
   const [isThemeOpen, setIsThemeOpen] = useState(false);
+  const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
 
   // Default theme is 'day' unless saved in localStorage
   const [theme, setTheme] = useState(() => {
@@ -180,6 +182,24 @@ export default function Header({ currentTime, notifications = [] }) {
       </div>
 
       <div className="status-bar-right">
+        {/* Change Password Trigger */}
+        <button
+          type="button"
+          onClick={() => setIsChangePasswordOpen(true)}
+          className="status-bar-btn"
+          aria-label="Change Password"
+          title="Change Password"
+        >
+          <KeyRound size={14} className="status-bar-icon" />
+        </button>
+
+        {isChangePasswordOpen && (
+          <ChangePasswordModal
+            email={userProfile?.email}
+            onClose={() => setIsChangePasswordOpen(false)}
+          />
+        )}
+
         {/* Day / Night Theme Selector */}
         <div ref={themeDropdownRef} className="notification-trigger-wrapper">
           <button
