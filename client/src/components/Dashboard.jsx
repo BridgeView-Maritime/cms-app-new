@@ -182,10 +182,11 @@ export default function MacDynamicDashboard({ onLogout }) {
       />
 
       {/* Pass handleMarkAsRead callback engine up into headers popover */}
-      <Header 
-        currentTime={currentTime} 
-        notifications={notifications} 
-        onMarkAsRead={handleMarkAsRead} 
+      <Header
+        currentTime={currentTime}
+        notifications={notifications}
+        onMarkAsRead={handleMarkAsRead}
+        userProfile={userProfile}
       />
       
       {activeToast && (
