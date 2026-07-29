@@ -205,7 +205,7 @@ export default function Sidebar({
                 >
                   <div className="menu-row-left">
                     <ArrowRightLeft size={16} className="sidebar-vector-glyph" />
-                    <span className="menu-title-text">MySQL &rarr; MongoDB Migration</span>
+                    <span className="menu-title-text">MySQL Dump &rarr; MongoDB Migration</span>
                   </div>
                 </NavLink>
               </li>
