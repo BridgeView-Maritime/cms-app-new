@@ -7,6 +7,7 @@ export const logAudit = async (userId, action, details, req) => {
   try {
     await AuditLog.create({
       user_id: userId,
+      user_name: req.user?.username || null,
       action,
       details,
       ip_address: ipAddress,
