@@ -124,9 +124,10 @@ export const parseDumpFiles = (files) => {
 };
 
 /**
- * Summarizes a parsed batch for the UI: per table, its columns/PK, a small row
- * sample, and FK-based embed candidates restricted to tables present in this
- * same upload (we have no visibility into tables that weren't uploaded).
+ * Summarizes a parsed batch for the UI: per table, its columns/PK, row count,
+ * and FK-based embed candidates restricted to tables present in this same
+ * upload (we have no visibility into tables that weren't uploaded). Row data
+ * itself is fetched separately, page by page, via getTableRowsPage.
  */
 export const summarizeBatch = (tables) => {
   const tableNames = new Set(tables.keys());
@@ -147,7 +148,6 @@ export const summarizeBatch = (tables) => {
       columns: entry.columns,
       primaryKey: entry.primaryKey,
       rowCount: entry.rows.length,
-      sampleRows: entry.rows.slice(0, 5),
       embeddableChildren,
       referencedParents: entry.foreignKeys.filter((fk) => tableNames.has(fk.refTable))
     };
@@ -165,6 +165,39 @@ export const saveParsedBatch = (tables) => {
 export const getParsedBatch = (batchId) => {
   const entry = parsedBatches.get(batchId);
   return entry ? entry.tables : null;
+};
+
+const MAX_PAGE_SIZE = 200;
+
+/**
+ * Returns one page of a parsed table's rows, for the full-data browser in the
+ * review UI (the initial parse response only ships a 5-row sample to keep the
+ * payload small).
+ */
+export const getTableRowsPage = (batchId, tableName, page = 1, pageSize = 50) => {
+  const tables = getParsedBatch(batchId);
+  if (!tables) {
+    throw new Error('This upload batch has expired or was not found — please re-upload the file(s).');
+  }
+
+  const entry = tables.get(tableName);
+  if (!entry) {
+    throw new Error(`Table "${tableName}" was not found in the uploaded batch.`);
+  }
+
+  const safePageSize = Math.min(MAX_PAGE_SIZE, Math.max(1, Number(pageSize) || 50));
+  const totalRows = entry.rows.length;
+  const totalPages = Math.max(1, Math.ceil(totalRows / safePageSize));
+  const safePage = Math.min(totalPages, Math.max(1, Number(page) || 1));
+  const start = (safePage - 1) * safePageSize;
+
+  return {
+    rows: entry.rows.slice(start, start + safePageSize),
+    page: safePage,
+    pageSize: safePageSize,
+    totalRows,
+    totalPages
+  };
 };
 
 const attachEmbeds = (rows, pkColumn, embeds, tables) => {
