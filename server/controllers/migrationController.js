@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import { parseDumpFiles, summarizeBatch, saveParsedBatch, runMigration } from '../services/migrationService.js';
+import { parseDumpFiles, summarizeBatch, saveParsedBatch, runMigration, getTableRowsPage } from '../services/migrationService.js';
 import { logAudit } from '../helpers/auditHelper.js';
 
 // In-memory job registry — this is a single-instance admin tool, not a
@@ -21,6 +21,17 @@ export const parseUpload = async (req, res) => {
 
     const batchId = saveParsedBatch(tables);
     return res.status(200).json({ success: true, data: { batchId, tables: summarizeBatch(tables) } });
+  } catch (err) {
+    return res.status(400).json({ success: false, message: err.message });
+  }
+};
+
+export const getTableRows = async (req, res) => {
+  try {
+    const { batchId, table } = req.params;
+    const { page, pageSize } = req.query;
+    const data = getTableRowsPage(batchId, table, page, pageSize);
+    return res.status(200).json({ success: true, data });
   } catch (err) {
     return res.status(400).json({ success: false, message: err.message });
   }

@@ -2,7 +2,7 @@ import express from 'express';
 import multer from 'multer';
 import { authenticateToken } from '../middleware/authMiddleware.js';
 import { authorizeRoles } from '../middleware/roleMiddleware.js';
-import { parseUpload, startTransfer, getJobStatus } from '../controllers/migrationController.js';
+import { parseUpload, startTransfer, getJobStatus, getTableRows } from '../controllers/migrationController.js';
 
 const router = express.Router();
 
@@ -15,6 +15,7 @@ const upload = multer({
 router.use(authenticateToken, authorizeRoles('SUPER_ADMIN'));
 
 router.post('/parse', upload.array('files', 10), parseUpload);
+router.get('/batches/:batchId/tables/:table/rows', getTableRows);
 router.post('/transfer', startTransfer);
 router.get('/jobs/:jobId', getJobStatus);
 

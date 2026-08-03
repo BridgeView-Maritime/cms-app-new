@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { io } from 'socket.io-client';
 import {
   UploadCloud, FileText, X, Database, ArrowRightLeft, Loader2, CheckCircle2,
-  XCircle, AlertTriangle, RefreshCw, Info, KeyRound
+  XCircle, AlertTriangle, RefreshCw, Info, KeyRound, ChevronLeft, ChevronRight
 } from 'lucide-react';
 import { AUTH_ENDPOINTS } from '../config/api';
 import '../styles/MigrationPanel.css';
@@ -11,6 +11,8 @@ import '../styles/MigrationPanel.css';
 const API_BASE = `${AUTH_ENDPOINTS.REACT_APP_API_URL}/api/migration`;
 const POLL_INTERVAL_MS = 3000;
 const ACCEPTED_EXT = /\.(sql|txt)$/i;
+const DEFAULT_PAGE_SIZE = 25;
+const PAGE_SIZE_OPTIONS = [25, 50, 100, 200];
 
 export default function MigrationPanel({ isSuperAdmin }) {
   const authHeader = () => ({ 'Authorization': `Bearer ${localStorage.getItem('accessToken')}` });
@@ -25,7 +27,11 @@ export default function MigrationPanel({ isSuperAdmin }) {
   const [parsing, setParsing] = useState(false);
   const [parseError, setParseError] = useState('');
   const [batchId, setBatchId] = useState(null);
-  const [tableConfigs, setTableConfigs] = useState([]); // [{ table, columns, primaryKey, rowCount, sampleRows, embeddableChildren, referencedParents, included, targetCollection, embedMap }]
+  const [tableConfigs, setTableConfigs] = useState([]); // [{ table, columns, primaryKey, rowCount, embeddableChildren, referencedParents, included, targetCollection, embedMap }]
+
+  // --- Full data preview (paginated) per table, fetched on demand ---
+  // { [table]: { rows, page, pageSize, totalRows, totalPages, loading, error } }
+  const [dataViews, setDataViews] = useState({});
 
   // --- Step 3: transfer / job ---
   const [transferState, setTransferState] = useState('idle'); // idle | running | completed | failed
@@ -160,10 +166,12 @@ export default function MigrationPanel({ isSuperAdmin }) {
         setParseError(data.message || `Failed to parse dump file(s) (HTTP ${res.status}).`);
         setBatchId(null);
         setTableConfigs([]);
+        setDataViews({});
         return;
       }
 
       setBatchId(data.data.batchId);
+      setDataViews({});
       setTableConfigs((data.data.tables || []).map(t => {
         const embedMap = {};
         (t.embeddableChildren || []).forEach(child => {
@@ -180,6 +188,7 @@ export default function MigrationPanel({ isSuperAdmin }) {
       setParseError(`Network error while parsing dump file(s): ${err.message}`);
       setBatchId(null);
       setTableConfigs([]);
+      setDataViews({});
     } finally {
       setParsing(false);
     }
@@ -190,6 +199,7 @@ export default function MigrationPanel({ isSuperAdmin }) {
     setParseError('');
     setBatchId(null);
     setTableConfigs([]);
+    setDataViews({});
     resetTransferState();
   };
 
@@ -201,6 +211,72 @@ export default function MigrationPanel({ isSuperAdmin }) {
     setTransferError('');
     setProgress({ processed: 0, total: 0 });
     setResult(null);
+  };
+
+  // --- Full data preview (paginated) ---
+  const fetchTableRows = async (table, page, pageSize) => {
+    setDataViews(prev => ({
+      ...prev,
+      [table]: { ...(prev[table] || {}), page, pageSize, loading: true, error: '' }
+    }));
+
+    try {
+      const res = await fetch(
+        `${API_BASE}/batches/${batchId}/tables/${encodeURIComponent(table)}/rows?page=${page}&pageSize=${pageSize}`,
+        { headers: authHeader() }
+      );
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        setDataViews(prev => ({
+          ...prev,
+          [table]: { ...(prev[table] || {}), loading: false, error: data.message || `Failed to load rows (HTTP ${res.status}).` }
+        }));
+        return;
+      }
+
+      setDataViews(prev => ({
+        ...prev,
+        [table]: {
+          rows: data.data.rows,
+          page: data.data.page,
+          pageSize: data.data.pageSize,
+          totalRows: data.data.totalRows,
+          totalPages: data.data.totalPages,
+          loading: false,
+          error: '',
+          expanded: true
+        }
+      }));
+    } catch (err) {
+      setDataViews(prev => ({
+        ...prev,
+        [table]: { ...(prev[table] || {}), loading: false, error: `Network error while loading rows: ${err.message}` }
+      }));
+    }
+  };
+
+  const toggleDataView = (table) => {
+    const existing = dataViews[table];
+    if (existing?.expanded) {
+      setDataViews(prev => ({ ...prev, [table]: { ...existing, expanded: false } }));
+      return;
+    }
+    if (existing && existing.rows) {
+      setDataViews(prev => ({ ...prev, [table]: { ...existing, expanded: true } }));
+      return;
+    }
+    fetchTableRows(table, 1, DEFAULT_PAGE_SIZE);
+  };
+
+  const changeDataPage = (table, nextPage) => {
+    const view = dataViews[table];
+    if (!view || nextPage < 1 || nextPage > view.totalPages) return;
+    fetchTableRows(table, nextPage, view.pageSize);
+  };
+
+  const changeDataPageSize = (table, nextPageSize) => {
+    fetchTableRows(table, 1, nextPageSize);
   };
 
   // --- Per-table config actions ---
@@ -478,30 +554,92 @@ export default function MigrationPanel({ isSuperAdmin }) {
                     </div>
                   )}
 
-                  {/* Sample preview */}
-                  {t.sampleRows.length > 0 && (
-                    <div className="migration-preview-block">
-                      <span className="pane-section-label">Sample Preview ({t.sampleRows.length} rows)</span>
-                      <div className="mac-table-container">
-                        <table className="mac-data-table">
-                          <thead>
-                            <tr>
-                              {t.columns.map(col => <th key={col.name}>{col.name}</th>)}
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {t.sampleRows.map((row, idx) => (
-                              <tr key={idx}>
-                                {t.columns.map(col => (
-                                  <td key={col.name}>{String(row[col.name] ?? '')}</td>
-                                ))}
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
+                  {/* Full data (paginated) */}
+                  {t.rowCount > 0 && (() => {
+                    const dv = dataViews[t.table];
+                    return (
+                      <div className="migration-preview-block">
+                        <div className="migration-preview-header">
+                          <span className="pane-section-label">Table Data ({Number(t.rowCount).toLocaleString()} rows)</span>
+                          <button
+                            type="button"
+                            className="mac-btn-secondary migration-preview-toggle"
+                            onClick={() => toggleDataView(t.table)}
+                          >
+                            {dv?.loading ? <Loader2 size={12} className="animate-spin" /> : null}
+                            {dv?.expanded ? 'Hide Data' : dv ? 'Show Data' : 'View Data'}
+                          </button>
+                        </div>
+
+                        {dv?.expanded && (
+                          <>
+                            {dv.error && (
+                              <div className="migration-fail-banner">
+                                <XCircle size={16} /> {dv.error}
+                              </div>
+                            )}
+
+                            {!dv.error && (
+                              <>
+                                <div className="mac-table-container">
+                                  <table className="mac-data-table">
+                                    <thead>
+                                      <tr>
+                                        {t.columns.map(col => <th key={col.name}>{col.name}</th>)}
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      {(dv.rows || []).map((row, idx) => (
+                                        <tr key={idx}>
+                                          {t.columns.map(col => (
+                                            <td key={col.name}>{String(row[col.name] ?? '')}</td>
+                                          ))}
+                                        </tr>
+                                      ))}
+                                    </tbody>
+                                  </table>
+                                </div>
+
+                                <div className="migration-pagination">
+                                  <div className="migration-pagination-size">
+                                    <label>Rows per page</label>
+                                    <select
+                                      value={dv.pageSize}
+                                      disabled={dv.loading}
+                                      onChange={(e) => changeDataPageSize(t.table, Number(e.target.value))}
+                                    >
+                                      {PAGE_SIZE_OPTIONS.map(size => (
+                                        <option key={size} value={size}>{size}</option>
+                                      ))}
+                                    </select>
+                                  </div>
+                                  <div className="migration-pagination-nav">
+                                    <button
+                                      type="button"
+                                      className="mac-btn-secondary"
+                                      disabled={dv.loading || dv.page <= 1}
+                                      onClick={() => changeDataPage(t.table, dv.page - 1)}
+                                    >
+                                      <ChevronLeft size={14} />
+                                    </button>
+                                    <span>Page {dv.page} of {dv.totalPages}</span>
+                                    <button
+                                      type="button"
+                                      className="mac-btn-secondary"
+                                      disabled={dv.loading || dv.page >= dv.totalPages}
+                                      onClick={() => changeDataPage(t.table, dv.page + 1)}
+                                    >
+                                      <ChevronRight size={14} />
+                                    </button>
+                                  </div>
+                                </div>
+                              </>
+                            )}
+                          </>
+                        )}
                       </div>
-                    </div>
-                  )}
+                    );
+                  })()}
                 </div>
               </div>
             ))}
