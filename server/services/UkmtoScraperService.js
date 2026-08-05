@@ -1,60 +1,262 @@
 // server/services/UkmtoScraperService.js
+import axios from 'axios';
+import * as cheerio from 'cheerio';
+import { PDFParse } from 'pdf-parse';
 import { OpenAI } from 'openai';
 import AdvisoryZone from '../models/AdvisoryZone.js';
+import { Notification, UserNotificationMapping } from '../models/Notification.js';
+import User from '../models/User.js';
+
+// UKMTO's own site (ukmto.org) is JS-rendered and sits behind Cloudflare bot
+// protection, so it can't be polled directly. MSCIO (Maritime Security Centre -
+// Indian Ocean) is a recognised maritime safety body that mirrors UKMTO Warning/
+// Advisory PDFs in a plain, unprotected document directory - that's the source here.
+const MSCIO_BASE_URL = 'https://mscio.eu';
+const MSCIO_FOLDER_URL = `${MSCIO_BASE_URL}/folder/documents/UKMTO%20Warnings/`;
+const FETCH_HEADERS = { 'User-Agent': 'Mozilla/5.0 (compatible; BridgeviewCMS/1.0; +maritime-safety-monitor)' };
+
+const MONTHS = {
+  JAN: '01', FEB: '02', MAR: '03', APR: '04', MAY: '05', JUN: '06',
+  JUL: '07', AUG: '08', SEP: '09', OCT: '10', NOV: '11', DEC: '12'
+};
+
+// Approximate reference points for common Voluntary Reporting Area chokepoints/ports
+// mentioned in UKMTO bulletins, used to place a map pin when no better data exists.
+const KNOWN_LOCATIONS = [
+  { keys: ['AL KHASAB', 'KHASAB'], coords: [56.25, 26.20] },
+  { keys: ['LIMAH'], coords: [56.40, 25.80] },
+  { keys: ['HORMUZ'], coords: [56.25, 26.60] },
+  { keys: ['BAB EL MANDEB', 'BAB-EL-MANDEB', 'BAB EL-MANDEB'], coords: [43.25, 12.60] },
+  { keys: ['RED SEA'], coords: [40.50, 16.00] },
+  { keys: ['ADEN'], coords: [47.00, 12.00] },
+  { keys: ['SOCOTRA'], coords: [53.80, 12.50] },
+  { keys: ['MUSCAT'], coords: [58.40, 23.60] },
+  { keys: ['FUJAIRAH'], coords: [56.34, 25.35] },
+  { keys: ['SALALAH'], coords: [54.09, 17.02] },
+  { keys: ['OMAN'], coords: [58.00, 21.00] }
+];
+
+// Lines that are template boilerplate (headers/contact info/table labels), not
+// incident content - stripped out before building the human-readable summary.
+const NOISE_LINE_PATTERNS = [
+  /^UKMTO (WARNING|ADVISORY|NOTICE)$/i,
+  /watchkeepers@ukmto\.org/i,
+  /^\|?\s*\+44/,
+  /^\|?\s*www\.ukmto\.org/i,
+  /^\d{3}-\d{2}\s*-\s*[A-Z][A-Z /]+$/i,
+  /^Report Date:?/i,
+  /^Report Time:?/i,
+  /^Issue Date:?/i,
+  /^Source$/i,
+  /^\d{1,2}\s+[A-Za-z]{3}\s+\d{4}/i,
+  /^\d{3,4}\s*UTC/i,
+  /^(Military authorities|Master|Company|Coalition Forces|Other)$/i,
+  /^--\s*\d+\s*of\s*\d+\s*--$/i
+];
 
 class UkmtoScraperService {
   constructor(io) {
     this.io = io; // For frontend Socket.IO alerts
-    
-    // Initialize OpenAI inside the constructor
-    this.openai = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY,
-    });
+    this.openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
   }
 
   /**
-   * Default startup wrapper called by server.js.
+   * Default startup/cron entry point. Checks the MSCIO mirror for UKMTO
+   * Warning/Advisory documents that haven't been ingested yet.
    */
   async scrapeAndIngest() {
-    // The default raw message from your map panel selection
-    const defaultRawMessage = `
-      Attack UKMTO #87
-      14 July 2026
-      UKMTO WARNING 087-26 Incident Date: 13 Jul 2026 Incident Time: TBC UKMTO has received a report of an incident 13NM southeast of Limah, Oman. A tanker has reported being hit by a missile while transiting outbound on the southern route.
-    `;
+    console.log('[UKMTO Scraper] Checking MSCIO mirror for new UKMTO documents...');
 
-    console.log('[UKMTO Service] Starting automated alert processing sequence...');
-    
-    // We catch errors at this level to ensure a failed promise NEVER crashes the Node process
+    let documents;
     try {
-      await this.handleIncomingAlert(defaultRawMessage);
+      documents = await this.fetchDocumentList();
     } catch (err) {
-      console.error('[UKMTO Service] Gracefully handled processing error:', err.message);
-      return 'https://www.ukmto.org/recent-incidents';
+      // Never let a source outage crash the process - log and retry next cycle.
+      console.error('[UKMTO Scraper] Failed to reach MSCIO document listing:', err.message);
+      return;
     }
+
+    if (!documents.length) {
+      console.warn('[UKMTO Scraper] No documents found in listing (source layout may have changed).');
+      return;
+    }
+
+    // Documents are listed newest-first. Regardless of what's already in the DB
+    // (a fresh deploy with 90 years of backlog, a catch-up after downtime, or a
+    // normal cycle with just one new item), never live-notify for more than one
+    // bulletin per sync - only the most recent *new* one gets the real notification/
+    // broadcast; anything older that's also new gets backfilled into the map silently.
+    let newCount = 0;
+    let liveSlotUsed = false;
+    for (let i = 0; i < documents.length; i++) {
+      const wasSilentBeforeThisDoc = liveSlotUsed;
+      try {
+        const result = await this.processDocument(documents[i], { silent: wasSilentBeforeThisDoc });
+        if (result?.status === 'new') {
+          newCount++;
+          if (!wasSilentBeforeThisDoc) liveSlotUsed = true; // this doc claimed the one live slot for this cycle
+        }
+      } catch (err) {
+        console.error(`[UKMTO Scraper] Failed processing ${documents[i].filename}:`, err.message);
+      }
+      // Be a polite citizen towards the mirror - small gap between sequential downloads.
+      await new Promise(resolve => setTimeout(resolve, 300));
+    }
+
+    console.log(`[UKMTO Scraper] Sync complete. ${newCount} new bulletin(s) ingested, ${documents.length} checked.`);
   }
 
   /**
-   * Processes a raw UKMTO text message, extracts it using AI,
-   * falls back to regex if API is down/out of quota, checks for duplicates, and notifies.
+   * Fetches and parses the MSCIO folder listing HTML into a list of candidate documents.
    */
-  async handleIncomingAlert(rawTextMessage) {
-    let extracted = null;
+  async fetchDocumentList() {
+    const { data: html } = await axios.get(MSCIO_FOLDER_URL, {
+      timeout: 20000,
+      headers: FETCH_HEADERS
+    });
 
+    const $ = cheerio.load(html);
+    const documents = [];
+
+    $('#folder-table-list tbody tr').each((_, row) => {
+      const link = $(row).find('td a').first();
+      const href = link.attr('href');
+      const filename = link.attr('title') || link.text().trim();
+      if (!href || !filename || !/UKMTO/i.test(filename)) return;
+
+      documents.push({
+        filename,
+        url: href.startsWith('http') ? href : `${MSCIO_BASE_URL}${href}`
+      });
+    });
+
+    return documents;
+  }
+
+  /**
+   * Downloads and parses a single document, ingesting it if it's new.
+   */
+  async processDocument(doc, opts = {}) {
+    const { data: pdfBuffer } = await axios.get(doc.url, {
+      responseType: 'arraybuffer',
+      timeout: 20000,
+      headers: FETCH_HEADERS
+    });
+
+    const parser = new PDFParse({ data: Buffer.from(pdfBuffer) });
+    let text;
     try {
-      console.log('[UKMTO AI Parser] Attempting OpenAI structured extraction...');
+      const result = await parser.getText();
+      text = result.text;
+    } finally {
+      await parser.destroy();
+    }
 
+    return this.handleIncomingAlert(text, doc, opts);
+  }
+
+  /**
+   * Processes a raw UKMTO bulletin's extracted text, extracts structured fields,
+   * checks for duplicates, persists it, and notifies connected clients + all users.
+   * opts.silent skips notification/broadcast - used for backlog items older than
+   * the single most recent new bulletin in a given sync cycle (see scrapeAndIngest).
+   */
+  async handleIncomingAlert(rawTextMessage, docMeta = {}, opts = {}) {
+    // The reference number + category ("104-26 - ATTACK") is a fixed, reliable
+    // part of every bulletin's body text - trust that over AI/filename guessing.
+    const refInfo = this.extractRefAndCategory(rawTextMessage);
+    if (!refInfo) {
+      console.warn(`[UKMTO Scraper] Could not find a reference number in document${docMeta.filename ? ` ${docMeta.filename}` : ''}. Skipping.`);
+      return { status: 'failed', message: 'No reference number found.' };
+    }
+
+    const formattedReference = `UKMTO-${refInfo.referenceNumber}`;
+
+    const existingZone = await AdvisoryZone.findOne({ referenceNumber: formattedReference });
+    if (existingZone) {
+      return { status: 'exists', data: existingZone };
+    }
+
+    // Skip the AI call for silent historical backfill - the regex parser already
+    // extracts these fields reliably and there's no point paying for ~90 AI calls
+    // on documents nobody will be notified about.
+    let extracted = opts.silent ? null : await this.extractWithOpenAI(rawTextMessage);
+    if (!extracted) {
+      extracted = this.parseAlertLocally(rawTextMessage);
+    }
+
+    const title = `${this.toTitleCase(refInfo.category)} UKMTO #${refInfo.sequence}`;
+    const coords = extracted.coordinates || this.getCoordinatesFromText(rawTextMessage);
+    const polygonCoordinates = this.generatePolygonFromPoint(coords[0], coords[1]);
+
+    const zoneData = {
+      source: 'UKMTO',
+      referenceNumber: formattedReference,
+      title,
+      description: extracted.summary || rawTextMessage.replace(/\s+/g, ' ').trim().slice(0, 500),
+      riskLevel: extracted.riskLevel || (/ATTACK|HIJACK|BOARDING/i.test(refInfo.category) ? 'CRITICAL' : 'HIGH'),
+      geometry: {
+        type: 'Polygon',
+        coordinates: [polygonCoordinates]
+      },
+      publishedAt: extracted.incidentDate ? new Date(extracted.incidentDate) : new Date(),
+      isActive: true
+    };
+
+    let newZone;
+    try {
+      newZone = await AdvisoryZone.create(zoneData);
+    } catch (dbError) {
+      if (dbError.code === 11000) {
+        // Lost a race with another cycle/instance - treat as already-exists.
+        return { status: 'exists' };
+      }
+      console.error('[UKMTO Scraper] Database operation failed:', dbError.message);
+      return { status: 'failed', error: dbError.message };
+    }
+
+    if (opts.silent) {
+      console.log(`[UKMTO Scraper] Backfilled historical bulletin ${formattedReference} (${title}) - no notification sent.`);
+      return { status: 'new', message: 'Historical bulletin backfilled silently.', data: newZone };
+    }
+
+    console.log(`[UKMTO Scraper] Saved new bulletin: ${formattedReference} (${title})`);
+
+    await this.persistAsNotification(newZone);
+    this.broadcastAlert(newZone);
+
+    return { status: 'new', message: 'New unique bulletin registered.', data: newZone };
+  }
+
+  /**
+   * Extracts the "104-26 - ATTACK" style header that appears on every UKMTO bulletin.
+   */
+  extractRefAndCategory(text) {
+    const match = text.match(/(\d{2,3})-(\d{2})\s*-\s*([A-Z][A-Z /]{2,40})/);
+    if (!match) return null;
+
+    const [, seq, year, category] = match;
+    return {
+      referenceNumber: `${seq}-${year}`,
+      sequence: String(parseInt(seq, 10)),
+      category: category.trim()
+    };
+  }
+
+  /**
+   * Attempts AI-structured extraction. Returns null (triggering local fallback) on any failure.
+   */
+  async extractWithOpenAI(rawTextMessage) {
+    try {
       const completion = await this.openai.chat.completions.create({
         model: 'gpt-4o-mini',
         messages: [
           {
             role: 'system',
-            content: `You are an expert maritime intelligence system. Parse the user's raw UKMTO warning/alert text and extract key details into structured JSON.
-            
+            content: `You are an expert maritime intelligence system. Parse the user's raw UKMTO warning/advisory text and extract key details into structured JSON.
+
             Return ONLY a valid JSON object matching this schema (do not wrap in markdown blocks):
             {
-              "referenceNumber": "string (e.g. '087-26')",
-              "title": "string (e.g. 'Attack UKMTO #87')",
               "summary": "string (A clean, short 1-2 sentence summary of the event)",
               "incidentDate": "YYYY-MM-DD string",
               "location": "string (e.g. '13NM southeast of Limah, Oman')",
@@ -62,125 +264,52 @@ class UkmtoScraperService {
               "coordinates": [longitude, latitude]
             }`
           },
-          {
-            role: 'user',
-            content: rawTextMessage
-          }
+          { role: 'user', content: rawTextMessage }
         ],
         response_format: { type: 'json_object' }
       });
 
-      extracted = JSON.parse(completion.choices[0].message.content);
-
+      return JSON.parse(completion.choices[0].message.content);
     } catch (openaiError) {
-      // Catch quota/network errors and trigger local regex parser fallback
-      console.warn('⚠️ [UKMTO AI Parser] OpenAI quota exceeded or failed. Activating local regex fallback parser...');
-      extracted = this.parseAlertLocally(rawTextMessage);
-    }
-
-    // Verify we successfully parsed data through either OpenAI or local fallback
-    if (!extracted || !extracted.referenceNumber) {
-      console.error('[UKMTO Parser] Extraction failed completely. Skipping record.');
-      return { status: 'failed', message: 'Could not parse message data.' };
-    }
-
-    const formattedReference = `UKMTO-${extracted.referenceNumber}`;
-    console.log(`[UKMTO Parser] Reference Key Verified: ${formattedReference}`);
-
-    try {
-      // Check MongoDB for duplicates
-      const existingZone = await AdvisoryZone.findOne({ referenceNumber: formattedReference });
-
-      if (existingZone) {
-        console.log(`[UKMTO Parser] Alert ${formattedReference} already exists. Skipping database entry.`);
-        return {
-          status: 'exists',
-          message: 'This notification has already been logged.',
-          data: existingZone
-        };
-      }
-
-      // Generate spatial coordinates map circle polygon
-      const coords = extracted.coordinates || [56.40, 25.80];
-      const polygonCoordinates = this.generatePolygonFromPoint(coords[0], coords[1]);
-
-      const zoneData = {
-        source: 'UKMTO',
-        referenceNumber: formattedReference,
-        title: extracted.title || 'UKMTO Warning Alert',
-        description: extracted.summary,
-        riskLevel: extracted.riskLevel || 'HIGH',
-        geometry: {
-          type: 'Polygon',
-          coordinates: [polygonCoordinates]
-        },
-        publishedAt: extracted.incidentDate ? new Date(extracted.incidentDate) : new Date(),
-        isActive: true
-      };
-
-      // Save alert to database
-      const newZone = await AdvisoryZone.create(zoneData);
-      console.log(`[UKMTO Parser] Saved new alert: ${formattedReference}`);
-
-      // Emit WebSockets broadcast with view url redirection link
-      this.broadcastAlert(newZone);
-
-      return {
-        status: 'new',
-        message: 'New unique notification registered.',
-        data: newZone
-      };
-
-    } catch (dbError) {
-      console.error('[UKMTO Parser] Database operations failed:', dbError.message);
-      return { status: 'failed', error: dbError.message };
+      console.warn('[UKMTO Scraper] OpenAI extraction unavailable, using local regex fallback:', openaiError.message);
+      return null;
     }
   }
 
   /**
-   * Robust local fallback parser using Javascript regex matching patterns
+   * Robust local fallback parser - strips known template boilerplate lines and
+   * treats whatever remains as the incident summary. Order-independent, since
+   * PDF text extraction order isn't guaranteed to match visual layout.
    */
   parseAlertLocally(text) {
-    const cleanText = text.replace(/\s+/g, ' ').trim();
+    const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+    const bodyLines = lines.filter(line => !NOISE_LINE_PATTERNS.some(rx => rx.test(line)));
+    const summary = bodyLines.join(' ').replace(/\s+/g, ' ').trim().slice(0, 500) || text.slice(0, 250);
 
-    // 1. Extract reference code (e.g. 087-26)
-    const refMatch = cleanText.match(/UKMTO\s+WARNING\s+([0-9\-]+)/i) || cleanText.match(/#([0-9\-]+)/);
-    const referenceNumber = refMatch ? refMatch[1] : 'UNKNOWN-REF';
-
-    // 2. Extract title 
-    const titleMatch = cleanText.match(/(Attack\s+UKMTO\s+#\d+)/i) || cleanText.match(/(UKMTO\s+WARNING\s+[0-9\-]+)/i);
-    const title = titleMatch ? titleMatch[1] : 'UKMTO Maritime Incident';
-
-    // 3. Extract Location
-    const locMatch = cleanText.match(/incident\s+(.*?)\./i) || cleanText.match(/southeast of\s+(.*?)\./i);
-    const location = locMatch ? locMatch[1].trim() : 'Unknown Location';
-
-    // 4. Extract Coordinates (Estimations based on regional names found in text)
-    const coordinates = this.getCoordinatesFromText(cleanText);
-
-    // 5. Build clean summary 
-    const summaryMatch = cleanText.match(/received\s+a\s+report\s+of\s+an\s+incident\s+([\s\S]*)/i);
-    const summary = summaryMatch ? `UKMTO received a report of an incident ${summaryMatch[1]}` : cleanText;
+    const dateMatch = text.match(/(\d{1,2})\s+([A-Za-z]{3})\s+(\d{4})/);
+    const incidentDate = dateMatch ? this.normalizeDate(dateMatch[1], dateMatch[2], dateMatch[3]) : new Date().toISOString().slice(0, 10);
 
     return {
-      referenceNumber,
-      title,
-      summary: summary.slice(0, 250) + '...', 
-      incidentDate: '2026-07-13',
-      location,
-      riskLevel: 'CRITICAL',
-      coordinates,
-      actionUrl: 'https://www.ukmto.org/recent-incidents' // <-- Added fallback redirect string payload
+      summary,
+      incidentDate,
+      riskLevel: null, // resolved from category upstream
+      coordinates: this.getCoordinatesFromText(text)
     };
+  }
+
+  normalizeDate(day, monthAbbrev, year) {
+    const month = MONTHS[monthAbbrev.toUpperCase()] || '01';
+    return `${year}-${month}-${day.padStart(2, '0')}`;
+  }
+
+  toTitleCase(str) {
+    return str.toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
   }
 
   getCoordinatesFromText(text) {
     const upperText = (text || '').toUpperCase();
-    if (upperText.includes('LIMAH') || upperText.includes('OMAN')) return [56.40, 25.80];
-    if (upperText.includes('HORMUZ')) return [56.25, 26.60];
-    if (upperText.includes('BAB EL MANDEB') || upperText.includes('RED SEA')) return [43.25, 12.60];
-    if (upperText.includes('ADEN')) return [47.00, 12.00];
-    return [55.00, 25.00]; // Default Indian Ocean Fallback
+    const match = KNOWN_LOCATIONS.find(loc => loc.keys.some(k => upperText.includes(k)));
+    return match ? match.coords : [58.00, 21.00]; // Gulf of Oman default fallback
   }
 
   generatePolygonFromPoint(lng, lat) {
@@ -192,6 +321,37 @@ class UkmtoScraperService {
       [lng - offset, lat + offset],
       [lng - offset, lat - offset]
     ];
+  }
+
+  /**
+   * Persists the bulletin as a real Notification + per-user mapping, so it survives
+   * a page refresh and shows correctly in the header bell / history log for everyone.
+   */
+  async persistAsNotification(zone) {
+    try {
+      const activeUsers = await User.find({ status: 'Active' }).select('_id');
+      if (!activeUsers.length) return;
+
+      const receiverIds = activeUsers.map(u => u._id);
+
+      const notification = await Notification.create({
+        senderId: null,
+        source: 'UKMTO_AUTO',
+        title: zone.title,
+        message: zone.description,
+        receiverIds
+      });
+
+      const mappings = receiverIds.map(userId => ({
+        notificationId: notification._id,
+        userId,
+        isRead: false
+      }));
+
+      await UserNotificationMapping.insertMany(mappings);
+    } catch (err) {
+      console.error('[UKMTO Scraper] Failed to persist notification records:', err.message);
+    }
   }
 
   broadcastAlert(zone) {

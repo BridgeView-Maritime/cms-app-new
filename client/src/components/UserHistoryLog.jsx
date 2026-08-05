@@ -156,11 +156,12 @@ export default function UserHistoryLog({
                 {localLogs.map((item, index) => {
                   const title = item.notificationId?.title || item.title;
                   const sender = item.notificationId?.senderId || item.senderId;
+                  const source = item.notificationId?.source || item.source;
                   const createdAt = item.notificationId?.createdAt || item.createdAt;
-                  
-                  let senderText = 'Bridgeview Admin';
+
+                  let senderText = source === 'UKMTO_AUTO' ? 'UKMTO Watch (Automated)' : 'Bridgeview Admin';
                   if (sender && typeof sender === 'object') {
-                    senderText = sender.first_name ? `${sender.first_name} ${sender.last_name || ''}` : 'Bridgeview Admin';
+                    senderText = sender.first_name ? `${sender.first_name} ${sender.last_name || ''}` : senderText;
                   }
 
                   return (
@@ -199,12 +200,13 @@ export default function UserHistoryLog({
         const modalTitle = activeModalItem.notificationId?.title || activeModalItem.title;
         const modalMessage = activeModalItem.notificationId?.message || activeModalItem.message;
         const modalSender = activeModalItem.notificationId?.senderId || activeModalItem.senderId;
+        const modalSource = activeModalItem.notificationId?.source || activeModalItem.source;
         const modalCreatedAt = activeModalItem.notificationId?.createdAt || activeModalItem.createdAt;
         const modalAttachments = activeModalItem.notificationId?.attachments || activeModalItem.attachments || [];
-        
-        let modalSenderText = 'Bridgeview Admin';
+
+        let modalSenderText = modalSource === 'UKMTO_AUTO' ? 'UKMTO Watch (Automated)' : 'Bridgeview Admin';
         if (modalSender && typeof modalSender === 'object') {
-          modalSenderText = modalSender.first_name ? `${modalSender.first_name} ${modalSender.last_name || ''}` : 'Bridgeview Admin';
+          modalSenderText = modalSender.first_name ? `${modalSender.first_name} ${modalSender.last_name || ''}` : modalSenderText;
         }
 
         return (
