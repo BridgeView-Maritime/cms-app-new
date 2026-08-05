@@ -10,7 +10,9 @@ const AttachmentSchema = new mongoose.Schema({
 
 // Central base metadata for the notification post
 const NotificationSchema = new mongoose.Schema({
-  senderId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  // Optional: system-generated notifications (e.g. UKMTO auto-alerts) have no human sender
+  senderId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+  source: { type: String, enum: ['MANUAL', 'UKMTO_AUTO'], default: 'MANUAL' },
   title: { type: String, required: true },
   message: { type: String, required: true },
   attachments: [AttachmentSchema],
