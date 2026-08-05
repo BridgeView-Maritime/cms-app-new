@@ -18,7 +18,7 @@ import AlertListener from './AlertListener';
 
 import NotificationDispatcher from './NotificationDispatcher';
 import UserHistoryLog from './UserHistoryLog';
-
+import VesselTrackerPage from './VesselTrackerPage';
 import '../styles/Dashboard.css';
 import { AUTH_ENDPOINTS } from '../config/api';
 
@@ -258,7 +258,7 @@ export default function MacDynamicDashboard({ onLogout }) {
               <Route path="metadata-config" element={<FormSchemaBuilder />} />
               <Route path="create_company" element={<DynamicPageRouterEngine overrideFormCode="CREATE_COMPANY" />} />
               <Route path="create-company" element={<DynamicPageRouterEngine overrideFormCode="CREATE_COMPANY" />} />
-              
+              <Route path="vessel_tracking" element={<VesselTrackerPage overrideFormCode="vessel_tracking" />} />
               <Route path=":formCode" element={<DynamicPageRouterEngine />} />
               <Route path="*" element={<Navigate to="/dashboard" replace />} />
             </Routes>

@@ -184,7 +184,7 @@ router.get('/menus', authenticateToken, async (req, res) => {
 
 router.post('/menus/create', authenticateToken, authorizeRoles('SUPER_ADMIN'), async (req, res) => {
   try {
-    const { menu_name, menu_icon, route, parent_id, sort_order } = req.body;
+    const { menu_name, menu_icon, route, parent_id, sort_order, description } = req.body;
     if (!menu_name) return res.status(400).json({ success: false, message: 'Menu name is required.' });
     
     const newMenu = await AppMenu.create({
@@ -192,7 +192,8 @@ router.post('/menus/create', authenticateToken, authorizeRoles('SUPER_ADMIN'), a
       menu_icon: menu_icon || 'Folder',
       route: route || '',
       parent_id: parent_id || null,
-      sort_order: sort_order || 0
+      sort_order: sort_order || 0,
+      description
     });
     res.status(201).json({ success: true, data: newMenu });
   } catch (err) {
@@ -264,16 +265,17 @@ router.post('/users/create', authenticateToken, authorizeRoles('SUPER_ADMIN'), a
     let isNewUser = false;
 
     if (user) {
-      // FIX / EVOLUTION: Instead of failing, update the existing user to associate with this employee profile
+      // FIX / EVOLUTION: Update existing user to associate with this employee profile and employee_id
       user.first_name = firstName;
       user.last_name = lastName;
       user.role_name = role_name;
+      user.employee_id = employee_id; // <-- Binds employee_id explicitly to existing user
       user.is_active = true;
-      
+
       if (password && password.trim().length >= 6) {
         user.password = await bcrypt.hash(password, 10);
       }
-      
+
       await user.save();
     } else {
       // If it is completely fresh data, run standard generation
@@ -293,6 +295,7 @@ router.post('/users/create', authenticateToken, authorizeRoles('SUPER_ADMIN'), a
         first_name: firstName,
         last_name: lastName,
         role_name,
+        employee_id, // <-- Binds employee_id explicitly to new user creation
         is_active: true
       });
     }
@@ -515,7 +518,7 @@ export default function ${componentName}CustomPage() {
 router.put('/menus/update/:id', authenticateToken, authorizeRoles('SUPER_ADMIN'), async (req, res) => {
   try {
     const { id } = req.params;
-    const { menu_name, menu_icon, route, parent_id, sort_order, is_active } = req.body;
+    const { menu_name, menu_icon, route, parent_id, sort_order, is_active, description } = req.body;
 
     // Convert potential string "false"/"true" values safely to native booleans
     let parsedActive;
@@ -531,7 +534,8 @@ router.put('/menus/update/:id', authenticateToken, authorizeRoles('SUPER_ADMIN')
         ...(route !== undefined && { route }),
         ...(parent_id !== undefined && { parent_id: parent_id || null }),
         ...(sort_order !== undefined && { sort_order: sort_order || 0 }),
-        ...(parsedActive !== undefined && { is_active: parsedActive }) // Set explicit boolean flag
+        ...(parsedActive !== undefined && { is_active: parsedActive }), // Set explicit boolean flag
+        ...(description !== undefined && { description })
       },
       { new: true, runValidators: true }
     );

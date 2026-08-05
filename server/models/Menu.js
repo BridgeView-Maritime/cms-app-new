@@ -9,7 +9,8 @@ const menuSchema = new mongoose.Schema({
   display_order: { type: Number, default: 0 },
   permission_key: { type: String, default: null },
   is_visible: { type: Boolean, default: true },
-  status: { type: String, default: 'Active' }
+  status: { type: String, default: 'Active' },
+  description: { type: String, default: '' }
 }, { timestamps: true });
 
 const Menu = mongoose.model('Menu', menuSchema);

@@ -13,7 +13,7 @@ import menuRoutes from './routes/menuRoutes.js';
 import metadataRoutes from './routes/metadataRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 import collectionsRoutes from './routes/collectionRoutes.js';
-
+import vesselRoutes from './routes/vesselTrackingRoutes.js';
 
 const app = express();
 
@@ -34,7 +34,7 @@ app.use("/api/menus", menuRoutes);
 app.use("/api/metadata", metadataRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/collections', collectionsRoutes);
-
+app.use('/api/vessels', vesselRoutes);
 
 app.get("/", (req, res) => {
     res.json({

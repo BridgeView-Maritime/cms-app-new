@@ -7,7 +7,8 @@ const AppMenuSchema = new mongoose.Schema({
   route: { type: String, default: '' },
   parent_id: { type: mongoose.Schema.Types.ObjectId, ref: 'AppMenu', default: null },
   sort_order: { type: Number, default: 0 },
-  is_active: { type: Boolean, default: true }
+  is_active: { type: Boolean, default: true },
+  description: { type: String, default: '' }
 }, { timestamps: true });
 
 // 2. ROLE MASTER DEFINITIONS

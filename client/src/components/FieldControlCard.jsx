@@ -189,6 +189,7 @@ export default function FieldControlCard({
         options: [], 
         lookup_form_code: '', 
         lookup_field_key: '', 
+        lookup_label_key: '',
         placeholder: '',
         same_line: false,
         same_line_group: '',
@@ -583,7 +584,7 @@ export default function FieldControlCard({
 
                     {/* Secondary Row for Repeater Column Database Lookup Configuration */}
                     {isSubLookup && (
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', background: '#f1f5f9', padding: '8px', borderRadius: '4px', border: '1px dashed #cbd5e1' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px', background: '#f1f5f9', padding: '8px', borderRadius: '4px', border: '1px dashed #cbd5e1' }}>
                         <div>
                           <label style={{ fontSize: '11px', fontWeight: '600', color: '#475569', display: 'block', marginBottom: '2px' }}>
                             Lookup Collection Source
@@ -593,6 +594,7 @@ export default function FieldControlCard({
                             onChange={(e) => {
                               handleSubFieldChange(subIdx, 'lookup_form_code', e.target.value);
                               handleSubFieldChange(subIdx, 'lookup_field_key', '');
+                              handleSubFieldChange(subIdx, 'lookup_label_key', '');
                             }}
                             style={{ width: '100%', padding: '4px 6px', fontSize: '11px', border: '1px solid #cbd5e1', borderRadius: '4px', background: '#ffffff' }}
                           >
@@ -611,7 +613,7 @@ export default function FieldControlCard({
 
                         <div>
                           <label style={{ fontSize: '11px', fontWeight: '600', color: '#475569', display: 'block', marginBottom: '2px' }}>
-                            Source Field Property Mapping {loadingRepeaterLookups[subIdx] && <Loader2 size={10} className="spin-loader" style={{ display: 'inline', marginLeft: '4px' }} />}
+                            Source Property Key {loadingRepeaterLookups[subIdx] && <Loader2 size={10} className="spin-loader" style={{ display: 'inline', marginLeft: '4px' }} />}
                           </label>
                           <select
                             value={sub.lookup_field_key || ''}
@@ -620,6 +622,32 @@ export default function FieldControlCard({
                             style={{ width: '100%', padding: '4px 6px', fontSize: '11px', border: '1px solid #cbd5e1', borderRadius: '4px', background: '#ffffff' }}
                           >
                             <option value="">-- Select Value Key --</option>
+                            <option value="_id">_id (MongoDB Unique Identifier)</option>
+                            {availableSubFields.map(srcField => {
+                              const key = typeof srcField === 'string' ? srcField : srcField.field_key;
+                              const label = typeof srcField === 'string' ? srcField : (srcField.label || srcField.field_key);
+                              if (key === '_id') return null;
+
+                              return (
+                                <option key={key || srcField._id} value={key}>
+                                  {label} ({key})
+                                </option>
+                              );
+                            })}
+                          </select>
+                        </div>
+
+                        <div>
+                          <label style={{ fontSize: '11px', fontWeight: '600', color: '#475569', display: 'block', marginBottom: '2px' }}>
+                            Source Property Option Text
+                          </label>
+                          <select
+                            value={sub.lookup_label_key || ''}
+                            onChange={(e) => handleSubFieldChange(subIdx, 'lookup_label_key', e.target.value)}
+                            disabled={!sub.lookup_form_code || loadingRepeaterLookups[subIdx]}
+                            style={{ width: '100%', padding: '4px 6px', fontSize: '11px', border: '1px solid #cbd5e1', borderRadius: '4px', background: '#ffffff' }}
+                          >
+                            <option value="">-- Select Display Text Key --</option>
                             <option value="_id">_id (MongoDB Unique Identifier)</option>
                             {availableSubFields.map(srcField => {
                               const key = typeof srcField === 'string' ? srcField : srcField.field_key;
@@ -883,7 +911,7 @@ export default function FieldControlCard({
 
       {/* Top-Level Database Lookup Panel */}
       {isLookupBased && (
-        <div className="mac-form-grid-2x field-subpanel lookup-panel">
+        <div className="mac-form-grid-3x field-subpanel lookup-panel">
           <div className="form-control-block">
             <label className="field-subpanel-label">Source Target Database Form Blueprint</label>
             <select 
@@ -891,6 +919,7 @@ export default function FieldControlCard({
               onChange={e => {
                 handleFieldChange(idx, 'lookup_form_code', e.target.value);
                 handleFieldChange(idx, 'lookup_field_key', '');
+                handleFieldChange(idx, 'lookup_label_key', '');
               }}
             >
               <option value="">-- Choose Data Collection Source --</option>
@@ -916,6 +945,31 @@ export default function FieldControlCard({
               disabled={!field.lookup_form_code || isLoadingFields}
             >
               <option value="">-- Choose Field Value Mapping Key --</option>
+              <option value="_id">_id (MongoDB Unique Key Identifier)</option>
+              {fetchedFormFields.map(srcField => {
+                const key = typeof srcField === 'string' ? srcField : srcField.field_key;
+                const label = typeof srcField === 'string' ? srcField : (srcField.label || srcField.field_key);
+                if (key === '_id') return null;
+
+                return (
+                  <option key={key || srcField._id} value={key}>
+                    {label} ({key})
+                  </option>
+                );
+              })}
+            </select>
+          </div>
+
+          <div className="form-control-block">
+            <label className="field-subpanel-label">
+              Source Property Option Text
+            </label>
+            <select 
+              value={field.lookup_label_key || ''} 
+              onChange={e => handleFieldChange(idx, 'lookup_label_key', e.target.value)} 
+              disabled={!field.lookup_form_code || isLoadingFields}
+            >
+              <option value="">-- Choose Display Text Key --</option>
               <option value="_id">_id (MongoDB Unique Key Identifier)</option>
               {fetchedFormFields.map(srcField => {
                 const key = typeof srcField === 'string' ? srcField : srcField.field_key;

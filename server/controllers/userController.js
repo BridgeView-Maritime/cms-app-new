@@ -2,7 +2,8 @@ import mongoose from 'mongoose';
 import User from '../models/User.js';
 import Role from '../models/Role.js';
 // Assuming your Menu model looks like your CSS specifications: { name, route, icon, order, permission_key, is_visible, status }
-import Menu from '../models/Menu.js'; 
+// import Menu from '../models/Menu.js'; 
+import { AppMenu } from '../models/AdminManagementModels.js'; 
 import { hashPassword } from '../utils/bcrypt.js';
 import { logAudit } from '../helpers/auditHelper.js';
 
@@ -102,13 +103,13 @@ export const getDashboardInitData = async (req, res) => {
     let combinedItems = [];
     
     // 1. Pull from the base Menu model
-    const baseMenus = await Menu.find({}).lean();
+    const baseMenus = await AppMenu.find({}).lean();
     combinedItems = [...combinedItems, ...baseMenus];
 
     // 2. Programmatically sweep every other collection active in Mongoose to find the dynamic updates
     const modelNames = mongoose.modelNames();
     for (const modelName of modelNames) {
-      if (modelName !== 'User' && modelName !== 'Role' && modelName !== 'Menu') {
+      if (modelName !== 'User' && modelName !== 'Role' && modelName !== 'Menu' && modelName !== 'AppMenu' && modelName !== 'AdminManagementModels') {
         try {
           const extraDocs = await mongoose.model(modelName).find({}).lean();
           // Check if the collection looks like a menu collection (has routes/labels)
@@ -123,19 +124,30 @@ export const getDashboardInitData = async (req, res) => {
 
     // Deduplicate items cleanly using route/name signatures
     const uniqueMenuMap = new Map();
+
     combinedItems.forEach(item => {
       // Normalize different schema property names to the front-end standard
       const normalized = {
         ...item,
         _id: item._id ? item._id.toString() : item.id,
-        menu_name: item.menu_name || item.menu_title || item.name || item.label,
+        menu_name: item.menu_name || item.menu_title || item.name || item.label || item.from_code,
         route: item.route || item.target_route || item.path,
         parent_id: item.parent_id || null,
         display_order: Number(item.display_order || item.sort_order || item.order || 99)
       };
       
       if (normalized.route) {
-        uniqueMenuMap.set(normalized.route, normalized);
+        if (uniqueMenuMap.has(normalized.route)) {
+          // Merge: preserve non-empty properties (like menu_name) if already existing
+          const existing = uniqueMenuMap.get(normalized.route);
+          uniqueMenuMap.set(normalized.route, {
+            ...normalized,
+            ...existing, // Keeps existing valid fields like menu_name if present
+            menu_name: existing.menu_name || normalized.menu_name
+          });
+        } else {
+          uniqueMenuMap.set(normalized.route, normalized);
+        }
       }
     });
 
