@@ -14,6 +14,7 @@ import formSectionRoutes from './routes/formSectionRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
 import chatbotRoutes from './routes/chatbotRoutes.js';
 import vesselRoutes from './routes/vesselTrackingRoutes.js';
+import migrationRoutes from './routes/migrationRoutes.js';
 
 // Fixed imports: Importing models from their actual respective files
 import { FormMeta } from './models/DynamicMetaSchemas.js';
@@ -40,6 +41,9 @@ const io = new Server(server, {
   }
 });
 
+// Expose io on the app so route controllers (e.g. migration progress) can emit to rooms
+app.set('io', io);
+
 // Configure Socket.IO connection orchestration channels
 io.on('connection', (socket) => {
   console.log(`🔌 Client connected to WebSocket: ${socket.id}`);
@@ -64,6 +68,7 @@ app.use('/api/form_sections', formSectionRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/chatbot', chatbotRoutes);
 app.use('/api/vessels', vesselRoutes);
+app.use('/api/migration', migrationRoutes);
 
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/cms_new_db';

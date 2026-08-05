@@ -8,8 +8,9 @@ import Footer from './Footer';
 
 import UserManagementWorkspace from '../pages/UserControlPanel';
 import EmployeeDirectory from '../pages/EmployeeDirectory';
-import MetadataConfig from '../pages/MetadataConfig'; 
+import MetadataConfig from '../pages/MetadataConfig';
 import DashboardSummary from '../pages/DashboardSummary';
+import MigrationPanel from '../pages/MigrationPanel';
 
 import DynamicPageRouterEngine from './dynamic-engine/DynamicPageRouterEngine';
 import FormSchemaBuilder from './FormSchemaBuilder';
@@ -23,6 +24,7 @@ import { AUTH_ENDPOINTS } from '../config/api';
 
 export default function MacDynamicDashboard({ onLogout }) {
   const [userProfile, setUserProfile] = useState({ id: null, firstName: '', lastName: '', roleName: '', email: '' });
+  const [isProfileLoaded, setIsProfileLoaded] = useState(false);
   const [menuData, setMenuData] = useState([]);
   const [expandedMenus, setExpandedMenus] = useState({});
   const [activeDockFlyout, setActiveDockFlyout] = useState(null);
@@ -73,6 +75,7 @@ export default function MacDynamicDashboard({ onLogout }) {
             email: resData.user.email || ''
           });
           setMenuData(resData.menus || []);
+          setIsProfileLoaded(true);
         } else {
           localStorage.removeItem('accessToken');
           window.location.href = AUTH_ENDPOINTS.REACT_APP_URL;
@@ -86,8 +89,10 @@ export default function MacDynamicDashboard({ onLogout }) {
     fetchEnvironmentData();
   }, []);
 
+  // Shared admin gate — the migration tool (and any other SUPER_ADMIN-only route) relies on this.
+  const isSuperAdmin = userProfile.roleName === 'Super Administrator' || userProfile.roleName === 'SUPER_ADMIN';
+
   const syncNotificationLogs = () => {
-    const isSuperAdmin = userProfile.roleName === 'Super Administrator' || userProfile.roleName === 'SUPER_ADMIN';
     if (!isSuperAdmin && (!userProfile.id || userProfile.id === '')) return;
 
     const token = localStorage.getItem('accessToken');
@@ -182,10 +187,11 @@ export default function MacDynamicDashboard({ onLogout }) {
       />
 
       {/* Pass handleMarkAsRead callback engine up into headers popover */}
-      <Header 
-        currentTime={currentTime} 
-        notifications={notifications} 
-        onMarkAsRead={handleMarkAsRead} 
+      <Header
+        currentTime={currentTime}
+        notifications={notifications}
+        onMarkAsRead={handleMarkAsRead}
+        userProfile={userProfile}
       />
       
       {activeToast && (
@@ -210,10 +216,11 @@ export default function MacDynamicDashboard({ onLogout }) {
           onLogout={onLogout}
           toggleNativeFullscreen={toggleNativeFullscreen}
           userProfile={userProfile}
-          structuredMenu={menuData} 
+          structuredMenu={menuData}
           expandedMenus={expandedMenus}
           toggleSubmenu={toggleSubmenu}
           renderIcon={renderIcon}
+          isSuperAdmin={isSuperAdmin}
         />
 
         <main className="mac-viewport-scroll-bed">
@@ -237,6 +244,15 @@ export default function MacDynamicDashboard({ onLogout }) {
                     onRefreshNeeded={syncNotificationLogs}
                   />
                 } 
+              />
+
+              <Route
+                path="migration"
+                element={
+                  !isProfileLoaded
+                    ? <div className="mac-route-gate-loading">Loading...</div>
+                    : (isSuperAdmin ? <MigrationPanel isSuperAdmin={isSuperAdmin} /> : <Navigate to="/dashboard" replace />)
+                }
               />
 
               <Route path="metadata-config" element={<FormSchemaBuilder />} />

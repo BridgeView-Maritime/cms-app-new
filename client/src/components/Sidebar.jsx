@@ -1,23 +1,22 @@
 // client/src/components/Sidebar.jsx
-import React, { useMemo, useEffect, useState } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { ChevronDown, ChevronRight, KeyRound } from 'lucide-react';
-import ChangePasswordModal from './ChangePasswordModal';
+import { ChevronDown, ChevronRight, ArrowRightLeft } from 'lucide-react';
 import '../styles/Sidebar.css';
 
-export default function Sidebar({ 
-  isSidebarCollapsed, 
-  setIsSidebarCollapsed, 
-  onLogout, 
-  toggleNativeFullscreen, 
-  userProfile, 
-  structuredMenu, 
-  expandedMenus, 
-  toggleSubmenu, 
-  renderIcon 
+export default function Sidebar({
+  isSidebarCollapsed,
+  setIsSidebarCollapsed,
+  onLogout,
+  toggleNativeFullscreen,
+  userProfile,
+  structuredMenu,
+  expandedMenus,
+  toggleSubmenu,
+  renderIcon,
+  isSuperAdmin
 }) {
   const location = useLocation();
-  const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
 
   // 1. Automatic Responsive Device Minimizer/Maximizer Listener
   useEffect(() => {
@@ -142,20 +141,8 @@ export default function Sidebar({
           </div>
         </div>
 
-        {isChangePasswordOpen && (
-          <ChangePasswordModal
-            email={userProfile?.email}
-            onClose={() => setIsChangePasswordOpen(false)}
-          />
-        )}
-
         <div className="sidebar-scrollable-tree">
           <span className="sidebar-group-title">Navigation Hierarchy</span>
-
-          <button className="cp-trigger-btn" onClick={() => setIsChangePasswordOpen(true)}>
-            <KeyRound size={13} />
-            Change Password
-          </button>
 
           <ul className="mac-sidebar-menu">
             {activeMenus.map(menu => {
@@ -208,6 +195,21 @@ export default function Sidebar({
                 </li>
               );
             })}
+
+            {isSuperAdmin && (
+              <li className="menu-node">
+                <NavLink
+                  to="/dashboard/migration"
+                  end
+                  className={({ isActive }) => `menu-row-item ${isActive ? 'row-active' : ''}`}
+                >
+                  <div className="menu-row-left">
+                    <ArrowRightLeft size={16} className="sidebar-vector-glyph" />
+                    <span className="menu-title-text">MySQL Dump &rarr; MongoDB Migration</span>
+                  </div>
+                </NavLink>
+              </li>
+            )}
           </ul>
         </div>
       </aside>
