@@ -11,13 +11,15 @@ import employeeRoutes from './routes/employeeRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 import collectionsRoutes from './routes/collectionRoutes.js';
 import formSectionRoutes from './routes/formSectionRoutes.js';
+import notificationRoutes from './routes/notificationRoutes.js';
+import chatbotRoutes from './routes/chatbotRoutes.js';
+import vesselRoutes from './routes/vesselTrackingRoutes.js';
 
 // Fixed imports: Importing models from their actual respective files
 import { FormMeta } from './models/DynamicMetaSchemas.js';
 import { UserRole, AppMenu } from './models/AdminManagementModels.js'; 
 
 import UkmtoScraperService from './services/UkmtoScraperService.js';
-import notificationRoutes from './routes/notificationRoutes.js';
 
 dotenv.config();
 const app = express();
@@ -52,6 +54,7 @@ io.on('connection', (socket) => {
   });
 });
 
+// Express API Routes Configuration
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes); 
 app.use('/api/employees', employeeRoutes); 
@@ -59,6 +62,8 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/collections', collectionsRoutes);
 app.use('/api/form_sections', formSectionRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/chatbot', chatbotRoutes);
+app.use('/api/vessels', vesselRoutes);
 
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/cms_new_db';
@@ -160,6 +165,7 @@ mongoose.connect(MONGO_URI)
       scraper.scrapeAndIngest();
     }, 20 * 60 * 1000);
 
+    // Single server listener on HTTP wrapper (supports express + socket.io)
     server.listen(PORT, () => {
       console.log(`🚀 Server fully synchronized and running on Port ${PORT}`);
     });

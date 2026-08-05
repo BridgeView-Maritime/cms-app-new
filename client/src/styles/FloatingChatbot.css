@@ -1,0 +1,437 @@
+/* ==========================================================================
+   CLEAN WHITE PROFESSIONAL ROBOT CHATBOT STYLING
+   ========================================================================== */
+
+/* Bottom-right fixed container */
+.floating-bot-wrapper {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9999;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* White & Slate Toggle Launcher */
+.floating-bot-toggle {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 40px;
+  padding: 8px 12px 8px 12px;
+  color: #0f172a;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  font-size: 13px;
+  cursor: pointer;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.floating-bot-toggle:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 20px 30px -10px rgba(37, 99, 235, 0.2);
+  border-color: #3b82f6;
+  color: #2563eb;
+}
+
+/* ==========================================================================
+   ROBOT HEAD & BLINKING EYES (LIGHT MODE DESIGN)
+   ========================================================================== */
+.robot-head-icon {
+  position: relative;
+  width: 32px;
+  height: 28px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.robot-face {
+  position: relative;
+  width: 26px;
+  height: 22px;
+  background: #ffffff;
+  border: 1.5px solid #2563eb;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  box-shadow: inset 0 0 4px rgba(37, 99, 235, 0.15);
+}
+
+/* Robot Ears */
+.robot-ear {
+  position: absolute;
+  top: 7px;
+  width: 3px;
+  height: 8px;
+  background: #2563eb;
+  border-radius: 2px;
+}
+.robot-ear.left { left: 0px; }
+.robot-ear.right { right: 0px; }
+
+/* Blinking Glowing Blue Eyes */
+.robot-eye {
+  width: 6px;
+  height: 6px;
+  background-color: #2563eb;
+  border-radius: 50%;
+  box-shadow: 0 0 6px rgba(37, 99, 235, 0.6);
+  animation: robotBlink 3.5s infinite ease-in-out;
+}
+
+.robot-mouth {
+  position: absolute;
+  bottom: 3px;
+  width: 10px;
+  height: 2px;
+  background: #3b82f6;
+  border-radius: 1px;
+}
+
+/* Eye Blink Animation */
+@keyframes robotBlink {
+  0%, 90%, 100% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+  95% {
+    transform: scaleY(0.1);
+    opacity: 0.3;
+  }
+}
+
+/* Variant: Mini Header Avatar */
+.robot-head-icon.mini {
+  width: 24px;
+  height: 20px;
+}
+
+.robot-head-icon.mini .robot-face {
+  width: 22px;
+  height: 18px;
+  border-width: 1.5px;
+}
+
+.robot-head-icon.mini .robot-eye {
+  width: 4px;
+  height: 4px;
+}
+
+/* Variant: Large Welcome Avatar */
+.robot-head-icon.welcome-robot {
+  width: 54px;
+  height: 48px;
+  margin: 0 auto 12px;
+}
+
+.robot-head-icon.welcome-robot .robot-face {
+  width: 44px;
+  height: 38px;
+  border-width: 2px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+}
+
+.robot-head-icon.welcome-robot .robot-ear {
+  top: 13px;
+  width: 4px;
+  height: 12px;
+}
+
+.robot-head-icon.welcome-robot .robot-eye {
+  width: 10px;
+  height: 10px;
+}
+
+.robot-head-icon.welcome-robot .robot-mouth {
+  bottom: 6px;
+  width: 18px;
+  height: 3px;
+}
+
+/* White Glass Window Body */
+.chat-window.iron-hud-frame {
+  width: 380px;
+  height: 570px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.12), 0 0 1px 1px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: hudAppear 0.35s ease-out forwards;
+}
+
+@keyframes hudAppear {
+  from { opacity: 0; transform: translateY(20px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Light Theme Header */
+.chat-header {
+  background: #ffffff;
+  border-bottom: 1px solid #f1f5f9;
+  padding: 14px 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.hud-title-block {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.chat-header h4 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+
+.hud-code-tag {
+  font-size: 10px;
+  color: #2563eb;
+  font-family: monospace;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.close-btn {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.close-btn:hover {
+  background: #fee2e2;
+  border-color: #fca5a5;
+  color: #ef4444;
+}
+
+/* Banner Description */
+.form-desc-banner {
+  background: #f8fafc;
+  padding: 8px 16px;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 11px;
+  color: #64748b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.banner-label {
+  color: #2563eb;
+  font-weight: 700;
+}
+
+/* Chat Messages Scrolling Body */
+.chat-messages {
+  flex: 1;
+  padding: 16px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: #fafafa;
+}
+
+.hud-welcome {
+  text-align: center;
+  color: #64748b;
+  font-size: 13px;
+  line-height: 1.5;
+  margin: auto 0;
+  padding: 0 10px;
+}
+
+/* Message Bubbles */
+.msg-bubble {
+  position: relative;
+  max-width: 82%;
+  padding: 10px 14px;
+  border-radius: 14px;
+  font-size: 13.5px;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.msg-bubble.user {
+  align-self: flex-end;
+  background: #2563eb;
+  color: #ffffff;
+  border-bottom-right-radius: 2px;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+}
+
+.msg-bubble.bot {
+  align-self: flex-start;
+  background: #ffffff;
+  color: #1e293b;
+  border: 1px solid #e2e8f0;
+  border-bottom-left-radius: 2px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+.bot-avatar-tag {
+  font-size: 9px;
+  font-weight: 800;
+  color: #2563eb;
+  margin-bottom: 3px;
+  letter-spacing: 1px;
+}
+
+/* Dynamic Suggested Questions Bar */
+.dynamic-questions-container {
+  padding: 10px 14px;
+  background: #ffffff;
+  border-top: 1px solid #f1f5f9;
+}
+
+.q-title {
+  font-size: 10px;
+  color: #64748b;
+  font-weight: 700;
+  margin: 0 0 6px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+.q-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  max-height: 75px;
+  overflow-y: auto;
+}
+
+.q-pill {
+  background: #f1f5f9;
+  color: #2563eb;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 11.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.q-pill:hover {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+  color: #1d4ed8;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.1);
+}
+
+/* Input Command Area */
+.chat-input-area {
+  display: flex;
+  padding: 12px;
+  gap: 8px;
+  border-top: 1px solid #f1f5f9;
+  background: #ffffff;
+  align-items: center;
+}
+
+.chat-input-area input {
+  flex: 1;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 13.5px;
+  color: #0f172a;
+  outline: none;
+  transition: all 0.2s;
+}
+
+.chat-input-area input:focus {
+  background: #ffffff;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.mic-btn, .send-btn, .stop-speech-btn {
+  border: none;
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.mic-btn:hover, .stop-speech-btn:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.send-btn {
+  background: #2563eb;
+  color: #ffffff;
+  border-color: #2563eb;
+  font-weight: bold;
+}
+
+.send-btn:hover {
+  background: #1d4ed8;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+}
+
+.mic-btn.listening {
+  background: #ef4444;
+  border-color: #ef4444;
+  color: white;
+  animation: pulseMic 1.2s infinite;
+}
+
+@keyframes pulseMic {
+  0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5); }
+  70% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+/* Typing Indicator Animation */
+.hud-typing {
+  display: flex;
+  gap: 4px;
+  padding: 4px 0;
+}
+
+.hud-typing span {
+  width: 6px;
+  height: 6px;
+  background: #2563eb;
+  border-radius: 50%;
+  animation: typingBounce 1s infinite ease-in-out;
+}
+
+.hud-typing span:nth-child(2) { animation-delay: 0.2s; }
+.hud-typing span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes typingBounce {
+  0%, 100% { transform: translateY(0); opacity: 0.3; }
+  50% { transform: translateY(-4px); opacity: 1; }
+}

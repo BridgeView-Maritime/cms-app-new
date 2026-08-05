@@ -1,6 +1,7 @@
 // client/src/components/MenuManagementTab.jsx
 import React from 'react';
 import * as Icons from 'lucide-react';
+import axios from 'axios';
 import '../styles/MenuManagementTab.css';
 
 export default function MenuManagementTab({
@@ -25,15 +26,9 @@ export default function MenuManagementTab({
    * Cleans input string by removing special characters and replacing spaces/hyphens with underscores
    */
   const sanitizeSubmenuSegment = (rawText) => {
-    // Strip leading `/app/workspace/` if user pastes or types over it
     let cleanText = rawText.replace(/^\/app\/workspace\/?/i, '');
-    
-    // Replace non-alphanumeric characters (including spaces and dashes) with underscores
     cleanText = cleanText.replace(/[^a-zA-Z0-9]/g, '_');
-    
-    // Collapses multiple consecutive underscores into a single underscore
     cleanText = cleanText.replace(/_+/g, '_');
-
     return cleanText ? `/app/workspace/${cleanText.toLowerCase()}` : '/app/workspace/';
   };
 
@@ -44,14 +39,12 @@ export default function MenuManagementTab({
     const selectedParentId = e.target.value;
     
     if (selectedParentId) {
-      // Set parent ID and initialize sub-route default structure
       setMenuForm({
         ...menuForm,
         parent_id: selectedParentId,
         route: '/app/workspace/'
       });
     } else {
-      // Revert parent ID to top-level
       setMenuForm({
         ...menuForm,
         parent_id: ''
@@ -66,19 +59,53 @@ export default function MenuManagementTab({
     const inputValue = e.target.value;
 
     if (menuForm.parent_id) {
-      // Apply strict formatting rules for submenus
       const formattedRoute = sanitizeSubmenuSegment(inputValue);
       setMenuForm({ ...menuForm, route: formattedRoute });
     } else {
-      // Normal route typing for top-level menus
       setMenuForm({ ...menuForm, route: inputValue });
+    }
+  };
+
+  /**
+   * Wrapper submit handler executing original callback + chatbot context sync
+   */
+  const onFormSubmitWithChatbotSync = async (e) => {
+    e.preventDefault();
+
+    // Execute standard existing form submission
+    if (handleMenuSubmission) {
+      await handleMenuSubmission(e);
+    }
+
+    // Call service endpoint to sync collection_users_menu_chatbot
+    try {
+      const token = localStorage.getItem('token') || localStorage.getItem('authToken');
+      const routeSegment = menuForm.route || '';
+      const derivedFormCode = routeSegment.split('/').pop() || menuForm.menu_name || 'unknown';
+
+      await axios.post(
+        '/api/chatbot/save-context',
+        {
+          route: menuForm.route,
+          from_code: derivedFormCode,
+          description: menuForm.description || '',
+          status: menuForm.is_active !== false ? 'Active' : 'Inactive'
+        },
+        {
+          headers: {
+            Authorization: token ? `Bearer ${token}` : ''
+          }
+        }
+      );
+    } catch (err) {
+      console.error('Failed to sync menu chatbot context:', err);
     }
   };
 
   return (
     <div className="menu-management-container">
       {/* Menu Form Side */}
-      <form onSubmit={handleMenuSubmission} className="menu-form-card">
+      <form onSubmit={onFormSubmitWithChatbotSync} className="menu-form-card">
         <h3 className="menu-form-title">
           {editingMenuId ? 'Modify Custom View Module' : 'Custom View Module'}
         </h3>
@@ -152,6 +179,24 @@ export default function MenuManagementTab({
           />
         </div>
 
+        {/* Dynamic Chatbot Knowledge Base Description */}
+        <div className="menu-field-group">
+          <label className="menu-field-label">
+            Module Description / AI Assistant Context 
+            <span style={{ fontSize: '0.8em', color: '#6b7280', marginLeft: '6px' }}>
+              (Used by AI Assistant to answer user queries)
+            </span>
+          </label>
+          <textarea
+            rows={3}
+            placeholder="Describe what users can do in this menu (e.g. Create, update, and manage registered companies under vessel ownership)."
+            value={menuForm.description || ''}
+            onChange={e => setMenuForm({ ...menuForm, description: e.target.value })}
+            className="menu-text-input"
+            style={{ resize: 'vertical', minHeight: '80px' }}
+          />
+        </div>
+
         <div className="menu-form-actions">
           <button type="submit" className="menu-btn-submit">
             {editingMenuId ? 'Update Custom Menu' : 'Save Custom Menu'}
@@ -182,6 +227,11 @@ export default function MenuManagementTab({
                   </span>
                 </span>
                 <span className="menu-item-route">{menu.route}</span>
+                {menu.description && (
+                  <p className="menu-item-description" style={{ fontSize: '0.82rem', color: '#64748b', marginTop: '4px' }}>
+                    {menu.description}
+                  </p>
+                )}
               </div>
               <div className="menu-item-controls">
                 {menu.parent_id && <span className="menu-child-badge">SUBMENU CHILD</span>}

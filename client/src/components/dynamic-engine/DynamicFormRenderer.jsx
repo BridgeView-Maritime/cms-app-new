@@ -92,7 +92,8 @@ export default function DynamicFormRenderer({ schema: initialSchema, formCode, r
         lookupsToFetch.push({
           key: f.field_key,
           lookup_form_code: f.lookup_form_code,
-          lookup_field_key: f.lookup_field_key
+          lookup_field_key: f.lookup_field_key,
+          lookup_label_key: f.lookup_label_key
         });
       }
 
@@ -103,7 +104,8 @@ export default function DynamicFormRenderer({ schema: initialSchema, formCode, r
             lookupsToFetch.push({
               key: sub.field_key,
               lookup_form_code: sub.lookup_form_code,
-              lookup_field_key: sub.lookup_field_key
+              lookup_field_key: sub.lookup_field_key,
+              lookup_label_key: sub.lookup_label_key
             });
           }
         });
@@ -111,7 +113,7 @@ export default function DynamicFormRenderer({ schema: initialSchema, formCode, r
     });
 
     lookupsToFetch.forEach(field => {
-      const { key, lookup_form_code, lookup_field_key } = field;
+      const { key, lookup_form_code, lookup_field_key, lookup_label_key } = field;
       setLoadingLookups(prev => ({ ...prev, [key]: true }));
 
       const token = localStorage.getItem('accessToken');
@@ -122,11 +124,29 @@ export default function DynamicFormRenderer({ schema: initialSchema, formCode, r
         .then(data => {
           const records = data.records || data.data || (Array.isArray(data) ? data : []);
 
-          const parsedOptions = records.map(rec => ({
-            id: rec._id || rec.id,
-            value: lookup_field_key && rec[lookup_field_key] !== undefined ? rec[lookup_field_key] : (rec._id || rec.id),
-            label: lookup_field_key && rec[lookup_field_key] !== undefined ? String(rec[lookup_field_key]) : (rec.name || rec.title || rec._id)
-          }));
+          const parsedOptions = records.map(rec => {
+            // Determine Option Value (lookup_field_key)
+            let val = rec._id || rec.id;
+            if (lookup_field_key && rec[lookup_field_key] !== undefined) {
+              val = rec[lookup_field_key];
+            }
+
+            // Determine Option Text Label (lookup_label_key)
+            let lbl = '';
+            if (lookup_label_key && rec[lookup_label_key] !== undefined) {
+              lbl = String(rec[lookup_label_key]);
+            } else if (lookup_field_key && rec[lookup_field_key] !== undefined) {
+              lbl = String(rec[lookup_field_key]);
+            } else {
+              lbl = rec.name || rec.title || rec.label || rec._id || rec.id;
+            }
+
+            return {
+              id: rec._id || rec.id,
+              value: val,
+              label: lbl
+            };
+          });
 
           setLookupOptions(prev => ({ ...prev, [key]: parsedOptions }));
         })

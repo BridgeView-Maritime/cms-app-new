@@ -17,6 +17,7 @@ const SubFieldSchema = new mongoose.Schema({
   options: { type: mongoose.Schema.Types.Mixed, default: [] },
   lookup_form_code: { type: String, default: '' },
   lookup_field_key: { type: String, default: '' },
+  lookup_label_key: { type: String, default: '' },
   placeholder: { type: String, default: '' }
 }, { _id: true });
 
@@ -41,7 +42,7 @@ const FieldSchema = new mongoose.Schema({
   options: { type: mongoose.Schema.Types.Mixed, default: [] }, 
   lookup_form_code: { type: String, default: '' },
   lookup_field_key: { type: String, default: '' },  
-
+  lookup_label_key: { type: String, default: '' },
   // ================= REPEATER SUB-FIELDS =================
   sub_fields: [SubFieldSchema],
 

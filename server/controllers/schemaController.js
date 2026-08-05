@@ -22,6 +22,7 @@ exports.createOrUpdateSchemaBlueprint = async (req, res) => {
         options: f.input_type === 'database_lookup' ? [] : f.options,
         lookup_form_code: f.input_type === 'database_lookup' ? f.lookup_form_code : '',
         lookup_field_key: f.input_type === 'database_lookup' ? f.lookup_field_key : '',
+        lookup_label_key: f.input_type === 'database_lookup' ? f.lookup_label_key : '',
         
         // REPEATER SUB-FIELDS
         sub_fields: f.input_type === 'repeater' && Array.isArray(f.sub_fields) ? f.sub_fields.map(sf => ({
@@ -31,6 +32,7 @@ exports.createOrUpdateSchemaBlueprint = async (req, res) => {
           options: sf.options || [],
           lookup_form_code: sf.lookup_form_code || '',
           lookup_field_key: sf.lookup_field_key || '',
+          lookup_label_key: sf.lookup_label_key || '',
           placeholder: sf.placeholder || '',
           ...(sf._id ? { _id: sf._id } : {})
         })) : [],
