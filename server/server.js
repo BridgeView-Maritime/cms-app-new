@@ -162,6 +162,7 @@ mongoose.connect(MONGO_URI)
     }
 
     const scraper = new UkmtoScraperService(io);
+    app.set('ukmtoScraper', scraper); // Exposed for GET/POST /api/notifications/ukmto-status|ukmto-sync
     scraper.scrapeAndIngest();
 
     // Schedule automated RSS checks every 20 minutes
