@@ -5,8 +5,10 @@ import mongoose from 'mongoose';
 import path from 'path';
 import fs from 'fs';
 import { Notification, UserNotificationMapping } from '../models/Notification.js';
-import User from '../models/User.js'; 
+import User from '../models/User.js';
 import nodemailer from 'nodemailer';
+import AdvisoryZone from '../models/AdvisoryZone.js';
+import { authenticateToken } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
@@ -195,6 +197,41 @@ router.patch('/mark-read/:id', async (req, res) => {
     res.status(200).json({ success: true, data: updatedMapping });
   } catch (err) {
     res.status(500).json({ error: err.message });
+  }
+});
+
+// DEBUG: Inspect the UKMTO scraper's last sync result without needing host/log access.
+router.get('/ukmto-status', authenticateToken, async (req, res) => {
+  try {
+    const scraper = req.app.get('ukmtoScraper');
+    const recentBulletins = await AdvisoryZone.find({ source: 'UKMTO' })
+      .sort({ createdAt: -1 })
+      .limit(10)
+      .select('referenceNumber title riskLevel publishedAt createdAt');
+
+    res.status(200).json({
+      success: true,
+      scraperAvailable: !!scraper,
+      lastRunSummary: scraper?.lastRunSummary || null,
+      recentBulletins
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// DEBUG: Manually trigger a sync cycle right now instead of waiting for the 20-min interval.
+router.post('/ukmto-sync', authenticateToken, async (req, res) => {
+  try {
+    const scraper = req.app.get('ukmtoScraper');
+    if (!scraper) {
+      return res.status(503).json({ success: false, error: 'UKMTO scraper is not initialized on this server instance yet.' });
+    }
+
+    await scraper.scrapeAndIngest();
+    res.status(200).json({ success: true, lastRunSummary: scraper.lastRunSummary });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
   }
 });
 

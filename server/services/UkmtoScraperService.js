@@ -58,6 +58,9 @@ class UkmtoScraperService {
   constructor(io) {
     this.io = io; // For frontend Socket.IO alerts
     this.openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+    // Exposed via GET /api/notifications/ukmto-status so sync results are visible
+    // without needing access to server/host logs (e.g. Railway).
+    this.lastRunSummary = null;
   }
 
   /**
@@ -66,6 +69,7 @@ class UkmtoScraperService {
    */
   async scrapeAndIngest() {
     console.log('[UKMTO Scraper] Checking MSCIO mirror for new UKMTO documents...');
+    const startedAt = new Date();
 
     let documents;
     try {
@@ -73,11 +77,23 @@ class UkmtoScraperService {
     } catch (err) {
       // Never let a source outage crash the process - log and retry next cycle.
       console.error('[UKMTO Scraper] Failed to reach MSCIO document listing:', err.message);
+      this.lastRunSummary = {
+        ranAt: startedAt,
+        ok: false,
+        stage: 'fetchDocumentList',
+        error: err.message
+      };
       return;
     }
 
     if (!documents.length) {
       console.warn('[UKMTO Scraper] No documents found in listing (source layout may have changed).');
+      this.lastRunSummary = {
+        ranAt: startedAt,
+        ok: false,
+        stage: 'fetchDocumentList',
+        error: 'Listing returned zero documents - MSCIO page structure may have changed.'
+      };
       return;
     }
 
@@ -88,22 +104,48 @@ class UkmtoScraperService {
     // broadcast; anything older that's also new gets backfilled into the map silently.
     let newCount = 0;
     let liveSlotUsed = false;
+    let liveBulletin = null;
+    const perDocResults = [];
     for (let i = 0; i < documents.length; i++) {
       const wasSilentBeforeThisDoc = liveSlotUsed;
       try {
+        // Cheap pre-check from the filename alone (before downloading the PDF) so a
+        // steady-state cycle isn't re-fetching all ~90 historical documents every time.
+        // Safe even if the guess is wrong/imprecise - it only ever skips a download,
+        // never skips the authoritative body-text check inside processDocument.
+        const guessedRef = this.guessReferenceFromFilename(documents[i].filename);
+        if (guessedRef && await AdvisoryZone.exists({ referenceNumber: guessedRef })) {
+          perDocResults.push({ filename: documents[i].filename, status: 'exists' });
+          continue;
+        }
+
         const result = await this.processDocument(documents[i], { silent: wasSilentBeforeThisDoc });
+        perDocResults.push({ filename: documents[i].filename, status: result?.status });
         if (result?.status === 'new') {
           newCount++;
-          if (!wasSilentBeforeThisDoc) liveSlotUsed = true; // this doc claimed the one live slot for this cycle
+          if (!wasSilentBeforeThisDoc) {
+            liveSlotUsed = true; // this doc claimed the one live slot for this cycle
+            liveBulletin = result.data?.title;
+          }
         }
       } catch (err) {
         console.error(`[UKMTO Scraper] Failed processing ${documents[i].filename}:`, err.message);
+        perDocResults.push({ filename: documents[i].filename, status: 'error', error: err.message });
       }
       // Be a polite citizen towards the mirror - small gap between sequential downloads.
       await new Promise(resolve => setTimeout(resolve, 300));
     }
 
     console.log(`[UKMTO Scraper] Sync complete. ${newCount} new bulletin(s) ingested, ${documents.length} checked.`);
+
+    this.lastRunSummary = {
+      ranAt: startedAt,
+      ok: true,
+      documentsChecked: documents.length,
+      newCount,
+      liveNotificationSentFor: liveBulletin,
+      perDocResults
+    };
   }
 
   /**
@@ -226,6 +268,19 @@ class UkmtoScraperService {
     this.broadcastAlert(newZone);
 
     return { status: 'new', message: 'New unique bulletin registered.', data: newZone };
+  }
+
+  /**
+   * Best-effort reference number guess from the filename alone (e.g.
+   * "20260803-UKMTO_WARNING_104-26" -> "UKMTO-104-26"), used only to skip a PDF
+   * download when we're confident it's already ingested. Never trusted for saving -
+   * extractRefAndCategory() on the actual body text remains the source of truth.
+   */
+  guessReferenceFromFilename(filename) {
+    const match = filename.match(/(\d{2,3})[-_](\d{2})(?!\d)/);
+    if (!match) return null;
+    const [, seq, year] = match;
+    return `UKMTO-${seq}-${year}`;
   }
 
   /**
