@@ -3,6 +3,7 @@ import axios from 'axios';
 import * as cheerio from 'cheerio';
 import { PDFParse } from 'pdf-parse';
 import { OpenAI } from 'openai';
+import nodemailer from 'nodemailer';
 import AdvisoryZone from '../models/AdvisoryZone.js';
 import { Notification, UserNotificationMapping } from '../models/Notification.js';
 import User from '../models/User.js';
@@ -379,15 +380,20 @@ class UkmtoScraperService {
   }
 
   /**
-   * Persists the bulletin as a real Notification + per-user mapping, so it survives
-   * a page refresh and shows correctly in the header bell / history log for everyone.
+   * Persists the bulletin as a real Notification + per-user mapping (bell/history log)
+   * and emails it, but only to users opted in via the UKMTO Notification Settings page
+   * (User.receivesUkmtoAlerts) - not to every active user.
    */
   async persistAsNotification(zone) {
+    let subscribers;
     try {
-      const activeUsers = await User.find({ status: 'Active' }).select('_id');
-      if (!activeUsers.length) return;
+      subscribers = await User.find({ status: 'Active', receivesUkmtoAlerts: true }).select('_id email first_name last_name');
+      if (!subscribers.length) {
+        console.log('[UKMTO Scraper] No subscribers opted in to UKMTO alerts - skipping notification/email.');
+        return;
+      }
 
-      const receiverIds = activeUsers.map(u => u._id);
+      const receiverIds = subscribers.map(u => u._id);
 
       const notification = await Notification.create({
         senderId: null,
@@ -406,6 +412,43 @@ class UkmtoScraperService {
       await UserNotificationMapping.insertMany(mappings);
     } catch (err) {
       console.error('[UKMTO Scraper] Failed to persist notification records:', err.message);
+      return;
+    }
+
+    await this.sendEmailAlerts(zone, subscribers);
+  }
+
+  /**
+   * Emails the bulletin to subscribed users. Never throws - a failed/misconfigured
+   * SMTP setup shouldn't stop the in-app notification from having already been saved.
+   */
+  async sendEmailAlerts(zone, subscribers) {
+    const emails = subscribers.map(u => u.email).filter(Boolean);
+    if (!emails.length) return;
+
+    try {
+      const transporter = nodemailer.createTransport({
+        host: process.env.SMTP_HOST,
+        port: process.env.SMTP_PORT,
+        auth: {
+          user: process.env.SMTP_USER,
+          pass: process.env.SMTP_PASS
+        },
+        tls: {
+          rejectUnauthorized: false
+        }
+      });
+
+      await transporter.sendMail({
+        from: process.env.FROM_EMAIL || '"Bridgeview Admin" <alerts@bridgeview.internal>',
+        to: emails.join(','),
+        subject: `[UKMTO Alert] ${zone.title}`,
+        text: `${zone.description}\n\nView recent incidents: https://www.ukmto.org/recent-incidents`
+      });
+
+      console.log(`[UKMTO Scraper] Emailed alert to ${emails.length} subscriber(s).`);
+    } catch (err) {
+      console.error('[UKMTO Scraper] Failed to send subscriber emails:', err.message);
     }
   }
 

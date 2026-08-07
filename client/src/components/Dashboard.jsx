@@ -18,7 +18,7 @@ import AlertListener from './AlertListener';
 
 import NotificationDispatcher from './NotificationDispatcher';
 import UserHistoryLog from './UserHistoryLog';
-
+import UkmtoSubscribersPage from '../pages/UkmtoSubscribersPage';
 import '../styles/Dashboard.css';
 import { AUTH_ENDPOINTS } from '../config/api';
 
@@ -252,6 +252,15 @@ export default function MacDynamicDashboard({ onLogout }) {
                   !isProfileLoaded
                     ? <div className="mac-route-gate-loading">Loading...</div>
                     : (isSuperAdmin ? <MigrationPanel isSuperAdmin={isSuperAdmin} /> : <Navigate to="/dashboard" replace />)
+                }
+              />
+
+              <Route
+                path="ukmto-subscribers"
+                element={
+                  !isProfileLoaded
+                    ? <div className="mac-route-gate-loading">Loading...</div>
+                    : (isSuperAdmin ? <UkmtoSubscribersPage /> : <Navigate to="/dashboard" replace />)
                 }
               />
 

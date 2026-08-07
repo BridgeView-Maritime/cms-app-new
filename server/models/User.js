@@ -16,7 +16,10 @@ const UserSchema = new mongoose.Schema({
   last_login: { type: Date, default: null },
   failed_login_attempts: { type: Number, default: 0 },
   account_locked: { type: Boolean, default: false },
-  status: { type: String, enum: ['Active', 'Inactive', 'Blocked'], default: 'Active' }
+  status: { type: String, enum: ['Active', 'Inactive', 'Blocked'], default: 'Active' },
+  // Opt-in flag: only users with this set to true receive UKMTO auto-alert
+  // notifications (bell + email). Managed from the UKMTO Notification Settings page.
+  receivesUkmtoAlerts: { type: Boolean, default: false }
 }, { timestamps: true });
 
 export default mongoose.model('User', UserSchema);

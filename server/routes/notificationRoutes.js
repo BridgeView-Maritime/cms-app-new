@@ -235,4 +235,35 @@ router.post('/ukmto-sync', authenticateToken, async (req, res) => {
   }
 });
 
+// GET CURRENT UKMTO NOTIFICATION SUBSCRIBER LIST (just the subscribed user IDs)
+router.get('/ukmto-subscribers', authenticateToken, async (req, res) => {
+  try {
+    const subscribers = await User.find({ receivesUkmtoAlerts: true }).select('_id');
+    res.status(200).json({ success: true, userIds: subscribers.map(u => u._id) });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// SET THE UKMTO NOTIFICATION SUBSCRIBER LIST (replaces the full set each save)
+router.put('/ukmto-subscribers', authenticateToken, async (req, res) => {
+  try {
+    if (req.user?.role_code !== 'SUPER_ADMIN') {
+      return res.status(403).json({ success: false, error: 'Only Super Administrators can manage UKMTO alert subscribers.' });
+    }
+
+    const { userIds } = req.body;
+    const validIds = Array.isArray(userIds) ? userIds.filter(id => mongoose.Types.ObjectId.isValid(id)) : [];
+
+    await User.updateMany({}, { receivesUkmtoAlerts: false });
+    if (validIds.length) {
+      await User.updateMany({ _id: { $in: validIds } }, { receivesUkmtoAlerts: true });
+    }
+
+    res.status(200).json({ success: true, subscriberCount: validIds.length });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 export default router;
