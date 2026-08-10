@@ -78,6 +78,23 @@ export default function UserControlPanel({ renderIcon }) {
     }
   };
 
+  const toggleSkipAttendance = async (user) => {
+    const nextValue = !user.skip_attendance;
+    try {
+      const res = await fetch(`${AUTH_ENDPOINTS.REACT_APP_API_URL}/api/admin/users/update/${user._id}`, {
+        method: 'PUT',
+        headers,
+        body: JSON.stringify({ skip_attendance: nextValue })
+      });
+      const data = await res.json();
+      if (data.success) {
+        refreshDataPools();
+      }
+    } catch (e) {
+      console.error("Failed to toggle skip-attendance flag:", e);
+    }
+  };
+
   const toggleRoleStatus = async (role) => {
     const nextStatus = role.is_active === false;
     try {
@@ -289,6 +306,7 @@ export default function UserControlPanel({ renderIcon }) {
             cancelUserEdit={cancelUserEdit}
             startEditUser={startEditUser}
             toggleUserStatus={toggleUserStatus}
+            toggleSkipAttendance={toggleSkipAttendance}
           />
         )}
 

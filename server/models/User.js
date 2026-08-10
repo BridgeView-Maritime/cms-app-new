@@ -19,7 +19,10 @@ const UserSchema = new mongoose.Schema({
   status: { type: String, enum: ['Active', 'Inactive', 'Blocked'], default: 'Active' },
   // Opt-in flag: only users with this set to true receive UKMTO auto-alert
   // notifications (bell + email). Managed from the UKMTO Notification Settings page.
-  receivesUkmtoAlerts: { type: Boolean, default: false }
+  receivesUkmtoAlerts: { type: Boolean, default: false },
+  // When true, this user bypasses the mandatory daily attendance gate after login.
+  // Managed from the User Management admin tab.
+  skip_attendance: { type: Boolean, default: false }
 }, { timestamps: true });
 
 export default mongoose.model('User', UserSchema);
