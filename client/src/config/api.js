@@ -41,3 +41,11 @@ export const AUTH_ENDPOINTS = {
   EMPLOYEE_REGISTER: `${API_BASE_URL}/employees/register`,
   EMPLOYEE_UPDATE: `${API_BASE_URL}/employees/update/`,
 };
+
+// 4. Attendance gate + admin attendance management endpoints
+export const ATTENDANCE_ENDPOINTS = {
+  TODAY: `${API_BASE_URL}/attendance/today`,
+  MARK: `${API_BASE_URL}/attendance/mark`,
+  ADMIN_RECORDS: `${API_BASE_URL}/attendance/admin/records`,
+  ADMIN_SUMMARY: `${API_BASE_URL}/attendance/admin/summary`,
+};

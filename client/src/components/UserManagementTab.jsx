@@ -11,7 +11,8 @@ export default function UserManagementTab({
   handleUserCreation,
   cancelUserEdit,
   startEditUser,
-  toggleUserStatus
+  toggleUserStatus,
+  toggleSkipAttendance
 }) {
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '24px' }}>
@@ -104,6 +105,7 @@ export default function UserManagementTab({
                 <th style={{ padding: '10px' }}>Email</th>
                 <th style={{ padding: '10px' }}>Role</th>
                 <th style={{ padding: '10px' }}>Status</th>
+                <th style={{ padding: '10px' }}>Skip Attendance</th>
                 <th style={{ padding: '10px', textAlign: 'right' }}>Actions</th>
               </tr>
             </thead>
@@ -125,6 +127,16 @@ export default function UserManagementTab({
                       {u.is_active !== false ? 'Active' : 'Inactive'}
                     </span>
                   </td>
+                  <td style={{ padding: '10px' }}>
+                    <label style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', cursor: 'pointer', fontSize: '11px', color: '#475569' }}>
+                      <input
+                        type="checkbox"
+                        checked={!!u.skip_attendance}
+                        onChange={() => toggleSkipAttendance(u)}
+                      />
+                      {u.skip_attendance ? 'Exempt' : 'Required'}
+                    </label>
+                  </td>
                   <td style={{ padding: '10px', textAlign: 'right', display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
                     <button onClick={() => startEditUser(u)} style={{ background: 'none', border: 'none', color: '#2563eb', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>
                       Edit
@@ -136,7 +148,7 @@ export default function UserManagementTab({
                 </tr>
               ))}
               {userList.length === 0 && (
-                <tr><td colSpan="5" style={{ padding: '20px', textAlign: 'center', color: '#94a3b8' }}>No identity core nodes broadcasted.</td></tr>
+                <tr><td colSpan="6" style={{ padding: '20px', textAlign: 'center', color: '#94a3b8' }}>No identity core nodes broadcasted.</td></tr>
               )}
             </tbody>
           </table>

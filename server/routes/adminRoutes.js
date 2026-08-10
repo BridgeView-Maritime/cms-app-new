@@ -588,14 +588,15 @@ router.put('/roles/update/:id', authenticateToken, authorizeRoles('SUPER_ADMIN')
 router.put('/users/update/:id', authenticateToken, authorizeRoles('SUPER_ADMIN'), async (req, res) => {
   try {
     const { id } = req.params;
-    const { username, email, password, role_name, is_active } = req.body;
+    const { username, email, password, role_name, is_active, skip_attendance } = req.body;
 
     const updatePayload = {};
     if (username !== undefined) updatePayload.username = username;
     if (email !== undefined) updatePayload.email = email;
     if (role_name !== undefined) updatePayload.role_name = role_name;
     if (is_active !== undefined) updatePayload.is_active = is_active;
-    
+    if (skip_attendance !== undefined) updatePayload.skip_attendance = String(skip_attendance) === 'true' || skip_attendance === true;
+
     if (password && password.trim().length >= 6) {
       updatePayload.password = await bcrypt.hash(password, 10);
     }

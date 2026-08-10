@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AUTH_ENDPOINTS } from '../config/api';
+import { AUTH_ENDPOINTS, ATTENDANCE_ENDPOINTS } from '../config/api';
 
 import '../styles/theme.css';
 import '../styles/login.css';
@@ -10,9 +10,16 @@ export default function LoginPage() {
   const navigate = useNavigate();
 
   // Application operational views workflow context pipeline
-  // Stages managed: 'credentials' | 'otp' | 'forgot' | 'forgot_otp' | 'reset_password'
-  const [authStage, setAuthStage] = useState('credentials'); 
+  // Stages managed: 'credentials' | 'otp' | 'forgot' | 'forgot_otp' | 'reset_password' | 'attendance'
+  const [authStage, setAuthStage] = useState('credentials');
   const [userId, setUserId] = useState(null);
+
+  // Post-login attendance gate state
+  const [loggedInUserName, setLoggedInUserName] = useState('');
+  const [attendanceType, setAttendanceType] = useState('full');
+  const [leaveTime, setLeaveTime] = useState('18:30');
+  const [attendanceMarked, setAttendanceMarked] = useState(false);
+  const [nowClock, setNowClock] = useState(new Date());
 
   // Transaction Form States
   const [username, setUsername] = useState('');
@@ -37,6 +44,13 @@ export default function LoginPage() {
       navigate('/dashboard', { replace: true });
     }
   }, [navigate]);
+
+  // Live clock tick for the attendance gate stage
+  useEffect(() => {
+    if (authStage !== 'attendance') return;
+    const timer = setInterval(() => setNowClock(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, [authStage]);
 
   // Field Level Validation Utilities
   const handleValidateCredentials = useCallback(() => {
@@ -101,7 +115,8 @@ export default function LoginPage() {
         } else {
           localStorage.setItem('accessToken', data.accessToken);
           localStorage.setItem('refreshToken', data.refreshToken);
-          navigate('/dashboard', { replace: true });
+          setLoggedInUserName(data.user?.name || '');
+          await proceedToAttendanceGate(data.accessToken);
         }
       } else {
         setErrors(p => ({ ...p, server: data.message || "Invalid credentials." }));
@@ -130,12 +145,64 @@ export default function LoginPage() {
       if (response.ok) {
         localStorage.setItem('accessToken', data.accessToken);
         localStorage.setItem('refreshToken', data.refreshToken);
-        navigate('/dashboard', { replace: true });
+        setLoggedInUserName(data.user?.name || '');
+        await proceedToAttendanceGate(data.accessToken);
       } else {
         setErrors(p => ({ ...p, server: data.message || "Token verification failure." }));
       }
     } catch (err) {
       setErrors(p => ({ ...p, server: "MFA Gateway handshaking runtime crash." }));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // After a fully authenticated login, check whether today's attendance still
+  // needs to be marked before letting the user reach the dashboard.
+  const proceedToAttendanceGate = async (accessToken) => {
+    try {
+      const response = await fetch(ATTENDANCE_ENDPOINTS.TODAY, {
+        headers: { Authorization: `Bearer ${accessToken}` }
+      });
+      const data = await response.json();
+
+      if (response.ok && !data.skip_attendance && !data.already_marked) {
+        setAuthStage('attendance');
+        return;
+      }
+    } catch (err) {
+      // Attendance service unreachable — don't hard-lock users out of the app over it.
+      console.warn('Attendance status check failed, continuing to dashboard.', err);
+    }
+    navigate('/dashboard', { replace: true });
+  };
+
+  const handleMarkAttendance = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setErrors(p => ({ ...p, server: '' }));
+
+    try {
+      const response = await fetch(ATTENDANCE_ENDPOINTS.MARK, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`
+        },
+        body: JSON.stringify({
+          type: attendanceType,
+          ...(attendanceType === 'half' && { leave_time: leaveTime })
+        })
+      });
+      const data = await response.json();
+
+      if (response.ok) {
+        setAttendanceMarked(true);
+      } else {
+        setErrors(p => ({ ...p, server: data.message || "Unable to record attendance." }));
+      }
+    } catch (err) {
+      setErrors(p => ({ ...p, server: "Cannot connect to attendance node." }));
     } finally {
       setLoading(false);
     }
@@ -261,6 +328,7 @@ export default function LoginPage() {
                 {authStage === 'forgot' && "Account Recovery"}
                 {authStage === 'forgot_otp' && "Verification Clearance"}
                 {authStage === 'reset_password' && "New Password Engine"}
+                {authStage === 'attendance' && `Hello, ${loggedInUserName || 'there'}`}
               </h2>
               <p className="hud-sub-heading">
                 {authStage === 'credentials' && "Access your dashboard"}
@@ -268,6 +336,7 @@ export default function LoginPage() {
                 {authStage === 'forgot' && "Request security code to update baseline values"}
                 {authStage === 'forgot_otp' && `Input the code dispatched to ${forgotEmail}`}
                 {authStage === 'reset_password' && "Create strong password combinations"}
+                {authStage === 'attendance' && "Please mark your attendance before continuing"}
               </p>
             </div>
 
@@ -441,6 +510,88 @@ export default function LoginPage() {
                   {loading ? <div className="hud-spinner-element" /> : <span>Update Account Credentials</span>}
                 </button>
               </form>
+            )}
+
+            {/* STAGE 6: MANDATORY DAILY ATTENDANCE GATE */}
+            {authStage === 'attendance' && (
+              <div className="hud-native-form">
+                <div style={{ textAlign: 'center', fontSize: '28px', fontWeight: 'bold', letterSpacing: '0.05em', marginBottom: '4px' }}>
+                  {nowClock.toLocaleTimeString()}
+                </div>
+                <div style={{ textAlign: 'center', fontSize: '12px', color: 'var(--text-muted)', marginBottom: '18px' }}>
+                  {nowClock.toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' })}
+                </div>
+
+                {!attendanceMarked ? (
+                  <>
+                    <div className="hud-input-row">
+                      <label className="hud-input-label">Attendance Type</label>
+                      <div style={{ display: 'flex', gap: '10px' }}>
+                        <button
+                          type="button"
+                          onClick={() => setAttendanceType('full')}
+                          style={{
+                            flex: 1, padding: '10px', borderRadius: '6px', cursor: 'pointer', fontSize: '13px',
+                            border: attendanceType === 'full' ? '1px solid #0077ff' : '1px solid var(--mac-border)',
+                            background: attendanceType === 'full' ? 'rgba(0,119,255,0.12)' : 'transparent',
+                            color: attendanceType === 'full' ? '#0077ff' : 'var(--text-muted)'
+                          }}
+                        >
+                          Full Day
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setAttendanceType('half')}
+                          style={{
+                            flex: 1, padding: '10px', borderRadius: '6px', cursor: 'pointer', fontSize: '13px',
+                            border: attendanceType === 'half' ? '1px solid #0077ff' : '1px solid var(--mac-border)',
+                            background: attendanceType === 'half' ? 'rgba(0,119,255,0.12)' : 'transparent',
+                            color: attendanceType === 'half' ? '#0077ff' : 'var(--text-muted)'
+                          }}
+                        >
+                          Half Day
+                        </button>
+                      </div>
+                    </div>
+
+                    {attendanceType === 'half' && (
+                      <div className="hud-input-row">
+                        <label className="hud-input-label">Select Leave Time</label>
+                        <div className="hud-input-field-container">
+                          <input
+                            type="time"
+                            className="hud-native-input"
+                            value={leaveTime}
+                            onChange={e => setLeaveTime(e.target.value)}
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    <button type="button" className="hud-submit-action" disabled={loading} onClick={handleMarkAttendance}>
+                      {loading ? <div className="hud-spinner-element" /> : <span>✔ Mark Attendance In</span>}
+                    </button>
+
+                    <button
+                      type="button"
+                      className="hud-back-btn"
+                      style={{ width: '100%', background: 'transparent', border: '1px solid var(--mac-border)', padding: '10px', borderRadius: '6px', color: 'var(--text-muted)', fontSize: '12px', cursor: 'pointer', marginTop: '10px' }}
+                      title="Coming soon"
+                    >
+                      ✔ Please Login in WATI
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <div className="hud-success-hint" style={{ padding: '10px', color: '#10b981', border: '1px solid #10b981', background: 'rgba(16,185,129,0.1)', borderRadius: '4px', fontSize: '13px', marginBottom: '14px', textAlign: 'center' }}>
+                      Attendance marked ({attendanceType === 'full' ? 'Full Day' : `Half Day, leaving ${leaveTime}`})
+                    </div>
+                    <button type="button" className="hud-submit-action" onClick={() => navigate('/dashboard', { replace: true })}>
+                      <span>Continue to Dashboard</span>
+                    </button>
+                  </>
+                )}
+              </div>
             )}
           </div>
         </div>
