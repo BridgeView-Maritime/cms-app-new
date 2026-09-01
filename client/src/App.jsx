@@ -2,6 +2,11 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import LoginPage from './components/LoginPage';
+import LandingPage from './components/LandingPage';
+import CandidateLoginPage from './pages/CandidateLoginPage';
+import CandidateRegisterPage from './pages/CandidateRegisterPage';
+import CandidateDashboardPage from './pages/CandidateDashboardPage';
+import ProductsPage from './pages/ProductsPage';
 import MacDynamicDashboard from './components/Dashboard';
 import FloatingChatbot from './components/FloatingChatbot';
 
@@ -47,15 +52,29 @@ export default function App() {
   return (
     <Router>
       <Routes>
-        <Route 
-          path="/" 
+        {/* Public marketing / candidate landing page — the app's new home page */}
+        <Route path="/" element={<LandingPage />} />
+
+        {/* Admin/staff login flow, reached via the "Admin Login" button on the landing page */}
+        <Route
+          path="/admin-login"
           element={
             <PublicRoute>
               <LoginPage />
             </PublicRoute>
-          } 
+          }
         />
-        
+
+        {/* Candidate portal — its own login page and post-login dashboard.
+            Each page self-guards via useCandidateSession (async /me check),
+            so no synchronous route guard is needed here. */}
+        <Route path="/candidate-login" element={<CandidateLoginPage />} />
+        <Route path="/candidate-register" element={<CandidateRegisterPage />} />
+        <Route path="/candidate-dashboard" element={<CandidateDashboardPage />} />
+
+        {/* Product catalogue — public browsing, candidate-only cart/order actions */}
+        <Route path="/products" element={<ProductsPage />} />
+
         {/* Dynamic Catch-All Route: Handles standard layouts under /dashboard/* including broadcast and history */}
         <Route 
           path="/dashboard/*" 
