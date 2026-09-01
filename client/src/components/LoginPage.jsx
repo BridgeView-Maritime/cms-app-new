@@ -40,7 +40,7 @@ export default function LoginPage() {
   // Safety Route Guard Check Matrix
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
-    if (token && window.location.pathname === '/') {
+    if (token && window.location.pathname === '/admin-login') {
       navigate('/dashboard', { replace: true });
     }
   }, [navigate]);

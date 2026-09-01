@@ -49,3 +49,34 @@ export const ATTENDANCE_ENDPOINTS = {
   ADMIN_RECORDS: `${API_BASE_URL}/attendance/admin/records`,
   ADMIN_SUMMARY: `${API_BASE_URL}/attendance/admin/summary`,
 };
+
+// 5. Public landing page content — public GET, SUPER_ADMIN-only PUT
+export const LANDING_ENDPOINTS = {
+  CONTENT: `${API_BASE_URL}/landing/content`,
+};
+
+// 6. Candidate portal — separate identity space from staff (AUTH_ENDPOINTS)
+export const CANDIDATE_ENDPOINTS = {
+  LOGIN: `${API_BASE_URL}/candidate/login`,
+  ME: `${API_BASE_URL}/candidate/me`,
+  PROFILE: `${API_BASE_URL}/candidate/profile`,
+  LOGOUT: `${API_BASE_URL}/candidate/logout`,
+  RESUME_UPLOAD: `${API_BASE_URL}/candidate/resume/upload`,
+  COUNTRIES: `${API_BASE_URL}/candidate/countries`,
+  REGISTER_START: `${API_BASE_URL}/candidate/register/start`,
+  REGISTER_VERIFY_OTP: `${API_BASE_URL}/candidate/register/verify-otp`,
+  REGISTER_PARSE_RESUME: `${API_BASE_URL}/candidate/register/parse-resume`,
+  REGISTER_COMPLETE: `${API_BASE_URL}/candidate/register/complete`,
+  FORGOT_PASSWORD: `${API_BASE_URL}/candidate/forgot-password`,
+  RESET_PASSWORD_VERIFY_OTP: `${API_BASE_URL}/candidate/reset-password/verify-otp`,
+  RESET_PASSWORD_COMPLETE: `${API_BASE_URL}/candidate/reset-password/complete`,
+};
+
+// 7. Products / cart / orders — catalogue is public, cart+order are candidate-only
+export const PRODUCT_ENDPOINTS = {
+  LIST: `${API_BASE_URL}/products`,
+  CART: `${API_BASE_URL}/products/cart`,
+  CART_ITEM: (id) => `${API_BASE_URL}/products/cart/${id}`,
+  ORDER: `${API_BASE_URL}/products/order`,
+  ORDERS: `${API_BASE_URL}/products/orders`,
+};

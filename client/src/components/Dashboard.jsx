@@ -21,6 +21,7 @@ import UserHistoryLog from './UserHistoryLog';
 import VesselTrackerPage from './VesselTrackerPage';
 import UkmtoSubscribersPage from '../pages/UkmtoSubscribersPage';
 import AttendanceRecordsPage from '../pages/AttendanceRecordsPage';
+import LandingContentEditor from '../pages/LandingContentEditor';
 import '../styles/Dashboard.css';
 import { AUTH_ENDPOINTS } from '../config/api';
 
@@ -272,6 +273,15 @@ export default function MacDynamicDashboard({ onLogout }) {
                   !isProfileLoaded
                     ? <div className="mac-route-gate-loading">Loading...</div>
                     : (isSuperAdmin ? <AttendanceRecordsPage /> : <Navigate to="/dashboard" replace />)
+                }
+              />
+
+              <Route
+                path="landing-content"
+                element={
+                  !isProfileLoaded
+                    ? <div className="mac-route-gate-loading">Loading...</div>
+                    : (isSuperAdmin ? <LandingContentEditor /> : <Navigate to="/dashboard" replace />)
                 }
               />
 

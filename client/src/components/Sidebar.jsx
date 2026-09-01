@@ -1,7 +1,7 @@
 // client/src/components/Sidebar.jsx
 import React, { useMemo, useEffect } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { ChevronDown, ChevronRight, ArrowRightLeft, Ship, CalendarCheck } from 'lucide-react';
+import { ChevronDown, ChevronRight, ArrowRightLeft, Ship, CalendarCheck, LayoutTemplate } from 'lucide-react';
 import '../styles/Sidebar.css';
 
 export default function Sidebar({
@@ -195,6 +195,21 @@ export default function Sidebar({
                 </li>
               );
             })}
+
+            {isSuperAdmin && (
+              <li className="menu-node">
+                <NavLink
+                  to="/dashboard/landing-content"
+                  end
+                  className={({ isActive }) => `menu-row-item ${isActive ? 'row-active' : ''}`}
+                >
+                  <div className="menu-row-left">
+                    <LayoutTemplate size={16} className="sidebar-vector-glyph" />
+                    <span className="menu-title-text">Landing Page Content</span>
+                  </div>
+                </NavLink>
+              </li>
+            )}
 
             {isSuperAdmin && (
               <li className="menu-node">

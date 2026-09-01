@@ -2,6 +2,8 @@
 import dotenv from 'dotenv';
 import express from 'express';
 import http from 'http';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { Server } from 'socket.io';
 import mongoose from 'mongoose';
 import cors from 'cors';
@@ -16,6 +18,12 @@ import chatbotRoutes from './routes/chatbotRoutes.js';
 import vesselRoutes from './routes/vesselTrackingRoutes.js';
 import migrationRoutes from './routes/migrationRoutes.js';
 import attendanceRoutes from './routes/attendanceRoutes.js';
+import landingRoutes from './routes/landingRoutes.js';
+import candidateRoutes from './routes/candidateRoutes.js';
+import productRoutes from './routes/productRoutes.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Fixed imports: Importing models from their actual respective files
 import { FormMeta } from './models/DynamicMetaSchemas.js';
@@ -32,6 +40,11 @@ const server = http.createServer(app);
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Serves uploaded files (candidate resumes, notification attachments, etc.)
+// — this was previously missing, so uploaded files had no way to be
+// downloaded even though upload routes wrote them to disk.
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Initialize Socket.IO Server with proper CORS parameters
 const io = new Server(server, {
@@ -71,6 +84,9 @@ app.use('/api/chatbot', chatbotRoutes);
 app.use('/api/vessels', vesselRoutes);
 app.use('/api/migration', migrationRoutes);
 app.use('/api/attendance', attendanceRoutes);
+app.use('/api/landing', landingRoutes);
+app.use('/api/candidate', candidateRoutes);
+app.use('/api/products', productRoutes);
 
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/cms_new_db';

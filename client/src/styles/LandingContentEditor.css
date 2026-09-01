@@ -1,0 +1,104 @@
+.lce-root {
+  padding: 24px 28px 60px;
+  max-width: 980px;
+  margin: 0 auto;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: #0f172a;
+}
+
+.lce-loading {
+  padding: 60px 24px;
+  text-align: center;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.lce-toolbar {
+  position: sticky; top: 0; z-index: 5;
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 20px;
+  background: #f8fafc; padding: 18px 0; margin-bottom: 8px;
+  border-bottom: 1px solid #e2e8f0;
+}
+.lce-toolbar h1 { font-size: 19px; font-weight: 800; margin: 0 0 4px; color: #0f172a; }
+.lce-toolbar p { font-size: 12.5px; color: #64748b; margin: 0; max-width: 520px; line-height: 1.5; }
+.lce-toolbar-actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+.lce-banner {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 14px; border-radius: 8px; font-size: 13px; font-weight: 600;
+  margin: 14px 0;
+}
+.lce-banner-success { background: rgba(16, 185, 129, 0.1); color: #059669; border: 1px solid rgba(16, 185, 129, 0.3); }
+.lce-banner-error { background: rgba(239, 68, 68, 0.1); color: #dc2626; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+.lce-section {
+  background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px;
+  padding: 22px 24px; margin: 18px 0;
+}
+.lce-section-head h2 { font-size: 15.5px; font-weight: 800; margin: 0 0 4px; color: #0f172a; }
+.lce-section-head p { font-size: 12.5px; color: #64748b; margin: 0 0 16px; }
+.lce-subheading { font-size: 12.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; color: #0e768e; margin: 20px 0 8px; }
+
+.lce-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 16px; }
+
+.lce-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+.lce-field-label { font-size: 11.5px; font-weight: 700; color: #334155; text-transform: uppercase; letter-spacing: 0.03em; }
+.lce-input {
+  width: 100%; box-sizing: border-box; padding: 9px 12px; border: 1px solid #cbd5e1;
+  border-radius: 7px; font-size: 13.5px; color: #0f172a; background: #f8fafc; outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.lce-input:focus { border-color: #0e768e; box-shadow: 0 0 0 3px rgba(14, 118, 142, 0.12); background: #fff; }
+.lce-textarea { resize: vertical; font-family: inherit; }
+
+.lce-chip-editor { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+.lce-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 20px;
+  padding: 5px 6px 5px 12px; font-size: 12.5px; color: #334155; font-weight: 600;
+}
+.lce-chip button {
+  display: flex; align-items: center; justify-content: center;
+  width: 18px; height: 18px; border-radius: 50%; border: none;
+  background: transparent; color: #94a3b8; cursor: pointer;
+}
+.lce-chip button:hover { background: #fee2e2; color: #dc2626; }
+.lce-chip-add-row { display: flex; gap: 8px; }
+.lce-chip-add-row .lce-input { flex: 1; }
+
+.lce-repeater { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+.lce-repeater-row { display: flex; align-items: center; gap: 10px; }
+.lce-repeater-index {
+  flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%;
+  background: #e2e8f0; color: #475569; font-size: 11px; font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+}
+.lce-repeater-inputs { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.lce-icon-btn {
+  flex-shrink: 0; width: 30px; height: 30px; border-radius: 7px;
+  border: 1px solid #e2e8f0; background: #fff; color: #94a3b8; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.lce-icon-btn:hover { border-color: #dc2626; color: #dc2626; }
+
+.lce-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  border-radius: 7px; font-size: 12.5px; font-weight: 700; cursor: pointer;
+  padding: 8px 14px; border: 1px solid transparent; white-space: nowrap;
+  transition: all 0.15s ease; text-decoration: none;
+}
+.lce-btn-primary { background: #0e768e; color: #fff; }
+.lce-btn-primary:hover { background: #0b5f73; }
+.lce-btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+.lce-btn-outline { background: #fff; border-color: #cbd5e1; color: #334155; }
+.lce-btn-outline:hover { border-color: #0e768e; color: #0e768e; }
+.lce-btn-lg { padding: 11px 20px; font-size: 13.5px; }
+
+.lce-bottom-save { display: flex; justify-content: flex-end; padding: 12px 0 40px; }
+
+@media (max-width: 720px) {
+  .lce-root { padding: 16px; }
+  .lce-toolbar { flex-direction: column; }
+  .lce-grid-2 { grid-template-columns: 1fr; }
+  .lce-repeater-inputs { grid-template-columns: 1fr; }
+}

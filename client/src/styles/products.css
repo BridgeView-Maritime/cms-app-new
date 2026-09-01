@@ -1,0 +1,94 @@
+/* ==========================================================================
+   PRODUCTS PAGE — catalogue + cart/orders panel
+   Shares .lp-root palette and .lp-btn/.cp-alert/.cp-icon-btn-sm primitives.
+   ========================================================================== */
+
+.pp-hero {
+  max-width: 720px; margin: 0 auto; text-align: center;
+  padding: 56px 24px 40px;
+}
+.pp-hero h1 { font-size: 32px; font-weight: 800; color: var(--font-core); margin: 8px 0 12px; }
+.pp-hero p { font-size: 14px; color: var(--font-sub); line-height: 1.6; margin-bottom: 22px; }
+.pp-cart-btn { margin: 0 6px; }
+
+.pp-grid-section { max-width: 1200px; margin: 0 auto; padding: 0 24px 80px; }
+.pp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 22px; }
+
+.pp-card {
+  background: var(--panel-glass); border: 1px solid var(--panel-border);
+  border-radius: 14px; overflow: hidden; display: flex; flex-direction: column;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.pp-card:hover { transform: translateY(-4px); box-shadow: 0 16px 32px rgba(0,0,0,0.08); }
+
+.pp-image { width: 100%; height: 160px; object-fit: cover; background: var(--deck-input-bg); }
+.pp-image-fallback {
+  width: 100%; height: 160px; display: flex; align-items: center; justify-content: center;
+  background: var(--deck-input-bg); color: var(--font-muted);
+}
+
+.pp-card-body { padding: 18px; display: flex; flex-direction: column; flex: 1; }
+.pp-card-body h3 { font-size: 15.5px; font-weight: 700; color: var(--font-core); margin-bottom: 6px; }
+.pp-desc {
+  font-size: 12px; color: var(--font-sub); line-height: 1.5; margin-bottom: 10px;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+}
+.pp-meta { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--font-muted); margin-bottom: 14px; }
+.pp-price { font-weight: 700; color: var(--chart-accent); }
+
+.pp-controls { display: flex; gap: 8px; margin-bottom: 12px; }
+.pp-size-select, .pp-qty-input {
+  border: 1px solid var(--deck-input-border); background: var(--deck-input-bg);
+  border-radius: 7px; padding: 8px 10px; font-size: 13px; color: var(--font-core);
+}
+.pp-size-select { flex: 1; }
+.pp-qty-input { width: 64px; }
+
+.pp-add-btn { width: 100%; margin-top: auto; }
+
+/* ---------------- CART / ORDERS PANEL ---------------- */
+.pp-panel-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 300;
+  display: flex; justify-content: flex-end;
+}
+.pp-panel {
+  width: 100%; max-width: 400px; height: 100%; background: var(--hull-bg);
+  display: flex; flex-direction: column; box-shadow: -12px 0 40px rgba(0,0,0,0.2);
+  animation: pp-slide-in 0.25s ease;
+}
+@keyframes pp-slide-in { from { transform: translateX(100%); } to { transform: translateX(0); } }
+
+.pp-panel-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 18px; border-bottom: 1px solid var(--panel-border);
+}
+.pp-panel-tabs { display: flex; gap: 6px; }
+.pp-panel-tabs button {
+  padding: 7px 14px; border-radius: 20px; border: 1px solid var(--panel-border);
+  background: transparent; color: var(--font-sub); font-size: 12.5px; font-weight: 700; cursor: pointer;
+}
+.pp-tab-active { background: var(--chart-accent) !important; color: #fff !important; border-color: var(--chart-accent) !important; }
+
+.pp-panel-body { flex: 1; overflow-y: auto; padding: 16px 18px; }
+
+.pp-cart-line { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--panel-border); }
+.pp-cart-line .pp-image, .pp-cart-line .pp-image-fallback { width: 48px; height: 48px; border-radius: 8px; flex-shrink: 0; }
+.pp-cart-line-info { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.pp-cart-line-info strong { font-size: 13px; color: var(--font-core); }
+.pp-cart-line-info span { font-size: 11.5px; color: var(--font-sub); }
+
+.pp-order-btn { width: 100%; margin-top: 16px; }
+
+.pp-order-group { margin-bottom: 20px; }
+.pp-order-group-head { display: flex; justify-content: space-between; font-size: 12.5px; font-weight: 700; color: var(--font-core); margin-bottom: 6px; }
+
+.pp-toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+  z-index: 400; box-shadow: 0 16px 40px rgba(0,0,0,0.2); white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .pp-hero h1 { font-size: 26px; }
+  .pp-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; }
+  .pp-panel { max-width: 100%; }
+}
