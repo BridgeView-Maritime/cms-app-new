@@ -7,9 +7,15 @@ import { fileURLToPath } from 'url';
 import { Server } from 'socket.io';
 import mongoose from 'mongoose';
 import cors from 'cors';
+import helmet from 'helmet';
+import compression from 'compression';
+import cookieParser from 'cookie-parser';
+import morgan from 'morgan';
 import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import employeeRoutes from './routes/employeeRoutes.js';
+import menuRoutes from './routes/menuRoutes.js';
+import metadataRoutes from './routes/metadataRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 import collectionsRoutes from './routes/collectionRoutes.js';
 import formSectionRoutes from './routes/formSectionRoutes.js';
@@ -37,7 +43,31 @@ const app = express();
 // Create HTTP server wrapper around Express for Socket.IO integration
 const server = http.createServer(app);
 
-app.use(cors());
+// Browser origins allowed to call the API. Extra origins can be appended at
+// deploy time via a comma-separated CORS_ORIGINS env var.
+const allowedOrigins = [
+  'https://cms-app-new.vercel.app',
+  'http://localhost:5173',
+  'http://localhost:3000',
+  ...(process.env.CORS_ORIGINS || '').split(',').map((o) => o.trim()).filter(Boolean)
+];
+
+const corsOptions = {
+  origin(origin, callback) {
+    // No Origin header: same-origin navigations, curl, server-to-server calls.
+    if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
+    return callback(new Error(`Origin ${origin} is not allowed by CORS policy`));
+  },
+  credentials: true
+};
+
+app.use(cors(corsOptions));
+// crossOriginResourcePolicy is relaxed so the browser client (served from a
+// different origin) can still load files from /uploads.
+app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
+app.use(compression());
+app.use(cookieParser());
+app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -49,7 +79,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // Initialize Socket.IO Server with proper CORS parameters
 const io = new Server(server, {
   cors: {
-    origin: true,
+    origin: allowedOrigins,
     methods: ['GET', 'POST'],
     credentials: true
   }
@@ -76,6 +106,8 @@ io.on('connection', (socket) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes); 
 app.use('/api/employees', employeeRoutes); 
+app.use('/api/menus', menuRoutes);
+app.use('/api/metadata', metadataRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/collections', collectionsRoutes);
 app.use('/api/form_sections', formSectionRoutes);
@@ -87,6 +119,10 @@ app.use('/api/attendance', attendanceRoutes);
 app.use('/api/landing', landingRoutes);
 app.use('/api/candidate', candidateRoutes);
 app.use('/api/products', productRoutes);
+
+app.get('/', (req, res) => {
+  res.json({ success: true, message: 'API running' });
+});
 
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/cms_new_db';
