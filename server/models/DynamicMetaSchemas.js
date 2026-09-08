@@ -43,6 +43,10 @@ const FieldSchema = new mongoose.Schema({
   lookup_form_code: { type: String, default: '' },
   lookup_field_key: { type: String, default: '' },  
   lookup_label_key: { type: String, default: '' },
+  order: { 
+    type: Number, 
+    default: 0 
+  },
   // ================= REPEATER SUB-FIELDS =================
   sub_fields: [SubFieldSchema],
 

@@ -1,0 +1,274 @@
+/* Layout & Workspace Wrapper */
+.manage-company-container {
+  padding: 24px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.manage-company-card {
+  background: #ffffff;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Header & Action Controls */
+.manage-company-header {
+  padding: 18px 24px;
+  border-bottom: 1px solid #f1f5f9;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #fafafa;
+}
+
+.title-area {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.header-icon {
+  color: #0284c7;
+}
+
+.manage-company-header h2 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.subtitle-code {
+  font-size: 0.75rem;
+  color: #64748b;
+  font-family: monospace;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-primary-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: #0284c7;
+  color: #ffffff;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-primary-action:hover {
+  background-color: #0369a1;
+}
+
+.btn-icon-secondary {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  padding: 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  color: #475569;
+}
+
+/* Toolbar Features */
+.table-toolbar {
+  padding: 14px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.search-box {
+  position: relative;
+  width: 280px;
+}
+
+.search-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+}
+
+.search-box input {
+  width: 100%;
+  padding: 8px 10px 8px 32px;
+  font-size: 0.85rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.export-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-export-utility {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background-color: #f8fafc;
+  border: 1px solid #cbd5e1;
+  color: #334155;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* Horizontal & Vertical Scrollable DataTable */
+.datatable-scroll-viewport {
+  width: 100%;
+  max-height: 520px; /* Vertical Scroll Trigger */
+  overflow: auto;    /* Enables both Horizontal & Vertical Scrollbars */
+  position: relative;
+}
+
+.custom-datatable {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  min-width: 950px;  /* Triggers Horizontal Scrollbar on narrower viewports */
+  font-size: 0.85rem;
+}
+
+.custom-datatable th {
+  background-color: #f8fafc;
+  color: #475569;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+  padding: 12px 16px;
+  border-bottom: 1px solid #e2e8f0;
+  position: sticky;
+  top: 0;             /* Sticky Header during vertical scroll */
+  z-index: 2;
+  white-space: nowrap;
+}
+
+.custom-datatable td {
+  padding: 12px 16px;
+  border-bottom: 1px solid #f1f5f9;
+  color: #1e293b;
+  white-space: nowrap;
+}
+
+.custom-datatable tr:hover td {
+  background-color: #f8fafc;
+}
+
+/* Sticky Action Column & Indexes */
+.sticky-col-header, 
+.sticky-col-cell {
+  position: sticky;
+  left: 0;
+  background-color: #ffffff;
+  z-index: 1;
+}
+
+.sticky-col-header-right,
+.sticky-col-cell-right {
+  position: sticky;
+  right: 0;
+  background-color: #ffffff;
+  z-index: 1;
+}
+
+.custom-datatable th.sticky-col-header,
+.custom-datatable th.sticky-col-header-right {
+  z-index: 3;
+  background-color: #f8fafc;
+}
+
+.null-cell-indicator {
+  color: #cbd5e1;
+}
+
+.action-buttons-cell {
+  display: flex;
+  gap: 6px;
+}
+
+.row-action-btn {
+  background: #f1f5f9;
+  border: none;
+  padding: 6px;
+  border-radius: 4px;
+  cursor: pointer;
+  color: #475569;
+}
+
+.row-action-btn.edit:hover { background-color: #e0f2fe; color: #0284c7; }
+.row-action-btn.delete:hover { background-color: #fee2e2; color: #dc2626; }
+.row-action-btn.inline-add:hover { background-color: #dcfce7; color: #16a34a; }
+
+/* Table Pagination Footer */
+.table-footer-pagination {
+  padding: 14px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid #e2e8f0;
+  background-color: #ffffff;
+  font-size: 0.82rem;
+  color: #64748b;
+}
+
+.page-size-selector select {
+  margin: 0 6px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid #cbd5e1;
+}
+
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.btn-pagination {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  padding: 4px 8px;
+  cursor: pointer;
+}
+
+.btn-pagination:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.table-state-cell {
+  text-align: center;
+  padding: 40px !important;
+  color: #64748b;
+}

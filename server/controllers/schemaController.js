@@ -23,7 +23,7 @@ exports.createOrUpdateSchemaBlueprint = async (req, res) => {
         lookup_form_code: f.input_type === 'database_lookup' ? f.lookup_form_code : '',
         lookup_field_key: f.input_type === 'database_lookup' ? f.lookup_field_key : '',
         lookup_label_key: f.input_type === 'database_lookup' ? f.lookup_label_key : '',
-        
+        order: f.order !== undefined && f.order !== null ? Number(f.order) : index + 1,
         // REPEATER SUB-FIELDS
         sub_fields: f.input_type === 'repeater' && Array.isArray(f.sub_fields) ? f.sub_fields.map(sf => ({
           field_key: sf.field_key,
@@ -64,7 +64,10 @@ exports.createOrUpdateSchemaBlueprint = async (req, res) => {
 
       return fieldDoc;
     });
-
+    
+    // Sort fields by order ascending before saving to database
+    mappedFields.sort((a, b) => a.order - b.order);
+    
     // Build update object ensuring has_custom_page defaults to 0 if not provided
     const updatePayload = { 
       form_code: form_code.toUpperCase(), 

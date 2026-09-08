@@ -22,6 +22,7 @@ import VesselTrackerPage from './VesselTrackerPage';
 import UkmtoSubscribersPage from '../pages/UkmtoSubscribersPage';
 import AttendanceRecordsPage from '../pages/AttendanceRecordsPage';
 import LandingContentEditor from '../pages/LandingContentEditor';
+import CrewRegistration from './CrewRegistration';
 import '../styles/Dashboard.css';
 import { AUTH_ENDPOINTS } from '../config/api';
 
@@ -289,6 +290,7 @@ export default function MacDynamicDashboard({ onLogout }) {
               <Route path="create_company" element={<DynamicPageRouterEngine overrideFormCode="CREATE_COMPANY" />} />
               <Route path="create-company" element={<DynamicPageRouterEngine overrideFormCode="CREATE_COMPANY" />} />
               <Route path="vessel_tracking" element={<VesselTrackerPage overrideFormCode="vessel_tracking" />} />
+              <Route path="crew_registration" element={<CrewRegistration overrideFormCode="crew_registration" />} />
               <Route path=":formCode" element={<DynamicPageRouterEngine />} />
               <Route path="*" element={<Navigate to="/dashboard" replace />} />
             </Routes>
