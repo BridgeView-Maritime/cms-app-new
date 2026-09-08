@@ -68,30 +68,6 @@ export default function FormSchemaBuilder({ activeFormCode = 'EMPLOYEE_MASTER_DI
   const [formIcon, setFormIcon] = useState('Briefcase');
   const [targetLayoutMode, setTargetLayoutMode] = useState('LISTING_AND_FORM');
   const [menuId, setMenuId] = useState('');
-
-  // LISTING_ONLY Configuration State
-  const [listingConfig, setListingConfig] = useState({
-    sourceFormCode: '',
-    selectedColumns: [],
-    allowExcelExport: true,
-    allowPdfExport: true,
-    redirectButtonLabel: 'Create Record',
-    redirectButtonHref: '',
-    redirectButtons: [],
-    rowActionsConfig: {
-      enableActionColumn: true,
-      allowEdit: true,
-      allowDelete: true,
-      allowInlineAdd: false,
-      inlineAddFormCode: '',
-      customRowButtons: []
-    }
-  });
-
-  // Modal State for Custom File Creation Prompt
-  const [isCustomFileModalOpen, setIsCustomFileModalOpen] = useState(false);
-  const [customJsxFileName, setCustomJsxFileName] = useState('');
-  const [customCssFileName, setCustomCssFileName] = useState('');
   
   const [sections, setSections] = useState([]);
   const [isLoadingSections, setIsLoadingSections] = useState(false);
@@ -162,7 +138,6 @@ export default function FormSchemaBuilder({ activeFormCode = 'EMPLOYEE_MASTER_DI
           setFormIcon(data.form_icon || 'Briefcase');
           setTargetLayoutMode(data.target_layout_mode || 'LISTING_AND_FORM');
           setMenuId(data.menu_id || '');
-          if (data.listing_config) setListingConfig(data.listing_config);
 
           if (Array.isArray(data.fields)) {
             const filteredUserFields = data.fields.filter(f => 
@@ -237,14 +212,6 @@ export default function FormSchemaBuilder({ activeFormCode = 'EMPLOYEE_MASTER_DI
     const formattedCode = selectedCode.toUpperCase();
     setFormCode(formattedCode);
     setIsEditMode(true); 
-  };
-
-  const openCustomFileModal = () => {
-    if (!formCode) return;
-    const defaultSlug = formCode.toLowerCase();
-    setCustomJsxFileName(`${defaultSlug}.jsx`);
-    setCustomCssFileName(`${defaultSlug}.css`);
-    setIsCustomFileModalOpen(true);
   };
 
   const handleCreateNewSectionCollectionNode = async () => {
@@ -422,7 +389,6 @@ export default function FormSchemaBuilder({ activeFormCode = 'EMPLOYEE_MASTER_DI
     const cleanFormCode = formCode.trim().toUpperCase().replace(/[^A-Z0-9_]/g, '_');
     const routeSlug = cleanFormCode.toLowerCase().replace(/_/g, '-');
     const computedRoutePath = `/app/workspace/${routeSlug}`;
-    const allConfiguredFields = [...effectiveFixedFields, ...processedCustomFields];
 
     const finalPayload = {
       form_code: cleanFormCode,
@@ -432,8 +398,7 @@ export default function FormSchemaBuilder({ activeFormCode = 'EMPLOYEE_MASTER_DI
       menu_id: menuId, 
       app_route_path: computedRoutePath, 
       has_custom_page: createCustomFile ? 1 : 0,
-      listing_config: targetLayoutMode === 'LISTING_ONLY' ? listingConfig : null,
-      fields: allConfiguredFields
+      fields: [...effectiveFixedFields, ...processedCustomFields]
     };
 
     try {
@@ -453,21 +418,30 @@ export default function FormSchemaBuilder({ activeFormCode = 'EMPLOYEE_MASTER_DI
         return;
       }
 
-      // 2. Generate Standalone Custom React Page & Custom CSS file
+      // 2. Handle Custom Page File Creation if Requested via Button
       if (createCustomFile) {
+        // Check if file already exists
+        const checkRes = await fetch(`${AUTH_ENDPOINTS.REACT_APP_API_URL}/api/admin/metadata/custom-page/check/${cleanFormCode}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const checkData = await checkRes.json();
+
+        if (checkData.exists) {
+          const overwrite = confirm(`Custom file client/src/pages/custom/${cleanFormCode.toLowerCase()}.jsx already exists. Would you like to re-synchronize it?`);
+          if (!overwrite) {
+            setStatus({ type: 'success', message: 'Saved layout schema. Custom page kept intact.' });
+            setIsSaving(false);
+            return;
+          }
+        }
+
+        // Trigger custom page file creation endpoint
         const toggleRes = await fetch(`${AUTH_ENDPOINTS.REACT_APP_API_URL}/api/admin/metadata/custom-page/toggle`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
           body: JSON.stringify({
-            target_layout_mode: targetLayoutMode,
             form_code: cleanFormCode,
             form_name: formName,
-            form_icon: formIcon,
-            sections: sections,
-            fields: allConfiguredFields,
-            jsx_filename: customJsxFileName,
-            css_filename: customCssFileName,
-            generate_standalone: true,
             create: true
           })
         });
@@ -478,7 +452,6 @@ export default function FormSchemaBuilder({ activeFormCode = 'EMPLOYEE_MASTER_DI
           setIsSaving(false);
           return;
         }
-        setIsCustomFileModalOpen(false);
       }
 
       setStatus({ type: 'success', message: 'Successfully saved!' });
@@ -542,12 +515,10 @@ export default function FormSchemaBuilder({ activeFormCode = 'EMPLOYEE_MASTER_DI
             targetLayoutMode={targetLayoutMode} setTargetLayoutMode={setTargetLayoutMode}
             menuId={menuId} setMenuId={setMenuId}
             menuList={menuList}
-            availableForms={availableForms}
-            listingConfig={listingConfig} setListingConfig={setListingConfig}
             isEditMode={isEditMode} fieldsLength={fields.length}
-            systemRoles={systemRoles}
           />
 
+          {/* DYNAMIC FORM SECTION WIDGET MANAGER CONNECTED TO form_sections COLLECTION */}
           <div className="dynamic-sections-container">
             <h4 className="dynamic-sections-heading">
               <FolderPlus size={16} color="#475569" /> Dynamic `form_sections` Collection Engine (Linked to: {formCode || 'NONE'})
@@ -707,7 +678,7 @@ export default function FormSchemaBuilder({ activeFormCode = 'EMPLOYEE_MASTER_DI
               <button 
                 type="button" 
                 className="mac-btn-action secondary" 
-                onClick={openCustomFileModal}
+                onClick={(e) => handleSaveSchema(e, true)}
                 disabled={isSaving || !formCode}
               >
                 <FileCode size={16}/> Save Layout with new custom file
@@ -720,68 +691,6 @@ export default function FormSchemaBuilder({ activeFormCode = 'EMPLOYEE_MASTER_DI
           </footer>
         </form>
       </div>
-
-      {/* CUSTOM FILE & CSS CREATION PROMPT MODAL */}
-      {isCustomFileModalOpen && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(15, 23, 42, 0.65)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999 }}>
-          <div style={{ background: '#ffffff', width: '480px', borderRadius: '8px', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.2)', padding: '24px' }}>
-            <h3 style={{ margin: '0 0 16px 0', fontSize: '16px', color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <FileCode color="#086982" size={20} /> Generate Standalone Custom Code Files
-            </h3>
-            
-            <p style={{ fontSize: '13px', color: '#475569', marginBottom: '20px', lineHeight: '1.4' }}>
-              Specify custom target filenames. System will auto-generate component code inside <code style={{ color: '#086982' }}>src/pages/custom/</code> and custom stylesheet inside <code style={{ color: '#086982' }}>src/styles/custom/</code>.
-            </p>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-              <div>
-                <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: '#334155', marginBottom: '4px' }}>
-                  Target Component Filename (.jsx)
-                </label>
-                <input 
-                  type="text" 
-                  value={customJsxFileName} 
-                  onChange={(e) => setCustomJsxFileName(e.target.value)}
-                  placeholder="e.g., create_company.jsx"
-                  style={{ width: '100%', padding: '8px 10px', fontSize: '13px', border: '1px solid #cbd5e1', borderRadius: '4px' }}
-                />
-              </div>
-
-              <div>
-                <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: '#334155', marginBottom: '4px' }}>
-                  Target Stylesheet Filename (.css)
-                </label>
-                <input 
-                  type="text" 
-                  value={customCssFileName} 
-                  onChange={(e) => setCustomCssFileName(e.target.value)}
-                  placeholder="e.g., create_company.css"
-                  style={{ width: '100%', padding: '8px 10px', fontSize: '13px', border: '1px solid #cbd5e1', borderRadius: '4px' }}
-                />
-              </div>
-            </div>
-
-            <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
-              <button 
-                type="button" 
-                onClick={() => setIsCustomFileModalOpen(false)} 
-                className="mac-btn-action secondary"
-              >
-                Cancel
-              </button>
-              <button 
-                type="button" 
-                onClick={(e) => handleSaveSchema(e, true)} 
-                className="mac-btn-action primary"
-                disabled={isSaving}
-              >
-                {isSaving ? 'Generating Files...' : 'Confirm & Create Files'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
     </div>
   );
 }

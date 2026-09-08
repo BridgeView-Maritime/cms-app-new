@@ -9,140 +9,15 @@ import { FormMeta } from '../models/DynamicMetaSchemas.js';
 import { authenticateToken } from '../middleware/authMiddleware.js';
 import { authorizeRoles } from '../middleware/roleMiddleware.js';
 
+// Import Custom Page Controller handlers (ES Modules syntax)
+import { toggleCustomPage, checkCustomPageExists } from '../controllers/customPageController.js';
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const router = express.Router();
 const User = mongoose.models.User || mongoose.model('User');
 const Employee = mongoose.models.Employee || mongoose.model('Employee');
-
-// FormSection Schema fallback/definition for direct dynamic section routing
-const FormSectionSchema = new mongoose.Schema({
-  form_code: { type: String, required: true, index: true },
-  id: { type: String, required: true },
-  label: { type: String, required: true },
-  icon: { type: String, default: 'FileText' },
-  is_active: { type: Boolean, default: true }
-}, { timestamps: true });
-
-const FormSection = mongoose.models.FormSection || mongoose.model('FormSection', FormSectionSchema);
-
-// =========================================================================
-// 0. DYNAMIC FORM SECTIONS MANAGEMENT ROUTES (Fixes 404 Error)
-// =========================================================================
-router.get(['/form_sections/form-sections', '/form-sections'], authenticateToken, async (req, res) => {
-  try {
-    const { form_code } = req.query;
-    if (!form_code) {
-      return res.status(400).json({ success: false, message: 'form_code query parameter is required.' });
-    }
-    const normalizedCode = form_code.trim().toUpperCase();
-    const sections = await FormSection.find({ form_code: normalizedCode }).sort({ createdAt: 1 });
-
-    return res.status(200).json({
-      success: true,
-      sections
-    });
-  } catch (err) {
-    return res.status(500).json({ success: false, message: err.message });
-  }
-});
-
-router.post(['/form_sections/form-sections/create', '/form-sections/create'], authenticateToken, async (req, res) => {
-  try {
-    const { form_code, id, label, icon, is_active } = req.body;
-    if (!form_code || !id || !label) {
-      return res.status(400).json({ success: false, message: 'Missing required section parameters.' });
-    }
-
-    const normalizedCode = form_code.trim().toUpperCase();
-    const sectionId = id.trim().toLowerCase();
-
-    const existing = await FormSection.findOne({ form_code: normalizedCode, id: sectionId });
-    if (existing) {
-      return res.status(400).json({ success: false, message: 'Section ID already exists for this form code.' });
-    }
-
-    const newSection = await FormSection.create({
-      form_code: normalizedCode,
-      id: sectionId,
-      label,
-      icon: icon || 'FileText',
-      is_active: is_active !== undefined ? Boolean(is_active) : true
-    });
-
-    return res.status(201).json({ success: true, section: newSection });
-  } catch (err) {
-    return res.status(500).json({ success: false, message: err.message });
-  }
-});
-
-router.put(['/form_sections/form-sections/update/:id', '/form-sections/update/:id'], authenticateToken, async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { form_code, label, icon, is_active } = req.body;
-
-    const updatePayload = {};
-    if (label !== undefined) updatePayload.label = label;
-    if (icon !== undefined) updatePayload.icon = icon;
-    if (is_active !== undefined) updatePayload.is_active = Boolean(is_active);
-
-    const updated = await FormSection.findOneAndUpdate(
-      { id, ...(form_code && { form_code: form_code.trim().toUpperCase() }) },
-      updatePayload,
-      { new: true }
-    );
-
-    if (!updated) {
-      return res.status(404).json({ success: false, message: 'Form section node not found.' });
-    }
-
-    return res.status(200).json({ success: true, section: updated });
-  } catch (err) {
-    return res.status(500).json({ success: false, message: err.message });
-  }
-});
-
-router.patch(['/form_sections/form-sections/toggle/:id', '/form-sections/toggle/:id'], authenticateToken, async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { form_code, is_active } = req.body;
-
-    const query = { id };
-    if (form_code) query.form_code = form_code.trim().toUpperCase();
-
-    const targetSection = await FormSection.findOne(query);
-    if (!targetSection) {
-      return res.status(404).json({ success: false, message: 'Section record not found.' });
-    }
-
-    targetSection.is_active = is_active !== undefined ? Boolean(is_active) : !targetSection.is_active;
-    await targetSection.save();
-
-    return res.status(200).json({ success: true, section: targetSection });
-  } catch (err) {
-    return res.status(500).json({ success: false, message: err.message });
-  }
-});
-
-router.delete(['/form_sections/form-sections/delete/:id', '/form-sections/delete/:id'], authenticateToken, async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { form_code } = req.query;
-
-    const query = { id };
-    if (form_code) query.form_code = form_code.trim().toUpperCase();
-
-    const deleted = await FormSection.findOneAndDelete(query);
-    if (!deleted) {
-      return res.status(404).json({ success: false, message: 'Form section targeted for deletion not found.' });
-    }
-
-    return res.status(200).json({ success: true, message: 'Section removed successfully.' });
-  } catch (err) {
-    return res.status(500).json({ success: false, message: err.message });
-  }
-});
 
 // =========================================================================
 // DYNAMIC FORM SCHEMA CREATION & CONFIGURATOR (WITH SUPER_ADMIN PRIVILEGES)
@@ -157,13 +32,10 @@ router.post('/metadata/form/create', authenticateToken, async (req, res) => {
       app_route_path, 
       menu_id, 
       has_custom_page, 
-      listing_config,
-      fields = []
+      fields 
     } = req.body;
     
-    // Allow fields to be empty when layout mode is LISTING_ONLY
-    const requiresFields = target_layout_mode !== 'LISTING_ONLY';
-    if (!form_code || !form_name || (requiresFields && (!fields || fields.length === 0))) {
+    if (!form_code || !form_name || !fields || fields.length === 0) {
       return res.status(400).json({ 
         success: false, 
         message: 'Missing structural schema configuration details.' 
@@ -179,18 +51,20 @@ router.post('/metadata/form/create', authenticateToken, async (req, res) => {
 
     const existingSchema = await FormMeta.findOne({ form_code: normalizedCode });
 
-    if (existingSchema && existingSchema.fields && fields.length > 0) {
+    if (existingSchema) {
       // Evaluate fields accurately by unique field_key to ignore re-ordering or appending additions
       const rolesChanged = fields.some(newField => {
         const oldField = existingSchema.fields.find(f => f.field_key === newField.field_key);
-        if (!oldField) return false;
+        if (!oldField) return false; // Brand new fields bypass restriction check
 
+        // Normalize arrays through alphabetical sorting to avoid sequence mismatches
         const oldRoles = [...(oldField.allowed_roles || [])].sort();
         const newRoles = [...(newField.allowed_roles || [])].sort();
         
         return JSON.stringify(oldRoles) !== JSON.stringify(newRoles);
       });
 
+      // Matches against normalized "SUPER_ADMIN" safely
       if (rolesChanged && currentUserRole !== 'SUPER_ADMIN') {
         return res.status(403).json({ 
           success: false, 
@@ -200,7 +74,7 @@ router.post('/metadata/form/create', authenticateToken, async (req, res) => {
     }
 
     // Process & Normalize incoming field attributes prior to MongoDB persistence
-    const processedFields = (fields || []).map(field => {
+    const processedFields = fields.map(field => {
       const isSameLineBool = field.same_line !== undefined 
         ? Boolean(field.same_line) 
         : (field.is_same_line !== undefined ? Boolean(field.is_same_line) : false);
@@ -208,20 +82,24 @@ router.post('/metadata/form/create', authenticateToken, async (req, res) => {
 
       return {
         ...field,
+        // Same line configuration & responsive layout grid width span
         same_line: isSameLineBool,
         is_same_line: isSameLineBool,
         same_line_group: field.same_line_group || '',
         grid_span: spanVal,
         grid_width_span: spanVal,
 
+        // Disclaimer feature configurations
         has_disclaimer: field.has_disclaimer !== undefined ? Boolean(field.has_disclaimer) : false,
         disclaimer_text: field.has_disclaimer ? (field.disclaimer_text || '') : ''
       };
     });
 
+    // Compute uniform routing target parameters path cleanly
     const fallbackRoute = `/app/workspace/${normalizedCode.toLowerCase().replace(/_/g, '-')}`;
     const cleanRoutePath = app_route_path || fallbackRoute;
 
+    // Update Form Schema Meta Document in MongoDB
     const schemaUpdate = await FormMeta.findOneAndUpdate(
       { form_code: normalizedCode },
       { 
@@ -231,12 +109,12 @@ router.post('/metadata/form/create', authenticateToken, async (req, res) => {
         app_route_path: cleanRoutePath,
         menu_id: menu_id || null, 
         has_custom_page: has_custom_page !== undefined ? Number(has_custom_page) : 0,
-        listing_config: listing_config || null,
         fields: processedFields 
       },
       { upsert: true, new: true }
     );
 
+    // SYNCHRONIZE BACK TO THE SELECTION TARGET LEAF NODE
     if (menu_id) {
       await AppMenu.findByIdAndUpdate(
         menu_id,
@@ -247,6 +125,7 @@ router.post('/metadata/form/create', authenticateToken, async (req, res) => {
       );
     }
 
+    // Dynamic Runtime Database Collections Setup Hook
     const targetCollectionName = `collection_${normalizedCode.toLowerCase()}`;
     if (!mongoose.modelNames().includes(targetCollectionName)) {
       mongoose.model(
@@ -266,7 +145,7 @@ router.post('/metadata/form/create', authenticateToken, async (req, res) => {
   }
 });
 
-// GET ROUTE: Safely fallback to a clean configuration structure
+// GET ROUTE: Safely fallback to a clean configuration structure if blueprint is not initialized yet
 router.get('/metadata/form/:formCode', authenticateToken, async (req, res) => {
   try {
     const { formCode } = req.params;
@@ -282,9 +161,8 @@ router.get('/metadata/form/:formCode', authenticateToken, async (req, res) => {
         form_icon: 'Briefcase',
         target_layout_mode: 'LISTING_AND_FORM',
         app_route_path: `/app/workspace/${normalizedCode.toLowerCase().replace(/_/g, '-')}`,
-        menu_id: null,
+        menu_id: null, // Pristine blueprint defaults to unlinked
         has_custom_page: 0,
-        listing_config: null,
         fields: []
       });
     }
@@ -361,6 +239,7 @@ router.post('/users/create', authenticateToken, authorizeRoles('SUPER_ADMIN'), a
   try {
     let { username, email, password, role_name, role_id, employee_id } = req.body;
 
+    // Resolve role_id to role_name dynamically if needed
     if (role_id && !role_name && mongoose.Types.ObjectId.isValid(role_id)) {
       const resolvedRoleDoc = await UserRole.findById(role_id);
       if (resolvedRoleDoc) {
@@ -384,14 +263,16 @@ router.post('/users/create', authenticateToken, authorizeRoles('SUPER_ADMIN'), a
     const firstName = targetEmployee.dynamic_data?.first_name || targetEmployee.first_name || 'Staff';
     const lastName = targetEmployee.dynamic_data?.last_name || targetEmployee.last_name || 'Member';
 
+    // Look for an existing user record matching either the username or email
     let user = await User.findOne({ $or: [{ username }, { email }] });
     let isNewUser = false;
 
     if (user) {
+      // FIX / EVOLUTION: Update existing user to associate with this employee profile and employee_id
       user.first_name = firstName;
       user.last_name = lastName;
       user.role_name = role_name;
-      user.employee_id = employee_id;
+      user.employee_id = employee_id; // <-- Binds employee_id explicitly to existing user
       user.is_active = true;
 
       if (password && password.trim().length >= 6) {
@@ -400,6 +281,7 @@ router.post('/users/create', authenticateToken, authorizeRoles('SUPER_ADMIN'), a
 
       await user.save();
     } else {
+      // If it is completely fresh data, run standard generation
       if (!password || password.length < 6) {
         return res.status(422).json({ 
           success: false, 
@@ -416,11 +298,12 @@ router.post('/users/create', authenticateToken, authorizeRoles('SUPER_ADMIN'), a
         first_name: firstName,
         last_name: lastName,
         role_name,
-        employee_id,
+        employee_id, // <-- Binds employee_id explicitly to new user creation
         is_active: true
       });
     }
 
+    // Bind user ID reference firmly back to the employee object structure
     targetEmployee.user_id = user._id;
     await targetEmployee.save();
 
@@ -435,13 +318,15 @@ router.post('/users/create', authenticateToken, authorizeRoles('SUPER_ADMIN'), a
 });
 
 // =========================================================================
-// FETCH ALL USER CONTEXTS
+// FETCH ALL USER CONTEXTS (WITH DYNAMIC ROLE RESOLUTION)
 // =========================================================================
 router.get('/users/list', authenticateToken, async (req, res) => {
   try {
+    // 1. Find all users excluding password hashes
+    // 2. Populate 'role_id' pulling only 'role_name' and 'role_code' properties from the Role collection
     const users = await User.find({}, '-password')
       .populate('role_id', 'role_name role_code')
-      .lean();
+      .lean(); // .lean() converts documents to plain JSON for manual data mutations if required
 
     res.json({ success: true, data: users });
   } catch (err) {
@@ -463,9 +348,10 @@ router.get('/employees/unlinked', authenticateToken, async (req, res) => {
 // =========================================================================
 router.get('/metadata/forms/list-all', authenticateToken, async (req, res) => {
   try {
+    // Selects only the identifying properties needed for selection lists
     const activeBlueprints = await FormMeta.find(
       { is_active: true }, 
-      'form_code form_name form_icon target_layout_mode app_route_path has_custom_page listing_config'
+      'form_code form_name form_icon target_layout_mode app_route_path has_custom_page'
     );
     
     return res.status(200).json({ 
@@ -485,12 +371,16 @@ router.delete('/metadata/form/purge/:formCode', authenticateToken, async (req, r
     const { formCode } = req.params;
     const normalizedCode = formCode.trim().toUpperCase();
 
+    // 1. Fetch form metadata to find its registered app path before deletion
     const targetMeta = await FormMeta.findOne({ form_code: normalizedCode });
     if (!targetMeta) {
       return res.status(404).json({ success: false, message: 'Form Schema metadata configuration target not found.' });
     }
 
+    // 2. Drop the matching AppMenu layout navigation bar routing node record entry
     await AppMenu.deleteOne({ route: targetMeta.app_route_path });
+
+    // 3. Remove the form schema configuration definition block completely
     await FormMeta.deleteOne({ form_code: normalizedCode });
 
     return res.status(200).json({ 
@@ -511,6 +401,7 @@ router.get('/metadata/lookup/:formCode/:fieldKey', authenticateToken, async (req
     const targetCollectionName = `collection_${formCode.trim().toLowerCase()}`;
     const cleanFieldKey = fieldKey.trim().toLowerCase();
 
+    // Dynamically access or spin up an isolated schema instance lookup model mapping
     let TargetModel;
     if (mongoose.models[targetCollectionName]) {
       TargetModel = mongoose.models[targetCollectionName];
@@ -522,12 +413,14 @@ router.get('/metadata/lookup/:formCode/:fieldKey', authenticateToken, async (req
       );
     }
 
+    // Query for all unique non-empty string properties populated inside the collection database container
     const records = await TargetModel.find({}).select(cleanFieldKey).lean();
     
     const extractionArray = records
       .map(doc => doc[cleanFieldKey])
       .filter(val => val !== undefined && val !== null && val !== '');
 
+    // De-duplicate options using a Set
     const finalizedOptionsList = [...new Set(extractionArray)];
 
     return res.status(200).json({ 
@@ -540,7 +433,7 @@ router.get('/metadata/lookup/:formCode/:fieldKey', authenticateToken, async (req
 });
 
 // =========================================================================
-// DYNAMIC CUSTOM PAGE & STYLESHEET FILE MANAGEMENT
+// DYNAMIC CUSTOM PAGE FILE MANAGEMENT (VERIFICATION & TOGGLE)
 // =========================================================================
 
 // 1. Check if custom page file exists in client/src/pages/custom/{formCode}.jsx
@@ -556,541 +449,62 @@ router.get('/metadata/custom-page/check/:formCode', authenticateToken, async (re
   }
 });
 
-// 2. Create standalone React form file + matching CSS file, or remove both on disable
+// 2. Create or dynamic-sync/delete custom page file
 router.post('/metadata/custom-page/toggle', authenticateToken, async (req, res) => {
   try {
-    const { form_code, form_name, fields = [], target_layout_mode, listing_config, create, jsx_filename, css_filename } = req.body;
+    const { form_code, form_name, create } = req.body;
     if (!form_code) {
       return res.status(400).json({ success: false, message: 'Form code is required.' });
     }
 
-    const cleanCode = form_code.trim().toLowerCase();
-    
-    // Target paths for JSX component and CSS styling files
     const customDir = path.join(__dirname, '../../client/src/pages/custom');
-    const stylesDir = path.join(__dirname, '../../client/src/styles/custom');
-    
-    const jsxName = jsx_filename && jsx_filename.trim() ? jsx_filename.trim() : `${cleanCode}.jsx`;
-    const cssName = css_filename && css_filename.trim() ? css_filename.trim() : `${cleanCode}.css`;
+    const targetFilePath = path.join(customDir, `${form_code.toLowerCase()}.jsx`);
 
-    const targetFilePath = path.join(customDir, jsxName);
-    const targetCssPath = path.join(stylesDir, cssName);
-
-    // Ensure client directories exist dynamically
+    // Ensure client/src/pages/custom directory exists
     if (!fs.existsSync(customDir)) {
       fs.mkdirSync(customDir, { recursive: true });
     }
-    if (!fs.existsSync(stylesDir)) {
-      fs.mkdirSync(stylesDir, { recursive: true });
-    }
 
     if (create) {
+      // Dynamic component class name generator
       const componentName = form_code
         .split('_')
         .map(part => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
-        .join('') + 'CustomPage';
+        .join('');
 
-      // Auto-generate polished CSS stylesheet definition
-      const cssContent = `/* Auto-generated dynamic stylesheet for ${form_code.toUpperCase()} */
-
-.custom-page-wrapper {
-  padding: 32px 24px;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.custom-card {
-  background: #ffffff;
-  border-radius: 12px;
-  border: 1px solid #e5e7eb;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-  padding: 28px;
-}
-
-.custom-header {
-  margin-bottom: 24px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid #f3f4f6;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.custom-header h2 {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #111827;
-  margin: 0;
-}
-
-.custom-toolbar {
-  display: flex;
-  gap: 12px;
-  margin-bottom: 20px;
-}
-
-.custom-table-container {
-  overflow-x: auto;
-  margin-top: 16px;
-}
-
-.custom-table {
-  width: 100%;
-  border-collapse: collapse;
-  text-align: left;
-  font-size: 0.9rem;
-}
-
-.custom-table th {
-  background-color: #f9fafb;
-  color: #374151;
-  font-weight: 600;
-  padding: 12px 16px;
-  border-bottom: 2px solid #e5e7eb;
-  text-transform: uppercase;
-  font-size: 0.75rem;
-  letter-spacing: 0.05em;
-}
-
-.custom-table td {
-  padding: 12px 16px;
-  border-bottom: 1px solid #f3f4f6;
-  color: #1f2937;
-}
-
-.custom-table tr:hover {
-  background-color: #f9fafb;
-}
-
-.custom-form-grid {
-  display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  gap: 20px;
-}
-
-.form-group-col {
-  display: flex;
-  flex-direction: column;
-}
-
-.col-12 { grid-column: span 12; }
-.col-6  { grid-column: span 6; }
-.col-4  { grid-column: span 4; }
-
-@media (max-width: 768px) {
-  .col-6, .col-4 {
-    grid-column: span 12;
-  }
-}
-
-.custom-label {
-  display: block;
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #374151;
-  margin-bottom: 6px;
-}
-
-.required-star {
-  color: #ef4444;
-  margin-left: 2px;
-}
-
-.custom-input,
-.custom-select,
-.custom-textarea {
-  width: 100%;
-  padding: 10px 14px;
-  font-size: 0.95rem;
-  color: #1f2937;
-  background-color: #ffffff;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  box-sizing: border-box;
-  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-}
-
-.custom-input:focus,
-.custom-select:focus,
-.custom-textarea:focus {
-  outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
-}
-
-.checkbox-group {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-top: 8px;
-}
-
-.custom-checkbox {
-  width: 18px;
-  height: 18px;
-  cursor: pointer;
-  accent-color: #2563eb;
-}
-
-.custom-alert {
-  padding: 12px 16px;
-  border-radius: 6px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  margin-top: 20px;
-}
-
-.alert-success {
-  background-color: #ecfdf5;
-  color: #065f46;
-  border: 1px solid #a7f3d0;
-}
-
-.alert-error {
-  background-color: #fef2f2;
-  color: #991b1b;
-  border: 1px solid #fecaca;
-}
-
-.custom-actions {
-  margin-top: 28px;
-  display: flex;
-  justify-content: flex-end;
-}
-
-.btn-submit {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 24px;
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: #ffffff;
-  background-color: #2563eb;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-
-.btn-submit:hover:not(:disabled) {
-  background-color: #1d4ed8;
-}
-
-.btn-submit:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.btn-secondary {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #374151;
-  background-color: #f3f4f6;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.btn-secondary:hover {
-  background-color: #e5e7eb;
-}
-`;
-
-      fs.writeFileSync(targetCssPath, cssContent, 'utf8');
-
-      // Check layout mode type to render standard dynamic layout OR dedicated FORM_ONLY structure
-      let templateContent = '';
-
-      if (target_layout_mode === 'FORM_ONLY') {
-        templateContent = `import React, { useState, useEffect } from 'react';
-import { Save, AlertCircle } from 'lucide-react';
-import { AUTH_ENDPOINTS } from '../../config/api';
+      const templateContent = `import React from 'react';
 import DynamicFormRenderer from '../../components/dynamic-engine/DynamicFormRenderer';
-import '../../styles/custom/${cssName}';
 
 /**
- * Standalone FORM_ONLY Custom Page Component
- * Form Code: ${form_code.toUpperCase()}
- * Destination Path: client/src/pages/custom/${jsxName}
- */
-export default function ${componentName}() {
-  const [schema, setSchema] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  const FORM_CODE = '${form_code.toUpperCase()}';
-
-  useEffect(() => {
-    fetchFormSchema();
-  }, []);
-
-  /**
-   * Helper hook to inject or override custom fields into fetched schema metadata manually.
-   * Add any extra dynamic/custom form fields here before binding to local state.
-   */
-  const customizeSchemaFields = (fetchedSchema) => {
-    if (!fetchedSchema) return fetchedSchema;
-
-    const existingFields = fetchedSchema.fields || [];
-
-    // Custom manual dynamic field injections placeholder
-    const customAdditionalFields = [];
-
-    return {
-      ...fetchedSchema,
-      fields: [...existingFields, ...customAdditionalFields]
-    };
-  };
-
-  const fetchFormSchema = async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const token = localStorage.getItem('accessToken');
-      const response = await fetch(
-        \`\${AUTH_ENDPOINTS.REACT_APP_API_URL}/api/admin/metadata/form/\${FORM_CODE}\`,
-        {
-          headers: {
-            'Authorization': \`Bearer \${token}\`
-          }
-        }
-      );
-
-      const data = await response.json();
-      if (response.ok && (data.success || data.form_code)) {
-        const rawSchema = data.data || data;
-        const processedSchema = customizeSchemaFields(rawSchema);
-        setSchema(processedSchema);
-      } else {
-        setError(data.message || 'Failed to fetch metadata schema.');
-      }
-    } catch (err) {
-      console.error('Schema retrieval error:', err);
-      setError('Network exception encountered while fetching form structure: ' + err.message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleFormSaveSuccess = () => {
-    alert('Record saved successfully!');
-    fetchFormSchema();
-  };
-
-  if (isLoading) {
-    return (
-      <div className="custom-page-wrapper" style={{ padding: '40px', textAlign: 'center' }}>
-        <p>Loading ${form_name || form_code} Form configuration...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="custom-page-wrapper" style={{ padding: '24px' }}>
-        <div className="custom-alert alert-error" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <AlertCircle size={20} />
-          <span>{error}</span>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="custom-page-wrapper">
-      <div className="custom-card">
-        <DynamicFormRenderer
-          schema={schema}
-          formCode={FORM_CODE}
-          onSaveSuccess={handleFormSaveSuccess}
-        />
-      </div>
-    </div>
-  );
-}
-`;
-      } else {
-        // Standard Listing + Form Template fallback
-        templateContent = `import React, { useState, useEffect } from 'react';
-import { Save, Plus } from 'lucide-react';
-import { AUTH_ENDPOINTS } from '../../config/api';
-import '../../styles/custom/${cssName}';
-
-/**
- * Standalone Custom Page Component for Form Code: ${form_code.toUpperCase()}
+ * Dynamic Custom Page for Form Code: ${form_code.toUpperCase()}
  * Label: ${form_name || form_code}
- * Path: client/src/pages/custom/${jsxName}
+ * Path: client/src/pages/custom/${form_code.toLowerCase()}.jsx
  */
-export default function ${componentName}() {
-  const [listData, setListData] = useState([]);
-  const [formData, setFormData] = useState({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [status, setStatus] = useState(null);
-
-  const targetLayoutMode = "${target_layout_mode || 'LISTING_AND_FORM'}";
-  const sourceCode = "${listing_config?.sourceFormCode || form_code.toUpperCase()}";
-  const selectedCols = ${JSON.stringify(listing_config?.selectedColumns || [])};
-
-  useEffect(() => {
-    fetchRecords();
-  }, []);
-
-  const fetchRecords = async () => {
-    setIsLoading(true);
-    try {
-      const token = localStorage.getItem('accessToken');
-      const res = await fetch(\`\${AUTH_ENDPOINTS.REACT_APP_API_URL}/admin/metadata/form/\${sourceCode}\`, {
-        headers: {
-          'Authorization': \`Bearer \${token}\`
-        }
-      });
-      const data = await res.json();
-      if (res.ok && data.success) {
-        setListData(data.data || []);
-      }
-    } catch (err) {
-      console.error('Failed to fetch records:', err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value
-    }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    setStatus(null);
-
-    try {
-      const token = localStorage.getItem('accessToken');
-      const res = await fetch(\`\${AUTH_ENDPOINTS.REACT_APP_API_URL}/api/forms/submit/${form_code.toUpperCase()}\`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': \`Bearer \${token}\`
-        },
-        body: JSON.stringify(formData)
-      });
-      const data = await res.json();
-      if (res.ok && data.success) {
-        setStatus({ type: 'success', message: 'Record saved successfully!' });
-        setFormData({});
-        fetchRecords();
-      } else {
-        setStatus({ type: 'error', message: data.message || 'Error processing request.' });
-      }
-    } catch (err) {
-      setStatus({ type: 'error', message: 'Submission failed: ' + err.message });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
+export default function ${componentName}CustomPage() {
   return (
-    <div className="custom-page-wrapper">
-      <div className="custom-card">
-        <div className="custom-header">
-          <h2>${form_name || form_code} Workspace</h2>
-        </div>
-
-        {targetLayoutMode !== 'FORM_ONLY' && (
-          <div className="custom-listing-section">
-            <div className="custom-toolbar">
-              {${Boolean(listing_config?.redirectButtons?.length)} && (
-                ${JSON.stringify(listing_config?.redirectButtons || [])}.map(btn => (
-                  <a key={btn.id} href={btn.href} className="btn-secondary">
-                    <Plus size={16} /> {btn.label}
-                  </a>
-                ))
-              )}
-            </div>
-
-            <div className="custom-table-container">
-              {isLoading ? (
-                <p>Loading collection records...</p>
-              ) : listData.length === 0 ? (
-                <p>No records found in collection.</p>
-              ) : (
-                <table className="custom-table">
-                  <thead>
-                    <tr>
-                      {selectedCols.map(col => (
-                        <th key={col}>{col.replace(/_/g, ' ')}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {listData.map((row, idx) => (
-                      <tr key={row._id || idx}>
-                        {selectedCols.map(col => (
-                          <td key={col}>{row[col] !== undefined ? String(row[col]) : ''}</td>
-                        ))}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
-            </div>
-          </div>
-        )}
-
-        {targetLayoutMode !== 'LISTING_ONLY' && (
-          <form onSubmit={handleSubmit} style={{ marginTop: targetLayoutMode !== 'FORM_ONLY' ? '32px' : 0 }}>
-            <div className="custom-form-grid">
-              
-            </div>
-
-            {status && (
-              <div className={\`custom-alert alert-\${status.type}\`}>
-                {status.message}
-              </div>
-            )}
-
-            <div className="custom-actions">
-              <button type="submit" disabled={isSubmitting} className="btn-submit">
-                <Save size={18} /> {isSubmitting ? 'Saving...' : 'Submit Entry'}
-              </button>
-            </div>
-          </form>
-        )}
+    <div className="custom-page-container">
+      <div className="custom-page-header">
+        <h2>${form_name || form_code} Workspace</h2>
       </div>
+      <DynamicFormRenderer formCode="${form_code.toUpperCase()}" />
     </div>
   );
 }
 `;
-      }
 
       fs.writeFileSync(targetFilePath, templateContent, 'utf8');
-
       return res.status(200).json({
         success: true,
-        message: `Generated custom page and style files for ${cleanCode}`,
+        message: `Custom file generated at client/src/pages/custom/${form_code.toLowerCase()}.jsx`,
         exists: true
       });
     } else {
       if (fs.existsSync(targetFilePath)) {
         fs.unlinkSync(targetFilePath);
       }
-      if (fs.existsSync(targetCssPath)) {
-        fs.unlinkSync(targetCssPath);
-      }
-
       return res.status(200).json({
         success: true,
-        message: `Removed custom files for ${form_code}`,
+        message: `Custom file removed for ${form_code}`,
         exists: false
       });
     }
@@ -1109,6 +523,7 @@ router.put('/menus/update/:id', authenticateToken, authorizeRoles('SUPER_ADMIN')
     const { id } = req.params;
     const { menu_name, menu_icon, route, parent_id, sort_order, is_active, description } = req.body;
 
+    // Convert potential string "false"/"true" values safely to native booleans
     let parsedActive;
     if (is_active !== undefined) {
       parsedActive = String(is_active) === 'true';
@@ -1122,7 +537,7 @@ router.put('/menus/update/:id', authenticateToken, authorizeRoles('SUPER_ADMIN')
         ...(route !== undefined && { route }),
         ...(parent_id !== undefined && { parent_id: parent_id || null }),
         ...(sort_order !== undefined && { sort_order: sort_order || 0 }),
-        ...(parsedActive !== undefined && { is_active: parsedActive }),
+        ...(parsedActive !== undefined && { is_active: parsedActive }), // Set explicit boolean flag
         ...(description !== undefined && { description })
       },
       { new: true, runValidators: true }
@@ -1144,11 +559,14 @@ router.put('/roles/update/:id', authenticateToken, authorizeRoles('SUPER_ADMIN')
     const { id } = req.params;
     const { role_name, allowed_menus, is_active } = req.body;
 
+    // Build the dynamic update payload mapping
     const updatePayload = {};
     if (role_name !== undefined) updatePayload.role_name = role_name;
     if (allowed_menus !== undefined) updatePayload.allowed_menus = allowed_menus;
 
+    // Map incoming boolean "is_active" to schema's string-based "status"
     if (is_active !== undefined) {
+      // Handles both literal booleans and incoming stringified fields securely
       const isActiveFlag = String(is_active) === 'true';
       updatePayload.status = isActiveFlag ? 'Active' : 'Inactive';
     }
@@ -1173,15 +591,14 @@ router.put('/roles/update/:id', authenticateToken, authorizeRoles('SUPER_ADMIN')
 router.put('/users/update/:id', authenticateToken, authorizeRoles('SUPER_ADMIN'), async (req, res) => {
   try {
     const { id } = req.params;
-    const { username, email, password, role_name, is_active, skip_attendance } = req.body;
+    const { username, email, password, role_name, is_active } = req.body;
 
     const updatePayload = {};
     if (username !== undefined) updatePayload.username = username;
     if (email !== undefined) updatePayload.email = email;
     if (role_name !== undefined) updatePayload.role_name = role_name;
     if (is_active !== undefined) updatePayload.is_active = is_active;
-    if (skip_attendance !== undefined) updatePayload.skip_attendance = String(skip_attendance) === 'true' || skip_attendance === true;
-
+    
     if (password && password.trim().length >= 6) {
       updatePayload.password = await bcrypt.hash(password, 10);
     }

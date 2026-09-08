@@ -342,6 +342,24 @@ export default function DynamicFormRenderer({ schema: initialSchema, formCode, r
     return <div style={{ padding: '30px', textAlign: 'center', color: '#ef4444' }}>Unable to load form configuration blueprint.</div>;
   }
 
+  // Preserve initial index fallback for ordering evaluation
+  const orderedFields = (schema.fields || [])
+    .map((field, originalIndex) => ({ field, originalIndex }))
+    .sort((a, b) => {
+      const orderA = Number(a.field.order);
+      const orderB = Number(b.field.order);
+
+      const hasOrderA = !isNaN(orderA) && orderA > 0;
+      const hasOrderB = !isNaN(orderB) && orderB > 0;
+
+      if (hasOrderA && hasOrderB) return orderA - orderB;
+      if (hasOrderA) return -1;
+      if (hasOrderB) return 1;
+
+      return a.originalIndex - b.originalIndex;
+    })
+    .map(item => item.field);
+
   return (
     <div className="workspace-card-wrapper">
       {/* Dynamic Embedded CSS Styles */}
@@ -505,7 +523,7 @@ export default function DynamicFormRenderer({ schema: initialSchema, formCode, r
           {iconMap[schema.form_icon] || <Briefcase size={20} style={{ color: '#2563eb' }} />}
         </div>
         <div>
-          <h2>{schema.form_name || 'Dynamic Data Sheet'}</h2>
+          <h2>{schema.form_name || 'Form Data'}</h2>
           <p>{recordId ? 'Modify and update workspace profile fields' : 'Complete below details'}</p>
         </div>
       </header>
@@ -515,7 +533,7 @@ export default function DynamicFormRenderer({ schema: initialSchema, formCode, r
         <div className="form-scroll-viewport">
           {/* DYNAMIC 12-COLUMN RESPONSIVE LAYOUT GRID */}
           <div className="mac-form-grid-12x">
-            {(schema.fields || [])
+            {orderedFields
               .filter(f => (f.is_active !== false) && isFieldVisible(f))
               .map((field) => {
                 const { 

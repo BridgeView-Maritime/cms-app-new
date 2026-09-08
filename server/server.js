@@ -36,6 +36,7 @@ import { FormMeta } from './models/DynamicMetaSchemas.js';
 import { UserRole, AppMenu } from './models/AdminManagementModels.js'; 
 
 import UkmtoScraperService from './services/UkmtoScraperService.js';
+import crewRoutes from './routes/crewRoutes.js';
 
 dotenv.config();
 const app = express();
@@ -123,6 +124,7 @@ app.use('/api/products', productRoutes);
 app.get('/', (req, res) => {
   res.json({ success: true, message: 'API running' });
 });
+app.use('/api/crew', crewRoutes);
 
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/cms_new_db';

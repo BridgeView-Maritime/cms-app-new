@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Trash2, Shield, ToggleLeft, ToggleRight, Code, Loader2, Sliders, Plus, Layers, LayoutGrid, Info } from 'lucide-react';
+import { Trash2, Shield, ToggleLeft, ToggleRight, Code, Loader2, Sliders, Plus, Layers, LayoutGrid, Info, ArrowUp, ArrowDown } from 'lucide-react';
 import '../styles/FieldControlCard.css';
 import { AUTH_ENDPOINTS } from '../config/api';
 
@@ -11,7 +11,9 @@ export default function FieldControlCard({
   removeFieldRow, 
   toggleRolePermission, 
   availableForms = [], 
-  systemRoles = [] 
+  systemRoles = [], 
+  moveFieldRow, 
+  totalFields = 0 
 }) {
   const [fetchedFormFields, setFetchedFormFields] = useState([]);
   const [isLoadingFields, setIsLoadingFields] = useState(false);
@@ -256,14 +258,55 @@ export default function FieldControlCard({
     <div className={`mac-form-array-card field-control-card ${field.is_active ? 'active-node' : 'soft-deleted-node'}`}>
       
       {/* Header Actions */}
-      <div className="card-header-actions field-card-header">
-        <span className="field-card-title">Custom Control Element Node Row #{idx + 1}</span>
-        <div className="field-card-actions">
-          <button type="button" className="field-action-btn" onClick={() => handleFieldChange(idx, 'is_active', !field.is_active)}>
+      <div className="card-header-actions" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px', borderBottom: '1px dashed #e2e8f0', paddingBottom: '8px' }}>
+        <span style={{ fontWeight: '600', color: '#1e293b' }}>Custom Control Element Node Row #{idx + 1}</span>
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+          
+          {/* Order Control Option */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', backgroundColor: '#f1f5f9', padding: '2px 6px', borderRadius: '4px', border: '1px solid #cbd5e1' }}>
+            <span style={{ fontSize: '11px', fontWeight: '600', color: '#475569' }}>Order:</span>
+            <input 
+              type="number" 
+              min="1"
+              max={totalFields || undefined}
+              value={field.order !== undefined ? field.order : idx + 1}
+              onChange={e => {
+                const newOrder = parseInt(e.target.value, 10);
+                if (!isNaN(newOrder)) {
+                  handleFieldChange(idx, 'order', newOrder);
+                }
+              }}
+              style={{ width: '45px', height: '22px', fontSize: '11px', padding: '0 4px', textIndent: '0', textAlign: 'center' }}
+            />
+            {typeof moveFieldRow === 'function' && (
+              <>
+                <button 
+                  type="button" 
+                  disabled={idx === 0}
+                  onClick={() => moveFieldRow(idx, idx - 1)}
+                  title="Move Up"
+                  style={{ background: 'none', border: 'none', cursor: idx === 0 ? 'not-allowed' : 'pointer', padding: '2px', opacity: idx === 0 ? 0.3 : 1, display: 'flex', alignItems: 'center' }}
+                >
+                  <ArrowUp size={14} color="#475569" />
+                </button>
+                <button 
+                  type="button" 
+                  disabled={totalFields > 0 ? idx === totalFields - 1 : false}
+                  onClick={() => moveFieldRow(idx, idx + 1)}
+                  title="Move Down"
+                  style={{ background: 'none', border: 'none', cursor: (totalFields > 0 && idx === totalFields - 1) ? 'not-allowed' : 'pointer', padding: '2px', opacity: (totalFields > 0 && idx === totalFields - 1) ? 0.3 : 1, display: 'flex', alignItems: 'center' }}
+                >
+                  <ArrowDown size={14} color="#475569" />
+                </button>
+              </>
+            )}
+          </div>
+
+          <button type="button" style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }} onClick={() => handleFieldChange(idx, 'is_active', !field.is_active)}>
             {field.is_active ? <ToggleRight color="#22c55e" size={20}/> : <ToggleLeft color="#ef4444" size={20}/>}
-            <span className="field-action-text">{field.is_active ? 'Active' : 'Inactive (Archived)'}</span>
+            <span style={{ fontSize: '12px', fontWeight: '500' }}>{field.is_active ? 'Active' : 'Inactive (Archived)'}</span>
           </button>
-          <button type="button" className="field-action-btn delete-btn" onClick={() => removeFieldRow(idx)}>
+          <button type="button" style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', color: '#ef4444' }} onClick={() => removeFieldRow(idx)}>
             <Trash2 size={16} />
           </button>
         </div>
@@ -324,6 +367,7 @@ export default function FieldControlCard({
             </optgroup>
             <optgroup label="Complex Dynamic Systems">
               <option value="repeater">Repeater Table Grid Row System</option>
+              <option value="new_form">New Form System</option>
             </optgroup>
           </select>
         </div>
