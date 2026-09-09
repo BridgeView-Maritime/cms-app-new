@@ -4,7 +4,7 @@
 // identical, from a single source instead of copy-pasted.
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Anchor, ChevronDown, LogIn, LogOut, Mail, Menu, Phone, ShieldCheck, X } from 'lucide-react';
+import { Anchor, ChevronDown, LayoutDashboard, LogIn, LogOut, Mail, Menu, Phone, ShieldCheck, X } from 'lucide-react';
 
 const NAV_LINKS = [
   { label: 'Home', href: '#home' },
@@ -57,13 +57,16 @@ export default function LandingHeader({ topbar, onNavigate, scrolled = false, ca
     onNavigate(link.href)(e);
   };
 
+  // Signed in, the greeting is the way back into the portal; signing out is
+  // its own button rather than something the greeting does by surprise.
   const handleCandidateAction = () => {
     setMenuOpen(false);
-    if (candidate) {
-      onCandidateLogout?.();
-    } else {
-      navigate('/candidate-login');
-    }
+    navigate(candidate ? '/candidate' : '/candidate-login');
+  };
+
+  const handleCandidateLogout = () => {
+    setMenuOpen(false);
+    onCandidateLogout?.();
   };
 
   const handleAdminLogin = () => {
@@ -72,6 +75,23 @@ export default function LandingHeader({ topbar, onNavigate, scrolled = false, ca
   };
 
   const candidateLabel = candidate ? `Hi, ${candidate.uname || candidate.emailid}` : 'Candidate Log In';
+
+  const candidateActions = (
+    <>
+      <button type="button" className="lp-btn lp-btn-ghost" onClick={handleCandidateAction}>
+        {candidate ? <LayoutDashboard size={14} /> : <LogIn size={14} />}
+        {candidateLabel}
+      </button>
+      {/* Only offered where the host page can actually end the session, so
+          this is never a button that appears to do nothing. */}
+      {candidate && onCandidateLogout && (
+        <button type="button" className="lp-btn lp-btn-ghost" onClick={handleCandidateLogout}>
+          <LogOut size={14} />
+          Sign Out
+        </button>
+      )}
+    </>
+  );
 
   return (
     <header className={`lp-header ${scrolled ? 'lp-header-scrolled' : ''}`}>
@@ -131,10 +151,7 @@ export default function LandingHeader({ topbar, onNavigate, scrolled = false, ca
         </nav>
 
         <div className="lp-nav-actions">
-          <button type="button" className="lp-btn lp-btn-ghost" onClick={handleCandidateAction}>
-            {candidate && <LogOut size={14} />}
-            {candidateLabel}
-          </button>
+          {candidateActions}
           <button type="button" className="lp-btn lp-btn-primary" onClick={handleAdminLogin}>
             <LogIn size={15} />
             Admin Login
@@ -167,10 +184,7 @@ export default function LandingHeader({ topbar, onNavigate, scrolled = false, ca
           </a>
         ))}
         <div className="lp-mobile-actions">
-          <button type="button" className="lp-btn lp-btn-ghost" onClick={handleCandidateAction}>
-            {candidate && <LogOut size={14} />}
-            {candidateLabel}
-          </button>
+          {candidateActions}
           <button type="button" className="lp-btn lp-btn-primary" onClick={handleAdminLogin}>
             <LogIn size={15} />
             Admin Login

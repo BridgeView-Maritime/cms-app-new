@@ -5,7 +5,26 @@ import LoginPage from './components/LoginPage';
 import LandingPage from './components/LandingPage';
 import CandidateLoginPage from './pages/CandidateLoginPage';
 import CandidateRegisterPage from './pages/CandidateRegisterPage';
-import CandidateDashboardPage from './pages/CandidateDashboardPage';
+import CandidatePortalLayout from './components/CandidatePortalLayout';
+import CandidateOverviewPage from './pages/candidate/CandidateOverviewPage';
+import CandidateProfilePage from './pages/candidate/CandidateProfilePage';
+import CandidateResumePage from './pages/candidate/CandidateResumePage';
+import CandidateSeaServicesPage from './pages/candidate/CandidateSeaServicesPage';
+import CandidateQualificationPage from './pages/candidate/CandidateQualificationPage';
+import CandidateNokPage from './pages/candidate/CandidateNokPage';
+import CandidatePreviousEmployersPage from './pages/candidate/CandidatePreviousEmployersPage';
+import CandidateBankDetailsPage from './pages/candidate/CandidateBankDetailsPage';
+import CandidateCocPage from './pages/candidate/CandidateCocPage';
+import CandidateOffshoreCertificatesPage from './pages/candidate/CandidateOffshoreCertificatesPage';
+import CandidateOtherCertificatesPage from './pages/candidate/CandidateOtherCertificatesPage';
+import CandidateStcwPage from './pages/candidate/CandidateStcwPage';
+import CandidateJobsPage from './pages/candidate/CandidateJobsPage';
+import CandidateSavedJobsPage from './pages/candidate/CandidateSavedJobsPage';
+import CandidateAppliedJobsPage from './pages/candidate/CandidateAppliedJobsPage';
+import CandidateContractDetailsPage from './pages/candidate/CandidateContractDetailsPage';
+import CandidateGrievancesPage from './pages/candidate/CandidateGrievancesPage';
+import CandidateHelpPage from './pages/candidate/CandidateHelpPage';
+import CandidateChangePasswordPage from './pages/candidate/CandidateChangePasswordPage';
 import ProductsPage from './pages/ProductsPage';
 import MacDynamicDashboard from './components/Dashboard';
 import FloatingChatbot from './components/FloatingChatbot';
@@ -70,7 +89,34 @@ export default function App() {
             so no synchronous route guard is needed here. */}
         <Route path="/candidate-login" element={<CandidateLoginPage />} />
         <Route path="/candidate-register" element={<CandidateRegisterPage />} />
-        <Route path="/candidate-dashboard" element={<CandidateDashboardPage />} />
+        {/* The logged-in candidate portal. Everything lives under /candidate/*
+            behind a shared layout (sidebar + auth gate). Sections whose legacy
+            tables aren't migrated yet render an explicit placeholder. */}
+        <Route path="/candidate" element={<CandidatePortalLayout />}>
+          <Route index element={<CandidateOverviewPage />} />
+          <Route path="profile" element={<CandidateProfilePage />} />
+          <Route path="resume" element={<CandidateResumePage />} />
+
+          <Route path="jobs" element={<CandidateJobsPage />} />
+          <Route path="saved-jobs" element={<CandidateSavedJobsPage />} />
+          <Route path="applied-jobs" element={<CandidateAppliedJobsPage />} />
+          <Route path="sea-services" element={<CandidateSeaServicesPage />} />
+          <Route path="grievances" element={<CandidateGrievancesPage />} />
+          <Route path="qualification" element={<CandidateQualificationPage />} />
+          <Route path="nok" element={<CandidateNokPage />} />
+          <Route path="previous-employers" element={<CandidatePreviousEmployersPage />} />
+          <Route path="stcw" element={<CandidateStcwPage />} />
+          <Route path="contracts" element={<CandidateContractDetailsPage />} />
+          <Route path="coc" element={<CandidateCocPage />} />
+          <Route path="offshore-certificates" element={<CandidateOffshoreCertificatesPage />} />
+          <Route path="other-certificates" element={<CandidateOtherCertificatesPage />} />
+          <Route path="bank-details" element={<CandidateBankDetailsPage />} />
+          <Route path="help" element={<CandidateHelpPage />} />
+          <Route path="change-password" element={<CandidateChangePasswordPage />} />
+        </Route>
+
+        {/* Old flat path kept working so existing links don't break */}
+        <Route path="/candidate-dashboard" element={<Navigate to="/candidate" replace />} />
 
         {/* Product catalogue — public browsing, candidate-only cart/order actions */}
         <Route path="/products" element={<ProductsPage />} />

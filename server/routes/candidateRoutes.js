@@ -15,6 +15,7 @@ import { authenticateReset } from '../middleware/candidateResetAuthMiddleware.js
 import { sendEmail } from '../utils/sendEmail.js';
 import { extractResumeFields } from '../utils/resumeParser.js';
 import { applyLegacyResumeFallback } from '../utils/legacyResumeFallback.js';
+import { findLegacyResumes } from '../utils/legacyCvLookup.js';
 import { generateMysqlId } from '../utils/generateMysqlId.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -44,7 +45,13 @@ const sanitizeCandidate = (doc) => {
 // legacy collection_addresume record, if one exists (backward
 // compatibility for candidates who registered on the old site). Read-time
 // only — see utils/legacyResumeFallback.js.
-const sanitizeCandidateWithFallback = async (doc) => applyLegacyResumeFallback(sanitizeCandidate(doc));
+const sanitizeCandidateWithFallback = async (doc) => {
+  const obj = await applyLegacyResumeFallback(sanitizeCandidate(doc));
+  // CVs uploaded on the old site (collection_previous_cv). Additive only —
+  // never replaces resumes uploaded through this app.
+  obj.legacyResumes = await findLegacyResumes(obj.emailid);
+  return obj;
+};
 
 // ==========================================================================
 // LOGIN — identifier can be uname or emailid. Legacy passwords are plain

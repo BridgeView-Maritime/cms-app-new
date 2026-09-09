@@ -46,7 +46,7 @@ export default function CandidateLoginPage() {
   // Already signed in — skip straight to the dashboard.
   useEffect(() => {
     if (!loading && candidate) {
-      navigate('/candidate-dashboard', { replace: true });
+      navigate('/candidate', { replace: true });
     }
   }, [loading, candidate, navigate]);
 
@@ -78,7 +78,7 @@ export default function CandidateLoginPage() {
       const data = await res.json();
       if (res.ok && data.success) {
         login(data.accessToken, data.candidate);
-        navigate('/candidate-dashboard', { replace: true });
+        navigate('/candidate', { replace: true });
       } else {
         setError(data.message || 'Invalid username/email or password.');
       }
