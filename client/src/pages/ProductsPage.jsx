@@ -46,7 +46,7 @@ function sizeOptions(product) {
 export default function ProductsPage() {
   const navigate = useNavigate();
   const content = useLandingContent();
-  const { candidate, loading: sessionLoading } = useCandidateSession();
+  const { candidate, loading: sessionLoading, logout: candidateLogout } = useCandidateSession();
   useScrollableRoot();
 
   const [products, setProducts] = useState([]);
@@ -182,7 +182,7 @@ export default function ProductsPage() {
 
   return (
     <div className="lp-root">
-      <LandingHeader topbar={content.topbar} onNavigate={goTo} scrolled candidate={candidate} />
+      <LandingHeader topbar={content.topbar} onNavigate={goTo} scrolled candidate={candidate} onCandidateLogout={candidateLogout} />
 
       <section className="pp-hero">
         <span className="lp-kicker">Products</span>

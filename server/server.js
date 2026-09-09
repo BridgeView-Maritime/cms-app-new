@@ -26,6 +26,8 @@ import migrationRoutes from './routes/migrationRoutes.js';
 import attendanceRoutes from './routes/attendanceRoutes.js';
 import landingRoutes from './routes/landingRoutes.js';
 import candidateRoutes from './routes/candidateRoutes.js';
+import candidateProfileRoutes from './routes/candidateProfileRoutes.js';
+import candidateJobRoutes from './routes/candidateJobRoutes.js';
 import productRoutes from './routes/productRoutes.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -118,6 +120,8 @@ app.use('/api/migration', migrationRoutes);
 app.use('/api/attendance', attendanceRoutes);
 app.use('/api/landing', landingRoutes);
 app.use('/api/candidate', candidateRoutes);
+app.use('/api/candidate', candidateProfileRoutes);
+app.use('/api/candidate', candidateJobRoutes);
 app.use('/api/products', productRoutes);
 
 app.get('/', (req, res) => {

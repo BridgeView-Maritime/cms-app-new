@@ -61,7 +61,7 @@ export default function CandidateRegisterPage() {
 
   useEffect(() => {
     if (!loading && candidate) {
-      navigate('/candidate-dashboard', { replace: true });
+      navigate('/candidate', { replace: true });
     }
   }, [loading, candidate, navigate]);
 
@@ -261,7 +261,7 @@ export default function CandidateRegisterPage() {
       const data = await res.json();
       if (data.success) {
         sessionLogin(data.accessToken, data.candidate);
-        navigate('/candidate-dashboard', { replace: true });
+        navigate('/candidate', { replace: true });
       } else {
         setError(data.message || 'Could not complete registration.');
       }

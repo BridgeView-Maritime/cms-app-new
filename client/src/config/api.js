@@ -73,10 +73,43 @@ export const CANDIDATE_ENDPOINTS = {
 };
 
 // 7. Products / cart / orders — catalogue is public, cart+order are candidate-only
+// 8. Candidate profile sections (Phase 2) - all candidate-scoped
+export const PROFILE_SECTIONS = {
+  NOK: `${API_BASE_URL}/candidate/nok`,
+  BANK: `${API_BASE_URL}/candidate/bank-details`,
+  PREVIOUS_EMPLOYERS: `${API_BASE_URL}/candidate/previous-employers`,
+  EDUCATION: `${API_BASE_URL}/candidate/education`,
+  PRESEA: `${API_BASE_URL}/candidate/presea`,
+  SEA_SERVICES: `${API_BASE_URL}/candidate/sea-services`,
+  COC: `${API_BASE_URL}/candidate/coc`,
+  OFFSHORE_CERTS: `${API_BASE_URL}/candidate/offshore-certificates`,
+  OTHER_CERTS: `${API_BASE_URL}/candidate/other-certificates`,
+  STCW: `${API_BASE_URL}/candidate/stcw`,
+  LOOKUPS: `${API_BASE_URL}/candidate/lookups`,
+};
+
 export const PRODUCT_ENDPOINTS = {
   LIST: `${API_BASE_URL}/products`,
   CART: `${API_BASE_URL}/products/cart`,
   CART_ITEM: (id) => `${API_BASE_URL}/products/cart/${id}`,
   ORDER: `${API_BASE_URL}/products/order`,
   ORDERS: `${API_BASE_URL}/products/orders`,
+};
+
+// 9. Candidate job board + phase 5 sections
+export const JOB_ENDPOINTS = {
+  LIST: `${API_BASE_URL}/candidate/jobs`,
+  FILTERS: `${API_BASE_URL}/candidate/jobs/filters`,
+  MY_ACTIVITY: `${API_BASE_URL}/candidate/jobs/my-activity`,
+  SAVE: (jobid) => `${API_BASE_URL}/candidate/jobs/${jobid}/save`,
+  APPLY: (jobid) => `${API_BASE_URL}/candidate/jobs/${jobid}/apply`,
+  SAVED: `${API_BASE_URL}/candidate/saved-jobs`,
+  SAVED_ITEM: (id) => `${API_BASE_URL}/candidate/saved-jobs/${id}`,
+  APPLIED: `${API_BASE_URL}/candidate/applied-jobs`,
+};
+
+export const CANDIDATE_SECTIONS = {
+  CONTRACT_DETAILS: `${API_BASE_URL}/candidate/contract-details`,
+  GRIEVANCES: `${API_BASE_URL}/candidate/grievances`,
+  CHANGE_PASSWORD: `${API_BASE_URL}/candidate/change-password`,
 };

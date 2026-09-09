@@ -244,3 +244,458 @@
   .cp-profile-grid { grid-template-columns: 1fr; }
   .cp-dashboard { padding: 32px 18px 60px; }
 }
+
+/* ==========================================================================
+   PORTAL SHELL — sidebar + content, used by every logged-in candidate page
+   ========================================================================== */
+.cp-portal {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 28px 24px 64px;
+  display: grid;
+  grid-template-columns: 268px 1fr;
+  gap: 26px;
+  align-items: start;
+}
+
+.cp-portal-nav-toggle {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  background: var(--chart-accent);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-bottom: 14px;
+}
+
+.cp-sidebar {
+  background: var(--panel-glass);
+  border: 1px solid var(--panel-border);
+  border-radius: 14px;
+  overflow: hidden;
+  position: sticky;
+  top: 92px;
+}
+
+.cp-sidebar-welcome {
+  padding: 16px 18px;
+  background: var(--chart-accent);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.cp-sidebar-welcome span { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.85; font-weight: 700; }
+.cp-sidebar-welcome strong { font-size: 14.5px; word-break: break-word; }
+
+.cp-sidebar-nav { padding: 10px; display: flex; flex-direction: column; gap: 2px; }
+
+.cp-side-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--font-sub);
+  text-decoration: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  font-family: inherit;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.cp-side-link:hover { background: var(--chart-glow); color: var(--chart-accent); }
+.cp-side-link svg { flex-shrink: 0; }
+.cp-side-link span { flex: 1; }
+.cp-side-link-active { background: var(--chart-accent); color: #fff; }
+.cp-side-link-active:hover { background: var(--chart-accent); color: #fff; }
+.cp-side-link-danger { color: #dc2626; }
+.cp-side-link-danger:hover { background: rgba(220, 38, 38, 0.1); color: #dc2626; }
+
+.cp-side-badge {
+  font-size: 9.5px;
+  font-style: normal;
+  font-weight: 800;
+  text-transform: uppercase;
+  background: #dc2626;
+  color: #fff;
+  padding: 2px 6px;
+  border-radius: 20px;
+}
+
+.cp-side-group-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 12px;
+  border-radius: 8px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--font-core);
+  text-align: left;
+}
+.cp-side-group-head:hover { background: var(--chart-glow); }
+.cp-side-group-head span { flex: 1; }
+.cp-chev-open { transform: rotate(180deg); }
+
+.cp-side-group-items {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-left: 10px;
+  margin: 2px 0 6px;
+  border-left: 2px solid var(--panel-border);
+}
+.cp-side-group-items .cp-side-link { font-size: 12.5px; padding: 7px 10px; }
+
+.cp-sidebar-divider { height: 1px; background: var(--panel-border); margin: 8px 4px; }
+
+.cp-portal-content { min-width: 0; }
+
+/* Page header used by every portal page */
+.cp-page-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+.cp-page-head h1 { font-size: 23px; font-weight: 800; color: var(--font-core); }
+.cp-page-head p { font-size: 13px; color: var(--font-sub); margin-top: 4px; }
+
+/* Placeholder shown for sections not yet migrated */
+.cp-placeholder {
+  background: var(--panel-glass);
+  border: 1px dashed var(--panel-border);
+  border-radius: 14px;
+  padding: 44px 28px;
+  text-align: center;
+  color: var(--font-sub);
+}
+.cp-placeholder svg { color: var(--chart-accent); margin-bottom: 12px; }
+.cp-placeholder h2 { font-size: 17px; font-weight: 800; color: var(--font-core); margin-bottom: 8px; }
+.cp-placeholder p { font-size: 13.5px; line-height: 1.6; max-width: 460px; margin: 0 auto; }
+.cp-placeholder code {
+  background: var(--deck-input-bg);
+  border: 1px solid var(--deck-input-border);
+  border-radius: 5px;
+  padding: 1px 6px;
+  font-size: 12px;
+}
+
+@media (max-width: 960px) {
+  .cp-portal { grid-template-columns: 1fr; padding-top: 20px; }
+  .cp-portal-nav-toggle { display: inline-flex; }
+  .cp-sidebar { display: none; position: static; }
+  .cp-sidebar-open { display: block; margin-bottom: 18px; }
+}
+
+/* --- overview quick links --- */
+.cp-quicklinks { display: flex; flex-wrap: wrap; gap: 10px; }
+.cp-chip-muted { opacity: 0.65; cursor: default; display: inline-flex; align-items: center; gap: 5px; }
+
+/* --- page header actions --- */
+.cp-page-head-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+/* --- view resume sheet --- */
+.cp-resume-sheet { padding: 30px 32px; }
+.cp-resume-title {
+  display: flex; align-items: center; gap: 14px;
+  padding-bottom: 18px; margin-bottom: 6px;
+  border-bottom: 2px solid var(--chart-accent);
+  color: var(--chart-accent);
+}
+.cp-resume-title h2 { font-size: 21px; font-weight: 800; color: var(--font-core); }
+.cp-resume-title span { font-size: 13px; color: var(--font-sub); }
+
+.cp-resume-section { padding: 18px 0; border-bottom: 1px solid var(--panel-border); }
+.cp-resume-section:last-child { border-bottom: none; }
+.cp-resume-section h3 {
+  font-size: 12px; font-weight: 800; text-transform: uppercase;
+  letter-spacing: 0.06em; color: var(--chart-accent); margin-bottom: 12px;
+}
+
+.cp-resume-rows { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 24px; }
+.cp-resume-row { display: flex; flex-direction: column; gap: 2px; }
+.cp-resume-row span { font-size: 11px; text-transform: uppercase; letter-spacing: 0.03em; color: var(--font-muted); font-weight: 700; }
+.cp-resume-row strong { font-size: 13.5px; color: var(--font-core); font-weight: 600; word-break: break-word; }
+
+.cp-resume-empty { font-size: 13px; color: var(--font-muted); font-style: italic; }
+.cp-resume-empty a { color: var(--chart-accent); font-weight: 600; font-style: normal; }
+
+@media print {
+  .lp-header, .lp-footer, .cp-sidebar, .cp-page-head-actions,
+  .cp-portal-nav-toggle { display: none !important; }
+  .cp-portal { grid-template-columns: 1fr; padding: 0; }
+  .cp-resume-sheet { border: none; box-shadow: none; }
+}
+
+@media (max-width: 640px) {
+  .cp-resume-rows { grid-template-columns: 1fr; }
+  .cp-resume-sheet { padding: 22px 18px; }
+}
+
+/* ==========================================================================
+   PHASE 2 — CRUD sections and data tables
+   ========================================================================== */
+.cp-crud-toolbar { display: flex; justify-content: flex-end; margin-bottom: 14px; }
+.cp-crud-form-actions { display: flex; gap: 10px; margin-top: 16px; justify-content: flex-end; }
+.cp-field-wide { grid-column: 1 / -1; }
+
+.cp-section-heading {
+  display: flex; align-items: center; gap: 9px;
+  margin-bottom: 12px; color: var(--chart-accent);
+}
+.cp-section-heading h2 { font-size: 16px; font-weight: 800; color: var(--font-core); }
+.cp-section-heading-spaced { margin-top: 34px; }
+
+.cp-table-card { padding: 0; overflow: hidden; }
+.cp-table-scroll { overflow-x: auto; }
+
+.cp-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.cp-table th {
+  text-align: left; padding: 12px 16px; white-space: nowrap;
+  background: var(--deck-input-bg);
+  border-bottom: 1px solid var(--panel-border);
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em;
+  color: var(--font-sub); font-weight: 800;
+}
+.cp-table td {
+  padding: 12px 16px; border-bottom: 1px solid var(--panel-border);
+  color: var(--font-core); vertical-align: top;
+}
+.cp-table tr:last-child td { border-bottom: none; }
+.cp-table tbody tr:hover { background: var(--chart-glow); }
+
+.cp-table-actions-head { text-align: right; }
+.cp-table-actions { text-align: right; white-space: nowrap; }
+.cp-table-actions .cp-icon-btn { margin-left: 6px; }
+
+.cp-icon-btn {
+  width: 28px; height: 28px; border-radius: 7px;
+  border: 1px solid var(--deck-input-border); background: var(--deck-input-bg);
+  color: var(--font-sub); cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
+  transition: all 0.15s ease;
+}
+.cp-icon-btn:hover { border-color: var(--chart-accent); color: var(--chart-accent); }
+.cp-icon-btn-danger:hover { border-color: #dc2626; color: #dc2626; background: rgba(220,38,38,0.08); }
+
+.cp-table-note {
+  display: flex; align-items: center; gap: 6px;
+  padding: 12px 16px; font-size: 12px; color: var(--font-muted);
+  border-top: 1px solid var(--panel-border); background: var(--deck-input-bg);
+}
+
+@media (max-width: 720px) {
+  .cp-crud-form-actions { justify-content: stretch; }
+  .cp-crud-form-actions .lp-btn { flex: 1; justify-content: center; }
+}
+
+/* ==========================================================================
+   Phase 4 — job board, saved jobs, applied jobs
+   ========================================================================== */
+
+.cp-job-filters { padding: 18px 20px; margin-bottom: 16px; }
+
+.cp-job-search {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--deck-input-bg); border: 1px solid var(--deck-input-border);
+  border-radius: 10px; padding: 0 14px; margin-bottom: 12px;
+  color: var(--font-sub);
+}
+.cp-job-search input {
+  flex: 1; border: none; background: transparent; outline: none;
+  padding: 12px 0; font-size: 13.5px; color: var(--font-core);
+  font-family: inherit;
+}
+.cp-job-search input::placeholder { color: var(--font-muted); }
+
+.cp-job-filter-row { display: flex; flex-wrap: wrap; gap: 10px; }
+.cp-job-filter-row .cp-input-wrap { flex: 1; min-width: 170px; }
+
+.cp-job-resultbar {
+  display: flex; align-items: center; gap: 8px;
+  color: var(--font-sub); font-size: 12.5px; font-weight: 600;
+  margin: 0 0 14px 2px;
+}
+
+.cp-job-list { display: grid; gap: 14px; }
+
+.cp-job-card {
+  background: var(--panel-glass); border: 1px solid var(--panel-border);
+  border-radius: 14px; padding: 20px 22px;
+  transition: border-color 0.18s ease, transform 0.18s ease;
+}
+.cp-job-card:hover { border-color: var(--chart-accent); transform: translateY(-1px); }
+
+.cp-job-card-head {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  gap: 16px; margin-bottom: 10px;
+}
+.cp-job-card-head h3 {
+  font-size: 16px; font-weight: 800; color: var(--font-core);
+  display: flex; align-items: center; gap: 8px; margin-bottom: 8px;
+}
+
+.cp-job-metas { display: flex; flex-wrap: wrap; gap: 6px 16px; }
+.cp-job-meta {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 12.5px; color: var(--font-sub);
+}
+
+.cp-job-salary {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 13px; font-weight: 700; color: var(--chart-accent);
+  white-space: nowrap;
+}
+
+.cp-job-desc {
+  font-size: 13px; color: var(--font-sub); line-height: 1.6;
+  margin: 10px 0 12px;
+}
+
+.cp-job-tags { display: flex; flex-wrap: wrap; gap: 7px; }
+.cp-job-tag {
+  background: var(--deck-input-bg); border: 1px solid var(--deck-input-border);
+  border-radius: 999px; padding: 4px 11px;
+  font-size: 11.5px; font-weight: 600; color: var(--font-sub);
+}
+
+.cp-job-card-foot {
+  display: flex; justify-content: space-between; align-items: center;
+  gap: 14px; flex-wrap: wrap; margin-top: 16px;
+  padding-top: 14px; border-top: 1px solid var(--panel-border);
+}
+.cp-job-posted {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 12px; color: var(--font-muted);
+}
+.cp-job-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-left: auto; }
+.cp-job-btn { padding: 8px 14px; font-size: 12.5px; gap: 6px; }
+.cp-job-btn-on { border-color: var(--chart-accent); color: var(--chart-accent); }
+
+/* A posting purged from the board — kept visible, but muted so it never
+   competes with a live opening. */
+.cp-job-card-expired { opacity: 0.78; }
+.cp-job-card-expired:hover { border-color: var(--panel-border); transform: none; }
+.cp-job-card-expired h3 { color: var(--font-sub); font-size: 14.5px; }
+
+.cp-app-row {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px;
+  margin-top: 12px;
+}
+.cp-app-status {
+  border-radius: 999px; padding: 4px 12px;
+  font-size: 11.5px; font-weight: 700; letter-spacing: 0.02em;
+  background: var(--deck-input-bg); border: 1px solid var(--deck-input-border);
+  color: var(--font-sub);
+}
+.cp-app-status-progress { color: #b45309; border-color: #f59e0b55; background: #f59e0b18; }
+.cp-app-status-good { color: #059669; border-color: #05966955; background: #05966918; }
+.cp-app-status-bad { color: #dc2626; border-color: #dc262655; background: #dc262618; }
+
+.cp-pager {
+  display: flex; align-items: center; justify-content: center;
+  gap: 16px; margin-top: 22px;
+}
+.cp-pager-status { font-size: 12.5px; color: var(--font-sub); font-weight: 600; }
+
+/* ==========================================================================
+   Phase 5 — contract details, need help, change password
+   ========================================================================== */
+
+.cp-contract-card .cp-card-head { justify-content: space-between; }
+.cp-contract-date { margin: -8px 0 16px; }
+
+.cp-contract-progress {
+  border-radius: 999px; padding: 5px 13px;
+  font-size: 11.5px; font-weight: 700;
+  background: var(--deck-input-bg); border: 1px solid var(--deck-input-border);
+  color: var(--font-sub); white-space: nowrap;
+}
+.cp-contract-progress-done { color: #059669; border-color: #05966955; background: #05966918; }
+
+.cp-checklist { list-style: none; display: grid; gap: 8px; }
+.cp-checklist li {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--deck-input-bg); border: 1px solid var(--deck-input-border);
+  border-radius: 10px; padding: 11px 14px;
+}
+.cp-checklist-mark {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
+  background: var(--panel-glass); border: 1px solid var(--panel-border);
+  color: var(--font-muted);
+}
+.cp-checklist-done .cp-checklist-mark { background: #05966918; border-color: #05966955; color: #059669; }
+.cp-checklist-label { flex: 1; font-size: 13px; color: var(--font-core); font-weight: 600; }
+.cp-checklist-state { font-size: 11.5px; font-weight: 700; color: var(--font-muted); }
+.cp-checklist-done .cp-checklist-state { color: #059669; }
+
+.cp-help-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 16px; align-items: start; }
+.cp-help-contact { margin-bottom: 0; }
+.cp-help-contact-list { list-style: none; display: grid; gap: 14px; margin-top: 16px; }
+.cp-help-contact-list li {
+  display: flex; align-items: flex-start; gap: 12px;
+  font-size: 13px; color: var(--font-core); line-height: 1.55;
+}
+.cp-help-contact-list svg { color: var(--chart-accent); flex-shrink: 0; margin-top: 2px; }
+.cp-help-contact-list a { color: var(--font-core); text-decoration: none; }
+.cp-help-contact-list a:hover { color: var(--chart-accent); text-decoration: underline; }
+
+.cp-help-links { display: grid; gap: 12px; }
+.cp-help-link {
+  display: flex; align-items: center; gap: 14px;
+  padding: 16px 18px; margin-bottom: 0; text-decoration: none;
+  transition: border-color 0.18s ease, transform 0.18s ease;
+}
+.cp-help-link:hover { border-color: var(--chart-accent); transform: translateY(-1px); }
+.cp-help-link svg { color: var(--chart-accent); flex-shrink: 0; }
+.cp-help-link strong { display: block; font-size: 13.5px; color: var(--font-core); margin-bottom: 3px; }
+.cp-help-link span { font-size: 12px; color: var(--font-sub); }
+
+.cp-faq-list { padding: 8px 10px; }
+.cp-faq + .cp-faq { border-top: 1px solid var(--panel-border); }
+.cp-faq-q {
+  width: 100%; display: flex; align-items: center; justify-content: space-between;
+  gap: 16px; background: none; border: none; cursor: pointer;
+  padding: 16px 14px; text-align: left; font-family: inherit;
+  font-size: 13.5px; font-weight: 700; color: var(--font-core);
+}
+.cp-faq-q:hover { color: var(--chart-accent); }
+.cp-faq-toggle { font-size: 18px; color: var(--font-muted); line-height: 1; flex-shrink: 0; }
+.cp-faq-open .cp-faq-toggle { color: var(--chart-accent); }
+.cp-faq-a {
+  padding: 0 14px 18px; font-size: 13px; line-height: 1.65;
+  color: var(--font-sub); max-width: 68ch;
+}
+
+.cp-password-card { max-width: 620px; }
+.cp-password-wrap { position: relative; }
+.cp-password-wrap input { padding-right: 40px; }
+
+@media (max-width: 900px) {
+  .cp-help-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 640px) {
+  .cp-job-card-head { flex-direction: column; }
+  .cp-job-actions { width: 100%; margin-left: 0; }
+  .cp-job-btn { flex: 1; justify-content: center; }
+  .cp-pager { gap: 10px; }
+}
