@@ -20,7 +20,7 @@
 // client/src/config/api.js
 
 // 1. Resolve the base backend URL dynamically based on environment variables
-export const BACKEND_URL = import.meta.env.API_URL || 'https://cms-app-new-production.up.railway.app';
+export const BACKEND_URL = import.meta.env.API_URL || 'https://cms-app-new.onrender.com';
 
 // 2. Build the precise API base route 
 const API_BASE_URL = `${BACKEND_URL}/api`;
