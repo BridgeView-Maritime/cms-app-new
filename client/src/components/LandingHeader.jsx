@@ -75,13 +75,21 @@ export default function LandingHeader({ topbar, onNavigate, scrolled = false, ca
     navigate('/admin-login');
   };
 
-  const candidateLabel = candidate ? `Hi, ${candidate.uname || candidate.emailid}` : 'Candidate Log In';
+  // First name only: the header has no room for a full registered name, and
+  // the full name is one click away on the dashboard.
+  const firstName = String(candidate?.uname || '').trim().split(/\s+/)[0] || candidate?.emailid;
+  const candidateLabel = candidate ? `Hi, ${firstName}` : 'Candidate Log In';
 
   const candidateActions = (
     <>
-      <button type="button" className="lp-btn lp-btn-ghost" onClick={handleCandidateAction}>
+      <button
+        type="button"
+        className={'lp-btn lp-btn-ghost' + (candidate ? ' lp-candidate-greeting' : '')}
+        onClick={handleCandidateAction}
+        title={candidate ? 'Go to your dashboard' : undefined}
+      >
         {candidate ? <CandidateAvatar candidate={candidate} size={22} /> : <LogIn size={14} />}
-        {candidateLabel}
+        <span className="lp-candidate-name">{candidateLabel}</span>
       </button>
       {/* Only offered where the host page can actually end the session, so
           this is never a button that appears to do nothing. */}
