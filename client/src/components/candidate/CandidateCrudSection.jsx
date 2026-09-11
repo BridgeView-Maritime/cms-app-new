@@ -42,7 +42,9 @@ const editValue = (field, raw) => {
   return raw ?? '';
 };
 
-function FieldInput({ field, value, onChange }) {
+// `options` may be a function of the whole draft, for fields whose choices
+// depend on another field (PPE size depends on the product picked).
+function FieldInput({ field, value, onChange, draft }) {
   const common = {
     value: value || '',
     onChange: (e) => onChange(field.key, e.target.value),
@@ -54,7 +56,7 @@ function FieldInput({ field, value, onChange }) {
       <div className="cp-input-wrap cp-input-plain">
         <select {...common}>
           <option value="">-- Select --</option>
-          {(field.options || []).map((o, i) => <option key={o + i} value={o}>{o}</option>)}
+          {(typeof field.options === 'function' ? field.options(draft) : field.options || []).map((o, i) => <option key={o + i} value={o}>{o}</option>)}
         </select>
       </div>
     );
@@ -178,7 +180,7 @@ export default function CandidateCrudSection({
         {editable(fields).map((f) => (
           <label key={f.key} className={'cp-field' + (f.wide ? ' cp-field-wide' : '')}>
             <span>{f.label}{f.required && ' *'}</span>
-            <FieldInput field={f} value={draft[f.key]} onChange={setField} />
+            <FieldInput field={f} value={draft[f.key]} onChange={setField} draft={draft} />
           </label>
         ))}
       </div>

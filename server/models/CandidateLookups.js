@@ -49,3 +49,20 @@ export const OffCertificate = lookup('OffCertificate', 'collection_offcertificat
 export const CocCountry = lookup('CocCountry', 'collection_coc_country', {
   coc_country: String,
 });
+
+// Experience Details / Crane Experience dropdowns on the Personal
+// Information page (legacy addresume.php).
+export const CraneType = lookup('CraneType', 'collection_cranetype', {
+  crane_type: String,
+  status: mongoose.Schema.Types.Mixed,
+});
+
+export const CraneMaker = lookup('CraneMaker', 'collection_cranemaker', {
+  crane_maker: String,
+  status: mongoose.Schema.Types.Mixed,
+});
+
+export const CookCategory = lookup('CookCategory', 'collection_cook_category', {
+  cookid: Number,
+  cookskill: String,
+});

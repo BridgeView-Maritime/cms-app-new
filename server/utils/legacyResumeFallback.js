@@ -3,7 +3,7 @@ import { AddResume } from '../models/AddResume.js';
 // Legacy dates come as 'YYYY-MM-DD', 'DD-MM-YY', or the MySQL zero-date
 // placeholder '0000-00-00' — this normalizes to 'YYYY-MM-DD' or returns
 // '' when the value isn't usable.
-function parseLegacyDate(raw) {
+export function parseLegacyDate(raw) {
   if (!raw || typeof raw !== 'string') return '';
   const trimmed = raw.trim();
   if (!trimmed || trimmed.startsWith('0000-00-00')) return '';

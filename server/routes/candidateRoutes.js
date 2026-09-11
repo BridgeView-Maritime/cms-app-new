@@ -16,6 +16,7 @@ import { sendEmail } from '../utils/sendEmail.js';
 import { extractResumeFields } from '../utils/resumeParser.js';
 import { applyLegacyResumeFallback } from '../utils/legacyResumeFallback.js';
 import { findLegacyResumes } from '../utils/legacyCvLookup.js';
+import { findCandidatePhoto } from '../utils/candidatePhoto.js';
 import { generateMysqlId } from '../utils/generateMysqlId.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -50,6 +51,9 @@ const sanitizeCandidateWithFallback = async (doc) => {
   // CVs uploaded on the old site (collection_previous_cv). Additive only —
   // never replaces resumes uploaded through this app.
   obj.legacyResumes = await findLegacyResumes(obj.emailid);
+  // Profile photo, so the header and sidebar can show it without a second
+  // request.
+  obj.photoUrl = await findCandidatePhoto(obj.emailid);
   return obj;
 };
 

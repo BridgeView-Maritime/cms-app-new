@@ -65,4 +65,6 @@ export const LINKS = {
   appliedjobs: { emailFields: ['emailid'], indosFields: [] },
   contract_details: { emailFields: ['emailid'], indosFields: ['indosno'] },
   grievance: { emailFields: ['emailid'], indosFields: ['indosno'] },
+  addppe: { emailFields: ['emailid'], indosFields: ['indos'] },
+  ppe_request: { emailFields: ['emailid'], indosFields: ['indosno'] },
 };

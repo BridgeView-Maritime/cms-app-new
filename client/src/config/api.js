@@ -19,8 +19,16 @@
 
 // client/src/config/api.js
 
-// 1. Resolve the base backend URL dynamically based on environment variables
-export const BACKEND_URL = import.meta.env.API_URL || 'https://cms-app-new.onrender.com';
+// 1. Resolve the base backend URL from the environment.
+//    VITE_ENV=local            -> the local backend, whatever else is set
+//    VITE_API_URL=<url>        -> explicit override (e.g. a staging server)
+//    otherwise                 -> production
+// Only VITE_-prefixed variables reach the browser bundle, so the names
+// above are the ones that work; an unprefixed API_URL is always undefined.
+const isLocal = import.meta.env.VITE_ENV === 'local';
+export const BACKEND_URL = isLocal
+  ? 'http://localhost:5000'
+  : (import.meta.env.API_URL || 'https://cms-app-new.onrender.com');
 
 // 2. Build the precise API base route 
 const API_BASE_URL = `${BACKEND_URL}/api`;
@@ -112,4 +120,17 @@ export const CANDIDATE_SECTIONS = {
   CONTRACT_DETAILS: `${API_BASE_URL}/candidate/contract-details`,
   GRIEVANCES: `${API_BASE_URL}/candidate/grievances`,
   CHANGE_PASSWORD: `${API_BASE_URL}/candidate/change-password`,
+};
+
+// 10. Personal Information extras, photo, PPE, documents, dashboard summary
+export const ACCOUNT_ENDPOINTS = {
+  EXTENDED_PROFILE: `${API_BASE_URL}/candidate/extended-profile`,
+  EXTENDED_OPTIONS: `${API_BASE_URL}/candidate/extended-profile/options`,
+  PHOTO: `${API_BASE_URL}/candidate/photo`,
+  PPE: `${API_BASE_URL}/candidate/ppe`,
+  PPE_OPTIONS: `${API_BASE_URL}/candidate/ppe-options`,
+  PPE_ORDERS: `${API_BASE_URL}/candidate/ppe-orders`,
+  DOCUMENTS: `${API_BASE_URL}/candidate/documents`,
+  TRAVEL_SCHEDULE: `${API_BASE_URL}/candidate/travel-schedule`,
+  DASHBOARD: `${API_BASE_URL}/candidate/dashboard`,
 };

@@ -299,6 +299,8 @@
   display: flex;
   align-items: center;
   gap: 10px;
+  /* width: 100% below plus this padding must not overflow the nav */
+  box-sizing: border-box;
   padding: 9px 12px;
   border-radius: 8px;
   font-size: 13px;
@@ -699,3 +701,196 @@
   .cp-job-btn { flex: 1; justify-content: center; }
   .cp-pager { gap: 10px; }
 }
+
+/* ==========================================================================
+   Avatar (header, sidebar, dashboard, photo upload)
+   ========================================================================== */
+
+.cp-avatar {
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 50%; overflow: hidden; flex-shrink: 0;
+  background: var(--deck-input-bg); border: 1px solid var(--deck-input-border);
+  color: var(--chart-accent); font-weight: 800; letter-spacing: 0.02em;
+  line-height: 1; user-select: none;
+}
+.cp-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.cp-avatar-lg { border-width: 2px; box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12); }
+.lp-btn .cp-avatar { margin-right: 2px; }
+
+/* Sidebar welcome block now carries the avatar and links to the dashboard. */
+.cp-sidebar-welcome {
+  flex-direction: row; align-items: center; gap: 12px;
+  text-decoration: none; transition: filter 0.15s ease;
+}
+.cp-sidebar-welcome:hover { filter: brightness(1.06); }
+.cp-sidebar-welcome .cp-avatar { background: rgba(255, 255, 255, 0.18); border-color: rgba(255, 255, 255, 0.55); color: #fff; }
+.cp-sidebar-welcome-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+
+.cp-photo-upload { display: flex; align-items: center; gap: 22px; flex-wrap: wrap; }
+.cp-photo-upload-body { flex: 1; min-width: 220px; display: flex; flex-direction: column; gap: 10px; }
+.cp-photo-upload-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.cp-alert-inline { margin: 0; }
+
+/* ==========================================================================
+   Dashboard
+   ========================================================================== */
+
+.cp-hero {
+  display: flex; align-items: center; gap: 22px; flex-wrap: wrap;
+  background: var(--panel-glass); border: 1px solid var(--panel-border);
+  border-radius: 16px; padding: 24px 28px; margin-bottom: 18px;
+}
+.cp-hero-avatar { position: relative; display: inline-block; flex-shrink: 0; }
+.cp-hero-avatar-badge {
+  position: absolute; right: 2px; bottom: 2px;
+  width: 26px; height: 26px; border-radius: 50%;
+  background: var(--chart-accent); color: #fff;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 2px solid var(--panel-glass);
+}
+.cp-hero-text { flex: 1; min-width: 240px; }
+.cp-hero-text h1 { font-size: 22px; font-weight: 800; color: var(--font-core); margin: 0 0 4px; }
+.cp-hero-text p { font-size: 13px; color: var(--font-sub); margin: 0 0 10px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.cp-hero-sep { color: var(--font-muted); }
+.cp-hero-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+
+.cp-pill {
+  display: inline-flex; align-items: center; gap: 5px;
+  border-radius: 999px; padding: 4px 11px;
+  font-size: 11.5px; font-weight: 700; text-transform: capitalize; text-decoration: none;
+  background: var(--deck-input-bg); border: 1px solid var(--deck-input-border); color: var(--font-sub);
+}
+.cp-pill-good { color: #059669; border-color: #05966955; background: #05966918; }
+.cp-pill-bad { color: #dc2626; border-color: #dc262655; background: #dc262618; }
+.cp-pill-warn { color: #b45309; border-color: #f59e0b55; background: #f59e0b18; text-transform: none; }
+.cp-pill-warn:hover { filter: brightness(0.95); }
+
+.cp-hero-progress { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.cp-hero-progress > span { font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; font-weight: 700; color: var(--font-sub); }
+.cp-ring {
+  --pct: 0;
+  width: 84px; height: 84px; border-radius: 50%;
+  background: conic-gradient(var(--chart-accent) calc(var(--pct) * 1%), var(--deck-input-border) 0);
+  display: grid; place-items: center; position: relative;
+}
+.cp-ring::before {
+  content: ''; position: absolute; inset: 8px; border-radius: 50%;
+  background: var(--panel-glass);
+}
+.cp-ring strong { position: relative; font-size: 17px; font-weight: 800; color: var(--font-core); }
+
+.cp-travel-strip {
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  background: #2563eb14; border: 1px solid #2563eb44; border-radius: 12px;
+  padding: 14px 18px; margin-bottom: 18px; color: var(--font-core);
+}
+.cp-travel-strip svg { color: var(--chart-accent); flex-shrink: 0; }
+.cp-travel-strip > div { flex: 1; display: flex; flex-direction: column; gap: 3px; min-width: 200px; }
+.cp-travel-strip strong { font-size: 13.5px; }
+.cp-travel-strip > div span { font-size: 13px; color: var(--font-sub); display: inline-flex; align-items: center; gap: 5px; flex-wrap: wrap; }
+.cp-travel-strip em { font-style: normal; font-weight: 700; color: var(--chart-accent); font-size: 13px; }
+
+.cp-complete-card .cp-card-head { flex-wrap: wrap; }
+.cp-card-head-right { margin-left: auto; font-size: 12.5px; }
+.cp-section-blurb { margin: -8px 0 18px; max-width: 70ch; line-height: 1.55; }
+
+.cp-tile-group-label {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700;
+  color: var(--font-sub); margin: 20px 0 10px;
+}
+.cp-tile-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
+
+.cp-tile {
+  display: flex; align-items: center; gap: 12px; text-decoration: none;
+  background: var(--deck-input-bg); border: 1px solid var(--deck-input-border);
+  border-left-width: 4px; border-radius: 12px; padding: 14px 16px;
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.cp-tile:hover { transform: translateY(-1px); border-color: var(--chart-accent); box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08); }
+.cp-tile-icon {
+  width: 38px; height: 38px; border-radius: 10px; flex-shrink: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--panel-glass); border: 1px solid var(--panel-border); color: var(--chart-accent);
+}
+.cp-tile-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.cp-tile-body strong { font-size: 13.5px; color: var(--font-core); }
+.cp-tile-meta { font-size: 11.5px; color: var(--font-sub); }
+.cp-tile-bar { display: block; height: 4px; border-radius: 999px; background: var(--deck-input-border); overflow: hidden; margin-top: 4px; }
+.cp-tile-bar span { display: block; height: 100%; background: var(--chart-accent); border-radius: 999px; }
+.cp-tile-state {
+  display: inline-flex; align-items: center; gap: 4px; flex-shrink: 0;
+  font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em;
+  color: var(--font-muted);
+}
+
+.cp-tile-todo { border-left-color: #f59e0b; }
+.cp-tile-todo .cp-tile-state { color: #b45309; }
+.cp-tile-todo .cp-tile-icon { color: #b45309; }
+.cp-tile-done { border-left-color: #059669; }
+.cp-tile-done .cp-tile-state { color: #059669; }
+.cp-tile-done .cp-tile-bar span { background: #059669; }
+.cp-tile-optional { border-left-color: var(--deck-input-border); }
+.cp-tile-grid-done .cp-tile { opacity: 0.8; }
+.cp-tile-grid-done .cp-tile:hover { opacity: 1; }
+
+.cp-quicklinks-bare { margin-top: 4px; }
+
+/* ==========================================================================
+   Personal Information sections + extended forms
+   ========================================================================== */
+
+.cp-section-card { scroll-margin-top: 110px; }
+.cp-field-hint { font-size: 11.5px; color: var(--font-muted); margin-top: 2px; }
+
+.cp-radio-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.cp-radio {
+  display: inline-flex; align-items: center; gap: 7px; cursor: pointer;
+  background: var(--deck-input-bg); border: 1px solid var(--deck-input-border);
+  border-radius: 10px; padding: 10px 14px; font-size: 13px; color: var(--font-core);
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.cp-radio input { accent-color: var(--chart-accent); margin: 0; }
+.cp-radio-on { border-color: var(--chart-accent); background: color-mix(in srgb, var(--chart-accent) 10%, transparent); }
+
+.cp-visa-toggle {
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  margin-bottom: 18px; padding-bottom: 16px; border-bottom: 1px solid var(--panel-border);
+  font-size: 13px; font-weight: 600; color: var(--font-core);
+}
+
+/* Candidate Uploaded Documents */
+.cp-doc-list { list-style: none; display: grid; gap: 8px; }
+.cp-doc {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--deck-input-bg); border: 1px solid var(--deck-input-border);
+  border-left-width: 4px; border-radius: 10px; padding: 11px 14px;
+}
+.cp-doc > svg { color: var(--chart-accent); flex-shrink: 0; }
+.cp-doc-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.cp-doc-body strong { font-size: 13px; color: var(--font-core); }
+.cp-doc-body span { word-break: break-all; }
+.cp-doc-expiry { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; color: var(--font-sub); white-space: nowrap; }
+.cp-doc-ok { border-left-color: #059669; }
+.cp-doc-soon { border-left-color: #f59e0b; }
+.cp-doc-soon .cp-doc-expiry { color: #b45309; }
+.cp-doc-expired { border-left-color: #dc2626; }
+.cp-doc-expired .cp-doc-expiry { color: #dc2626; }
+
+@media (max-width: 720px) {
+  .cp-hero { padding: 20px; }
+  .cp-hero-progress { width: 100%; flex-direction: row; justify-content: flex-start; gap: 14px; }
+  .cp-tile-grid { grid-template-columns: 1fr; }
+}
+
+/* Sidebar completeness markers + dashboard failure state */
+.cp-side-ring { margin-left: auto; flex-shrink: 0; transform: rotate(-90deg); }
+.cp-side-ring circle { fill: none; stroke-width: 3; }
+.cp-side-ring-track { stroke: #f59e0b; opacity: 0.28; }
+.cp-side-ring-fill { stroke: #f59e0b; stroke-linecap: round; transition: stroke-dasharray 0.3s ease; }
+.cp-side-done { margin-left: auto; display: inline-flex; color: #059669; flex-shrink: 0; }
+.cp-side-link-active .cp-side-ring-track { stroke: #fff; opacity: 0.35; }
+.cp-side-link-active .cp-side-ring-fill { stroke: #fff; }
+.cp-side-link-active .cp-side-done { color: #fff; }
+.cp-side-badge + .cp-side-ring { margin-left: 6px; }
+.cp-alert-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.cp-alert-actions span { flex: 1; min-width: 200px; }

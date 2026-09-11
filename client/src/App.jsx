@@ -25,6 +25,10 @@ import CandidateContractDetailsPage from './pages/candidate/CandidateContractDet
 import CandidateGrievancesPage from './pages/candidate/CandidateGrievancesPage';
 import CandidateHelpPage from './pages/candidate/CandidateHelpPage';
 import CandidateChangePasswordPage from './pages/candidate/CandidateChangePasswordPage';
+import CandidateTravelDocumentsPage from './pages/candidate/CandidateTravelDocumentsPage';
+import CandidateCovidVaccinePage from './pages/candidate/CandidateCovidVaccinePage';
+import CandidatePpePage from './pages/candidate/CandidatePpePage';
+import CandidateDocumentsPage from './pages/candidate/CandidateDocumentsPage';
 import ProductsPage from './pages/ProductsPage';
 import MacDynamicDashboard from './components/Dashboard';
 import FloatingChatbot from './components/FloatingChatbot';
@@ -111,6 +115,10 @@ export default function App() {
           <Route path="offshore-certificates" element={<CandidateOffshoreCertificatesPage />} />
           <Route path="other-certificates" element={<CandidateOtherCertificatesPage />} />
           <Route path="bank-details" element={<CandidateBankDetailsPage />} />
+          <Route path="travel-documents" element={<CandidateTravelDocumentsPage />} />
+          <Route path="covid-vaccine" element={<CandidateCovidVaccinePage />} />
+          <Route path="ppe" element={<CandidatePpePage />} />
+          <Route path="documents" element={<CandidateDocumentsPage />} />
           <Route path="help" element={<CandidateHelpPage />} />
           <Route path="change-password" element={<CandidateChangePasswordPage />} />
         </Route>
