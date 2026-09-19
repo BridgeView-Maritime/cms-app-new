@@ -2,7 +2,8 @@
 // The job board (legacy bmpl.php). Search + filters + pagination, with save
 // and apply acting straight from each card.
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Search, SlidersHorizontal, Inbox, ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { Link, useSearchParams } from 'react-router-dom';
+import { Search, SlidersHorizontal, Inbox, ChevronLeft, ChevronRight, X, LogIn } from 'lucide-react';
 import { JOB_ENDPOINTS } from '../../config/api';
 import JobCard from '../../components/candidate/JobCard';
 
@@ -11,15 +12,28 @@ const authHeader = () => ({
   Authorization: 'Bearer ' + localStorage.getItem('candidateToken'),
 });
 
-const EMPTY_FILTERS = { shipType: '', area: '', vesselType: '' };
+// `rank` has no dropdown of its own - it arrives from the landing page's rank
+// cards and is shown as a removable chip instead.
+const EMPTY_FILTERS = { shipType: '', area: '', vesselType: '', company: '', rank: '' };
 
-export default function CandidateJobsPage() {
+/**
+ * @param {boolean} publicMode  rendered outside the signed-in portal: the
+ *                              board is browsable, but Save/Apply become a
+ *                              link to sign in.
+ */
+export default function CandidateJobsPage({ publicMode = false }) {
+  // The landing page links here with the rank or company already chosen
+  // (?search=Chief%20Engineer, ?company=...), so the URL seeds the state.
+  const [params] = useSearchParams();
   const [jobs, setJobs] = useState([]);
   const [meta, setMeta] = useState({ page: 1, totalPages: 1, total: 0 });
-  const [options, setOptions] = useState({ shipTypes: [], areas: [], vesselTypes: [] });
-  const [searchInput, setSearchInput] = useState('');
-  const [search, setSearch] = useState('');
-  const [filters, setFilters] = useState(EMPTY_FILTERS);
+  const [options, setOptions] = useState({ shipTypes: [], areas: [], vesselTypes: [], companies: [] });
+  const [searchInput, setSearchInput] = useState(params.get('search') || '');
+  const [search, setSearch] = useState(params.get('search') || '');
+  const [filters, setFilters] = useState(() => ({
+    ...EMPTY_FILTERS,
+    ...Object.fromEntries(Object.keys(EMPTY_FILTERS).filter((k) => params.get(k)).map((k) => [k, params.get(k)])),
+  }));
   const [page, setPage] = useState(1);
   const [savedIds, setSavedIds] = useState(new Set());
   const [appliedIds, setAppliedIds] = useState(new Set());
@@ -27,6 +41,16 @@ export default function CandidateJobsPage() {
   const [busyJob, setBusyJob] = useState(null);
   const [msg, setMsg] = useState(null);
   const listTop = useRef(null);
+  const companySelect = useRef(null);
+
+  // "Company wise Jobs" on the landing page lands here with ?focus=company:
+  // open the board on the company dropdown once its options are in.
+  useEffect(() => {
+    if (params.get('focus') === 'company' && options.companies?.length && companySelect.current) {
+      companySelect.current.focus();
+      companySelect.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [params, options.companies]);
 
   // Typing in the search box should not fire a request per keystroke.
   useEffect(() => {
@@ -52,8 +76,8 @@ export default function CandidateJobsPage() {
       .then((r) => r.json())
       .then((d) => { if (d.success) setOptions(d); })
       .catch(() => {});
-    loadActivity();
-  }, [loadActivity]);
+    if (!publicMode) loadActivity();
+  }, [loadActivity, publicMode]);
 
   useEffect(() => {
     let cancelled = false;
@@ -141,8 +165,8 @@ export default function CandidateJobsPage() {
     <>
       <div className="cp-page-head" ref={listTop}>
         <div>
-          <h1>Apply For New Job</h1>
-          <p>Browse current openings and apply directly from here.</p>
+          <h1>{publicMode ? 'Open Positions' : 'Apply For New Job'}</h1>
+          <p>{publicMode ? 'Browse every current opening. Sign in or register to apply.' : 'Browse current openings and apply directly from here.'}</p>
         </div>
       </div>
 
@@ -175,6 +199,17 @@ export default function CandidateJobsPage() {
             <select value={filters.area} onChange={(e) => setFilter('area', e.target.value)}>
               <option value="">All Locations</option>
               {options.areas.map((o) => <option key={o} value={o}>{o}</option>)}
+            </select>
+          </div>
+          {filters.rank && (
+            <button type="button" className="cp-filter-chip" onClick={() => setFilter('rank', '')} title="Remove rank filter">
+              Rank: <strong>{filters.rank}</strong> <X size={13} />
+            </button>
+          )}
+          <div className="cp-input-wrap cp-input-plain">
+            <select ref={companySelect} value={filters.company} onChange={(e) => setFilter('company', e.target.value)}>
+              <option value="">All Companies</option>
+              {(options.companies || []).map((o) => <option key={o} value={o}>{o}</option>)}
             </select>
           </div>
           {hasFilters && (
@@ -217,8 +252,13 @@ export default function CandidateJobsPage() {
                 saved={savedIds.has(job.jobid)}
                 applied={appliedIds.has(job.jobid)}
                 busy={busyJob === job.jobid}
-                onSave={toggleSave}
-                onApply={apply}
+                onSave={publicMode ? undefined : toggleSave}
+                onApply={publicMode ? undefined : apply}
+                footer={publicMode && (
+                  <Link to="/candidate-login" className="lp-btn lp-btn-primary cp-job-btn">
+                    <LogIn size={14} /> Sign in to apply
+                  </Link>
+                )}
               />
             ))}
           </div>

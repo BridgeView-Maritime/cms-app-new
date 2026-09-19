@@ -5,6 +5,7 @@ import LoginPage from './components/LoginPage';
 import LandingPage from './components/LandingPage';
 import CandidateLoginPage from './pages/CandidateLoginPage';
 import CandidateRegisterPage from './pages/CandidateRegisterPage';
+import PublicJobsPage from './pages/PublicJobsPage';
 import CandidatePortalLayout from './components/CandidatePortalLayout';
 import CandidateOverviewPage from './pages/candidate/CandidateOverviewPage';
 import CandidateProfilePage from './pages/candidate/CandidateProfilePage';
@@ -128,6 +129,8 @@ export default function App() {
 
         {/* Product catalogue — public browsing, candidate-only cart/order actions */}
         <Route path="/products" element={<ProductsPage />} />
+        {/* Public job board - browsable without an account */}
+        <Route path="/jobs" element={<PublicJobsPage />} />
 
         {/* Dynamic Catch-All Route: Handles standard layouts under /dashboard/* including broadcast and history */}
         <Route 

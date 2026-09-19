@@ -17,6 +17,8 @@ import {
 } from '../config/registrationOptions';
 import LandingHeader from '../components/LandingHeader';
 import LandingFooter from '../components/LandingFooter';
+import CandidateGuide from '../components/candidate/CandidateGuide';
+import DateField from '../components/candidate/DateField';
 
 const STEPS = ['Your Details', 'Verify Email', 'Complete Profile'];
 
@@ -417,9 +419,7 @@ export default function CandidateRegisterPage() {
                 </label>
                 <label className="cp-field">
                   <span>Date of Birth</span>
-                  <div className="cp-input-wrap cp-input-plain">
-                    <input type="date" value={profile.dob} onChange={(e) => setField('dob', e.target.value)} />
-                  </div>
+                  <DateField value={profile.dob} onChange={(v) => setField('dob', v)} maxYear={new Date().getFullYear()} />
                 </label>
 
                 <label className="cp-field">
@@ -591,6 +591,7 @@ export default function CandidateRegisterPage() {
       </section>
 
       <LandingFooter topbar={content.topbar} footer={content.footer} onNavigate={goTo} />
+      <CandidateGuide />
     </div>
   );
 }

@@ -46,8 +46,11 @@ const containsAny = (fields, term) => ({
   })),
 });
 
+// Trimmed as well as lower-cased: a few legacy rows carry stray whitespace
+// ("Chief Engineer "), and the counts on the landing page trim too, so an
+// exact filter has to see the same rows the count did.
 const equalsCI = (field, value) => ({
-  $expr: { $eq: [{ $toLower: { $ifNull: ['$' + field, ''] } }, value.toLowerCase()] },
+  $expr: { $eq: [{ $toLower: { $trim: { input: { $ifNull: ['$' + field, ''] } } } }, value.trim().toLowerCase()] },
 });
 
 // Only status '1' postings are live; '0' are closed vacancies.
@@ -63,7 +66,7 @@ router.get('/jobs', async (req, res) => {
     const and = [LIVE];
     const search = String(req.query.search || '').trim().toLowerCase();
     if (search) and.push(containsAny(['rankid', 'companyname', 'jobarea', 'shiptype', 'vesseltype'], search));
-    for (const [param, field] of [['shipType', 'shiptype'], ['area', 'jobarea'], ['vesselType', 'vesseltype']]) {
+    for (const [param, field] of [['shipType', 'shiptype'], ['area', 'jobarea'], ['vesselType', 'vesseltype'], ['company', 'companyname'], ['rank', 'rankid']]) {
       const v = String(req.query[param] || '').trim();
       if (v) and.push(equalsCI(field, v));
     }
@@ -106,10 +109,11 @@ router.get('/jobs/filters', async (req, res) => {
       return out.sort((a, b) => a.localeCompare(b));
     };
 
-    const [shipTypes, areas, vesselTypes] = await Promise.all([
+    const [shipTypes, areas, vesselTypes, companies] = await Promise.all([
       JobPost.distinct('shiptype', LIVE),
       JobPost.distinct('jobarea', LIVE),
       JobPost.distinct('vesseltype', LIVE),
+      JobPost.distinct('companyname', LIVE),
     ]);
 
     return res.status(200).json({
@@ -117,6 +121,57 @@ router.get('/jobs/filters', async (req, res) => {
       shipTypes: clean(shipTypes),
       areas: clean(areas),
       vesselTypes: clean(vesselTypes),
+      companies: clean(companies),
+    });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// What the public landing page shows: the ranks with the most open positions
+// right now, and the newest postings. Both come straight from the live board,
+// so the page can never advertise a rank that has nothing behind it.
+router.get('/jobs/highlights', async (req, res) => {
+  try {
+    const limit = Math.min(12, Math.max(1, parseInt(req.query.limit, 10) || 6));
+
+    const [rankRows, latestRows, total] = await Promise.all([
+      JobPost.aggregate([
+        { $match: LIVE },
+        { $project: { rank: { $trim: { input: { $ifNull: ['$rankid', ''] } } }, shiptype: 1, vesseltype: 1 } },
+        { $match: { rank: { $ne: '' } } },
+        // Group case-insensitively but keep a display form of the name.
+        { $group: {
+          _id: { $toLower: '$rank' },
+          title: { $first: '$rank' },
+          openings: { $sum: 1 },
+          shipTypes: { $push: '$shiptype' },
+          vesselTypes: { $push: '$vesseltype' },
+        } },
+        { $sort: { openings: -1, title: 1 } },
+        { $limit: limit },
+      ]),
+      JobPost.find(LIVE).sort({ jobid: -1 }).limit(limit).lean(),
+      JobPost.countDocuments(LIVE),
+    ]);
+
+    // The tag is the vessel type the rank is most often wanted on ("AHTS",
+    // "Crew Boat"); ship type is the fallback, but it is nearly always
+    // "Offshore" and says little.
+    const mode = (values) => {
+      const counts = new Map();
+      for (const v of values) {
+        const t = String(v || '').trim();
+        if (t) counts.set(t, (counts.get(t) || 0) + 1);
+      }
+      return [...counts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] || '';
+    };
+
+    return res.status(200).json({
+      success: true,
+      total,
+      ranks: rankRows.map((r) => ({ title: r.title, openings: r.openings, tag: mode(r.vesselTypes) || mode(r.shipTypes) })),
+      latest: latestRows.map(normalizeJob),
     });
   } catch (err) {
     return res.status(500).json({ success: false, message: err.message });

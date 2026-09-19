@@ -10,6 +10,7 @@ import { User, Save, Camera, Briefcase, Construction, ClipboardList, CalendarRan
 import { CANDIDATE_ENDPOINTS, ACCOUNT_ENDPOINTS, PROFILE_SECTIONS } from '../../config/api';
 import ExtendedSectionForm from '../../components/candidate/ExtendedSectionForm';
 import CandidatePhotoUpload from '../../components/candidate/CandidatePhotoUpload';
+import DateField from '../../components/candidate/DateField';
 
 const PROFILE_FIELDS = [
   { key: 'uname', label: 'Full Name' },
@@ -151,14 +152,18 @@ export default function CandidateProfilePage() {
             {PROFILE_FIELDS.map((f) => (
               <label key={f.key} className={'cp-field' + (f.wide ? ' cp-field-wide' : '')}>
                 <span>{f.label}</span>
-                <div className="cp-input-wrap cp-input-plain">
-                  <input
-                    type={f.type === 'date' ? 'date' : 'text'}
-                    value={profile[f.key]}
-                    placeholder={f.placeholder || ''}
-                    onChange={(e) => handleFieldChange(f.key, e.target.value)}
-                  />
-                </div>
+                {f.type === 'date' ? (
+                  <DateField value={profile[f.key]} onChange={(v) => handleFieldChange(f.key, v)} maxYear={f.key === 'dob' ? new Date().getFullYear() : undefined} />
+                ) : (
+                  <div className="cp-input-wrap cp-input-plain">
+                    <input
+                      type="text"
+                      value={profile[f.key]}
+                      placeholder={f.placeholder || ''}
+                      onChange={(e) => handleFieldChange(f.key, e.target.value)}
+                    />
+                  </div>
+                )}
               </label>
             ))}
           </div>

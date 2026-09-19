@@ -1,5 +1,6 @@
 // client/src/components/LandingPage.jsx
 import React, { useState, useEffect, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 import {
   Anchor, ArrowRight, Award, ClipboardList, Compass,
   Globe, GraduationCap, Mail, MapPin, Package, Phone, Send, ShieldCheck,
@@ -8,12 +9,13 @@ import {
 
 import '../styles/theme.css';
 import '../styles/landing.css';
-import { LANDING_ENDPOINTS } from '../config/api';
+import { LANDING_ENDPOINTS, JOB_ENDPOINTS } from '../config/api';
 import { DEFAULT_LANDING_CONTENT, mergeLandingContent } from '../config/landingContentDefaults';
 import { useCandidateSession } from '../hooks/useCandidateSession';
 import { useScrollableRoot } from '../hooks/useScrollableRoot';
 import LandingHeader from './LandingHeader';
 import LandingFooter from './LandingFooter';
+import CandidateGuide from './candidate/CandidateGuide';
 
 // Structural icon sets — content (title/desc/labels) is admin-editable,
 // but the icon per position stays fixed in code so a content edit can
@@ -77,6 +79,24 @@ export default function LandingPage() {
 
   const mailto = (subject) => `mailto:${content.topbar.email}?subject=${encodeURIComponent(subject)}`;
 
+  // Live figures from the job board: the ranks with the most open positions
+  // and the newest postings. Until they arrive (or if the API is unreachable)
+  // the admin-entered rank cards render instead, so the section is never blank.
+  const [highlights, setHighlights] = useState(null);
+  useEffect(() => {
+    let cancelled = false;
+    fetch(JOB_ENDPOINTS.HIGHLIGHTS)
+      .then((r) => r.json())
+      .then((d) => { if (!cancelled && d?.success && d.ranks?.length) setHighlights(d); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, []);
+
+  // Where the hero buttons go depends on whether the visitor is signed in.
+  const boardPath = candidate ? '/candidate/jobs' : '/jobs';
+  const resumePath = candidate ? '/candidate/resume' : '/candidate-register';
+  const jobsLink = (query) => boardPath + (query ? '?' + new URLSearchParams(query).toString() : '');
+
   const { topbar, hero, process: processContent, ranks, services, about, contact, footer } = content;
 
   return (
@@ -116,20 +136,22 @@ export default function LandingPage() {
           <p className="lp-hero-desc">{hero.description}</p>
 
           <div className="lp-hero-ctas">
-            <a href={mailto('Resume Submission')} className="lp-btn lp-btn-primary lp-btn-lg">
+            {/* Register (or, signed in, upload a CV) rather than emailing one. */}
+            <Link to={resumePath} className="lp-btn lp-btn-primary lp-btn-lg">
               <Send size={16} />
               {hero.ctaResumeLabel}
-            </a>
-            <a href="#ranks" className="lp-btn lp-btn-secondary lp-btn-lg" onClick={goTo('#ranks')}>
+            </Link>
+            <Link to={boardPath} className="lp-btn lp-btn-secondary lp-btn-lg">
               {hero.ctaApplyLabel}
               <ArrowRight size={16} />
-            </a>
+            </Link>
             <a href="#ranks" className="lp-btn lp-btn-outline lp-btn-lg" onClick={goTo('#ranks')}>
               {hero.ctaBrowseLabel}
             </a>
-            <a href="#contact" className="lp-btn lp-btn-outline lp-btn-lg" onClick={goTo('#contact')}>
+            {/* The board's company filter is what "company wise" means. */}
+            <Link to={boardPath + '?focus=company'} className="lp-btn lp-btn-outline lp-btn-lg">
               {hero.ctaCompanyLabel}
-            </a>
+            </Link>
           </div>
         </div>
       </section>
@@ -165,24 +187,83 @@ export default function LandingPage() {
           <h2>{ranks.heading}</h2>
         </div>
 
-        <div className="lp-ranks-grid">
-          {ranks.items.map((rank, i) => {
-            const RankIcon = RANK_ICONS[i % RANK_ICONS.length];
-            return (
-              <div className="lp-rank-card" key={`${rank.title}-${i}`}>
-                <div className="lp-rank-icon">
-                  <RankIcon size={24} />
+        {highlights ? (
+          <>
+            {/* Live: the ranks with the most open positions on the board right
+                now. Each card is a shortcut into the board filtered to that rank. */}
+            <div className="lp-ranks-grid">
+              {highlights.ranks.map((rank, i) => {
+                const RankIcon = RANK_ICONS[i % RANK_ICONS.length];
+                return (
+                  <Link to={jobsLink({ rank: rank.title })} className="lp-rank-card lp-rank-card-live" key={rank.title}>
+                    <div className="lp-rank-icon">
+                      <RankIcon size={24} />
+                    </div>
+                    <span className="lp-rank-tag">{rank.tag || 'Open now'}</span>
+                    <h3>{rank.title}</h3>
+                    <span className="lp-rank-count">
+                      <strong>{rank.openings.toLocaleString()}</strong> open {rank.openings === 1 ? 'position' : 'positions'}
+                    </span>
+                    <span className="lp-rank-link">
+                      View openings
+                      <ArrowRight size={14} />
+                    </span>
+                  </Link>
+                );
+              })}
+            </div>
+
+            {highlights.latest.length > 0 && (
+              <div className="lp-latest">
+                <div className="lp-latest-head">
+                  <h3>Latest Openings</h3>
+                  <span>{highlights.total.toLocaleString()} positions open across all ranks</span>
                 </div>
-                <span className="lp-rank-tag">{rank.tag}</span>
-                <h3>{rank.title}</h3>
-                <a href={mailto(`Job Enquiry - ${rank.title}`)} className="lp-rank-link">
-                  Enquire Now
-                  <ArrowRight size={14} />
-                </a>
+                <ul className="lp-latest-list">
+                  {highlights.latest.map((job) => (
+                    <li key={job._id}>
+                      <Link to={jobsLink({ rank: job.title })} className="lp-latest-row">
+                        <span className="lp-latest-title">{job.title}</span>
+                        <span className="lp-latest-meta">
+                          {job.company}
+                          {job.vesselType && <> · {job.vesselType}</>}
+                          {job.area && job.area !== 'Other' && <> · {job.area}</>}
+                        </span>
+                        <ArrowRight size={14} />
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+                <div className="lp-latest-foot">
+                  <Link to={boardPath} className="lp-btn lp-btn-primary">
+                    Browse all openings <ArrowRight size={15} />
+                  </Link>
+                </div>
               </div>
-            );
-          })}
-        </div>
+            )}
+          </>
+        ) : (
+          /* Fallback while the board is loading or unreachable: the
+             admin-entered cards, so the section is never empty. */
+          <div className="lp-ranks-grid">
+            {ranks.items.map((rank, i) => {
+              const RankIcon = RANK_ICONS[i % RANK_ICONS.length];
+              return (
+                <Link to={jobsLink({ rank: rank.title })} className="lp-rank-card lp-rank-card-live" key={`${rank.title}-${i}`}>
+                  <div className="lp-rank-icon">
+                    <RankIcon size={24} />
+                  </div>
+                  <span className="lp-rank-tag">{rank.tag}</span>
+                  <h3>{rank.title}</h3>
+                  <span className="lp-rank-link">
+                    View openings
+                    <ArrowRight size={14} />
+                  </span>
+                </Link>
+              );
+            })}
+          </div>
+        )}
       </section>
 
       {/* ---------------- SERVICES ---------------- */}
@@ -308,6 +389,7 @@ export default function LandingPage() {
       </section>
 
       <LandingFooter topbar={topbar} footer={footer} onNavigate={goTo} />
+      <CandidateGuide />
     </div>
   );
 }

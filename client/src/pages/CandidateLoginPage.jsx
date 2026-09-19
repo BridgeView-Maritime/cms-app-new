@@ -12,6 +12,7 @@ import { useLandingContent } from '../hooks/useLandingContent';
 import { useScrollableRoot } from '../hooks/useScrollableRoot';
 import LandingHeader from '../components/LandingHeader';
 import LandingFooter from '../components/LandingFooter';
+import CandidateGuide from '../components/candidate/CandidateGuide';
 
 const STAGE_COPY = {
   login: { icon: LogIn, eyebrow: 'Candidate Portal', title: 'Welcome Back', sub: 'Log in to manage your profile and upload your CV.' },
@@ -366,6 +367,7 @@ export default function CandidateLoginPage() {
       </section>
 
       <LandingFooter topbar={content.topbar} footer={content.footer} onNavigate={goTo} />
+      <CandidateGuide />
     </div>
   );
 }
