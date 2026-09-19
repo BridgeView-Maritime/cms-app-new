@@ -2,8 +2,9 @@
 // Drives the candidate-owned record sections (NOK, education, pre-sea,
 // previous employers, bank details). They're all list + add/edit/delete
 // against a candidate-scoped endpoint, so they share one implementation.
-import React, { useState, useEffect, useCallback } from 'react';
-import { Plus, Pencil, Trash2, Save, X, Inbox } from 'lucide-react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { Plus, Pencil, Trash2, Save, X } from 'lucide-react';
+import DateField from './DateField';
 
 const authHeader = () => ({
   'Content-Type': 'application/json',
@@ -64,9 +65,12 @@ function FieldInput({ field, value, onChange, draft }) {
   if (field.type === 'textarea') {
     return <textarea className="cp-textarea" rows={2} {...common} />;
   }
+  if (field.type === 'date') {
+    return <DateField value={value} onChange={(v) => onChange(field.key, v)} />;
+  }
   return (
     <div className="cp-input-wrap cp-input-plain">
-      <input type={field.type === 'date' ? 'date' : 'text'} {...common} />
+      <input type="text" {...common} />
     </div>
   );
 }
@@ -88,7 +92,15 @@ export default function CandidateCrudSection({
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState(null);
 
+  // Pages build `fields` inline, so its identity changes on every parent
+  // render. Reading it through a ref keeps `load` stable - otherwise each
+  // re-render of the page (the layout refreshing its summary, say) would
+  // refetch and, worse, reset whatever the candidate was in the middle of.
+  const fieldsRef = useRef(fields);
+  fieldsRef.current = fields;
+
   const load = useCallback(async () => {
+    const fields = fieldsRef.current;
     setLoading(true);
     try {
       const res = await fetch(endpoint, { headers: authHeader() });
@@ -100,7 +112,11 @@ export default function CandidateCrudSection({
             ? Object.fromEntries(fields.map((f) => [f.key, editValue(f, data.record[f.key])]))
             : blankFrom(fields));
         } else {
-          setRecords(data.records || []);
+          const recs = data.records || [];
+          setRecords(recs);
+          // With nothing on record the form is shown straight away - there is
+          // no point making someone click "Add" to reach an empty section.
+          if (!recs.length) setDraft((d) => d ?? blankFrom(fields));
         }
       } else {
         setMsg({ type: 'error', text: data.message || 'Could not load records.' });
@@ -110,7 +126,7 @@ export default function CandidateCrudSection({
     } finally {
       setLoading(false);
     }
-  }, [endpoint, single, fields]);
+  }, [endpoint, single]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -188,7 +204,8 @@ export default function CandidateCrudSection({
         <button type="submit" className="lp-btn lp-btn-primary" disabled={busy}>
           <Save size={15} /> {busy ? 'Saving...' : 'Save'}
         </button>
-        {!single && (
+        {/* Cancel only makes sense when there is a list to go back to. */}
+        {!single && records.length > 0 && (
           <button type="button" className="lp-btn lp-btn-outline" onClick={cancel} disabled={busy}>
             <X size={15} /> Cancel
           </button>
@@ -213,15 +230,15 @@ export default function CandidateCrudSection({
             </div>
           )}
 
-          {draft && <div className="cp-card">{form}</div>}
-
-          {records.length === 0 ? (
-            <div className="cp-placeholder">
-              <Inbox size={28} />
-              <h2>No records yet</h2>
-              <p>{emptyText || 'Add your first record using the button above.'}</p>
+          {draft && (
+            <div className="cp-card">
+              {/* The first-record form carries the section's hint text. */}
+              {records.length === 0 && emptyText && <p className="cp-muted cp-section-blurb">{emptyText}</p>}
+              {form}
             </div>
-          ) : (
+          )}
+
+          {records.length === 0 ? null : (
             <div className="cp-card cp-table-card">
               <div className="cp-table-scroll">
                 <table className="cp-table">

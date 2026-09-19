@@ -152,10 +152,20 @@
 /* ---------------- HERO ---------------- */
 .lp-hero {
   position: relative; overflow: hidden;
-  background: radial-gradient(circle at 50% 0%, var(--ocean-matrix) 0%, var(--hull-bg) 75%);
+  /* An ellipse sized to the hero box (not a circle sized to the far corner),
+     so the glow has fully resolved to the page colour before the bottom edge
+     at every horizontal position - otherwise the middle of the bottom edge is
+     still grey while the corners are not, and the next section shows a seam. */
+  background: radial-gradient(ellipse 130% 100% at 50% 0%, var(--ocean-matrix) 0%, var(--hull-bg) 72%);
   padding: 88px 24px 96px;
 }
-.lp-hero-bg { position: absolute; inset: 0; pointer-events: none; z-index: 0; }
+.lp-hero-bg {
+  position: absolute; inset: 0; pointer-events: none; z-index: 0;
+  /* The dot grid, sonar ring and vessels fade out towards the bottom rather
+     than being cut off flat where the section ends. */
+  -webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 55%, transparent 100%);
+}
 .lp-hero-sonar {
   position: absolute; top: 20%; left: 50%; width: 700px; height: 700px;
   border: 1px solid var(--panel-border); border-radius: 50%;
@@ -379,4 +389,34 @@
   .lp-footer-top { grid-template-columns: 1fr; }
   .lp-section { padding: 64px 20px; }
   .lp-hero { padding: 56px 20px 72px; }
+}
+
+/* ---------------- LIVE RANKS + LATEST OPENINGS ---------------- */
+.lp-rank-card-live { display: flex; flex-direction: column; align-items: flex-start; text-decoration: none; }
+.lp-rank-card-live h3 { margin-bottom: 8px; }
+.lp-rank-count { font-size: 13px; color: var(--font-sub); margin-bottom: 16px; }
+.lp-rank-count strong { color: var(--font-core); font-size: 15px; }
+.lp-rank-card-live .lp-rank-link { margin-top: auto; }
+
+.lp-latest {
+  margin-top: 28px; background: var(--deck-input-bg); border: 1px solid var(--panel-border);
+  border-radius: 14px; padding: 22px 24px;
+}
+.lp-latest-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+.lp-latest-head h3 { font-size: 16px; font-weight: 800; color: var(--font-core); }
+.lp-latest-head span { font-size: 12.5px; color: var(--font-sub); }
+.lp-latest-list { display: grid; gap: 4px; }
+.lp-latest-row {
+  display: grid; grid-template-columns: minmax(160px, 1fr) 2fr auto; align-items: center; gap: 14px;
+  padding: 11px 12px; border-radius: 10px; color: var(--font-sub);
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.lp-latest-row:hover { background: var(--chart-glow); color: var(--chart-accent); }
+.lp-latest-title { font-size: 13.5px; font-weight: 700; color: var(--font-core); }
+.lp-latest-meta { font-size: 12.5px; }
+.lp-latest-foot { margin-top: 16px; display: flex; justify-content: center; }
+
+@media (max-width: 720px) {
+  .lp-latest-row { grid-template-columns: 1fr auto; }
+  .lp-latest-meta { grid-column: 1 / -1; }
 }

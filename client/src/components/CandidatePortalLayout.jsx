@@ -22,6 +22,7 @@ import { useScrollableRoot } from '../hooks/useScrollableRoot';
 import LandingHeader from './LandingHeader';
 import LandingFooter from './LandingFooter';
 import CandidateAvatar from './candidate/CandidateAvatar';
+import CandidateGuide from './candidate/CandidateGuide';
 
 // Mirrors candidatesidebar.php. `group` items collapse, matching the
 // legacy "Manage Alert" / "My Resume" accordions.
@@ -266,6 +267,7 @@ export default function CandidatePortalLayout() {
       </div>
 
       <LandingFooter topbar={content.topbar} footer={content.footer} onNavigate={goTo} />
+      <CandidateGuide />
     </div>
   );
 }

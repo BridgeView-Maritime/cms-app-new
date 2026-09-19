@@ -5,6 +5,7 @@
 import React, { useState, useEffect } from 'react';
 import { Save } from 'lucide-react';
 import { ACCOUNT_ENDPOINTS } from '../../config/api';
+import DateField from './DateField';
 
 const authHeader = () => ({
   'Content-Type': 'application/json',
@@ -52,9 +53,12 @@ function Field({ field, value, onChange, disabled }) {
     );
   }
   if (field.type === 'textarea') return <textarea className="cp-textarea" rows={2} {...common} />;
+  if (field.type === 'date') {
+    return <DateField value={value} onChange={(v) => onChange(field.key, v)} disabled={disabled} />;
+  }
   return (
     <div className="cp-input-wrap cp-input-plain">
-      <input type={field.type === 'date' ? 'date' : field.type === 'number' ? 'number' : 'text'} {...common} />
+      <input type={field.type === 'number' ? 'number' : 'text'} {...common} />
     </div>
   );
 }

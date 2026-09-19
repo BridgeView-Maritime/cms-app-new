@@ -108,6 +108,7 @@ export const PRODUCT_ENDPOINTS = {
 export const JOB_ENDPOINTS = {
   LIST: `${API_BASE_URL}/candidate/jobs`,
   FILTERS: `${API_BASE_URL}/candidate/jobs/filters`,
+  HIGHLIGHTS: `${API_BASE_URL}/candidate/jobs/highlights`,
   MY_ACTIVITY: `${API_BASE_URL}/candidate/jobs/my-activity`,
   SAVE: (jobid) => `${API_BASE_URL}/candidate/jobs/${jobid}/save`,
   APPLY: (jobid) => `${API_BASE_URL}/candidate/jobs/${jobid}/apply`,

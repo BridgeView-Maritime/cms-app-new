@@ -894,3 +894,170 @@
 .cp-side-badge + .cp-side-ring { margin-left: 6px; }
 .cp-alert-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 .cp-alert-actions span { flex: 1; min-width: 200px; }
+
+/* ==========================================================================
+   Date picker (DateField)
+   ========================================================================== */
+.cp-date { position: relative; }
+.cp-date-display {
+  width: 100%; cursor: pointer; text-align: left; font-family: inherit;
+  font-size: 14px; color: var(--font-core); justify-content: space-between;
+}
+.cp-date-display:disabled { cursor: default; opacity: 0.6; }
+.cp-date-display > span:first-child { flex: 1; }
+.cp-date-placeholder { color: var(--font-muted); }
+.cp-date-clear {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 20px; height: 20px; border-radius: 50%; color: var(--font-muted);
+}
+.cp-date-clear:hover { background: var(--panel-border); color: var(--font-core); }
+.cp-date-open .cp-date-display { border-color: var(--chart-accent); box-shadow: 0 0 0 3px var(--chart-glow); }
+
+.cp-datepicker {
+  position: absolute; top: calc(100% + 6px); left: 0; z-index: 60;
+  width: 296px; padding: 12px;
+  background: var(--panel-glass); border: 1px solid var(--panel-border);
+  border-radius: 12px; box-shadow: 0 18px 40px rgba(0, 0, 0, 0.16);
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+}
+.cp-datepicker-head { display: flex; align-items: center; gap: 6px; margin-bottom: 10px; }
+.cp-datepicker-head select {
+  flex: 1; min-width: 0; height: 32px; padding: 0 8px; border-radius: 8px;
+  background: var(--deck-input-bg); border: 1px solid var(--deck-input-border);
+  color: var(--font-core); font-size: 12.5px; font-weight: 600; font-family: inherit; cursor: pointer;
+}
+.cp-datepicker-head select:focus { outline: none; border-color: var(--chart-accent); }
+.cp-datepicker-nav {
+  width: 32px; height: 32px; flex-shrink: 0; border-radius: 8px; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--deck-input-bg); border: 1px solid var(--deck-input-border); color: var(--font-sub);
+}
+.cp-datepicker-nav:hover { color: var(--chart-accent); border-color: var(--chart-accent); }
+
+.cp-datepicker-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+.cp-datepicker-dow {
+  text-align: center; font-size: 10.5px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.04em; color: var(--font-muted); padding: 4px 0 6px;
+}
+.cp-datepicker-day {
+  height: 34px; border-radius: 8px; border: 1px solid transparent; cursor: pointer;
+  background: transparent; color: var(--font-core); font-size: 13px; font-weight: 600; font-family: inherit;
+}
+.cp-datepicker-day:hover { background: var(--chart-glow); color: var(--chart-accent); }
+.cp-datepicker-out { color: var(--font-muted); font-weight: 500; }
+.cp-datepicker-today { border-color: var(--chart-accent); }
+.cp-datepicker-sel, .cp-datepicker-sel:hover { background: var(--chart-accent); color: #fff; }
+
+.cp-datepicker-foot {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--panel-border);
+}
+.cp-datepicker-foot .cp-inline-link { font-size: 12.5px; }
+.cp-datepicker-clearbtn { color: var(--font-sub); }
+
+@media (max-width: 640px) {
+  .cp-datepicker { width: min(296px, calc(100vw - 48px)); }
+}
+
+/* ==========================================================================
+   Candidate guide - floating button + walkthrough dialog
+   ========================================================================== */
+.cp-guide-fab {
+  position: fixed; right: 24px; bottom: 24px; z-index: 150;
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 12px 18px; border-radius: 999px; border: none; cursor: pointer;
+  background: var(--chart-accent); color: #fff; font-family: inherit;
+  font-size: 13.5px; font-weight: 700;
+  box-shadow: 0 10px 28px rgba(37, 99, 235, 0.38);
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+}
+.cp-guide-fab:hover { background: var(--chart-accent-hover); transform: translateY(-2px); box-shadow: 0 14px 32px rgba(37, 99, 235, 0.42); }
+
+.cp-guide-overlay {
+  position: fixed; inset: 0; z-index: 300;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+  display: flex; align-items: center; justify-content: center; padding: 24px;
+}
+.cp-guide-modal {
+  width: 100%; max-width: 920px; max-height: calc(100vh - 48px);
+  display: flex; flex-direction: column;
+  background: var(--hull-bg); border: 1px solid var(--panel-border);
+  border-radius: 18px; box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35); overflow: hidden;
+}
+.cp-guide-head {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;
+  padding: 22px 26px 18px; border-bottom: 1px solid var(--panel-border);
+}
+.cp-guide-head .lp-eyebrow { margin-bottom: 8px; }
+.cp-guide-head h2 { font-size: 20px; font-weight: 800; color: var(--font-core); margin: 0; }
+
+.cp-guide-body { display: grid; grid-template-columns: 300px 1fr; min-height: 0; flex: 1; }
+
+.cp-guide-steps {
+  list-style: none; margin: 0; padding: 14px;
+  border-right: 1px solid var(--panel-border); background: var(--panel-glass);
+  overflow-y: auto; display: flex; flex-direction: column; gap: 4px;
+}
+.cp-guide-step {
+  width: 100%; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  padding: 10px 12px; border-radius: 10px; border: 1px solid transparent;
+  background: transparent; cursor: pointer; text-align: left; font-family: inherit;
+  color: var(--font-sub); font-size: 13px; font-weight: 600;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.cp-guide-step:hover { background: var(--chart-glow); color: var(--chart-accent); }
+.cp-guide-step-active { background: var(--chart-accent); color: #fff; }
+.cp-guide-step-active:hover { background: var(--chart-accent); color: #fff; }
+.cp-guide-step-num {
+  width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--deck-input-bg); border: 1px solid var(--deck-input-border);
+  font-size: 11.5px; font-weight: 800; color: var(--font-core);
+}
+.cp-guide-step-active .cp-guide-step-num { background: rgba(255, 255, 255, 0.2); border-color: rgba(255, 255, 255, 0.5); color: #fff; }
+.cp-guide-step-title { flex: 1; min-width: 0; }
+/* Sits on its own line under the title, never beside it. */
+.cp-guide-here-row { flex-basis: 100%; padding-left: 34px; }
+.cp-guide-here {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 10.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em;
+  color: #b45309; background: #f59e0b1f; border: 1px solid #f59e0b55; border-radius: 999px; padding: 2px 8px;
+}
+.cp-guide-step-active .cp-guide-here { color: #fff; background: rgba(255, 255, 255, 0.2); border-color: rgba(255, 255, 255, 0.5); }
+
+.cp-guide-content { padding: 24px 28px; overflow-y: auto; }
+.cp-guide-content-head { display: flex; align-items: center; gap: 14px; margin-bottom: 12px; }
+.cp-guide-content-icon {
+  width: 44px; height: 44px; border-radius: 12px; flex-shrink: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--chart-glow); color: var(--chart-accent);
+}
+.cp-guide-content-head h3 { font-size: 18px; font-weight: 800; color: var(--font-core); margin: 2px 0 0; }
+.cp-guide-summary { font-size: 14px; color: var(--font-core); line-height: 1.6; margin: 0 0 16px; }
+.cp-guide-points { list-style: none; margin: 0 0 22px; padding: 0; display: grid; gap: 10px; }
+.cp-guide-points li { display: flex; gap: 10px; font-size: 13.5px; color: var(--font-sub); line-height: 1.6; }
+.cp-guide-points svg { color: #059669; flex-shrink: 0; margin-top: 4px; }
+.cp-guide-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+@media (max-width: 760px) {
+  .cp-guide-fab { right: 16px; bottom: 16px; padding: 12px 14px; }
+  .cp-guide-fab span { display: none; }
+  .cp-guide-overlay { padding: 12px; }
+  .cp-guide-body { grid-template-columns: 1fr; }
+  .cp-guide-steps { border-right: none; border-bottom: 1px solid var(--panel-border); max-height: 38vh; }
+  .cp-guide-here-row { padding-left: 0; }
+}
+
+/* Public job board: the portal grid without a sidebar column. */
+.cp-portal-public { grid-template-columns: 1fr; max-width: 1040px; }
+
+/* An active filter that has no dropdown (rank, from the landing page). */
+.cp-filter-chip {
+  display: inline-flex; align-items: center; gap: 6px; cursor: pointer;
+  height: 46px; padding: 0 14px; border-radius: 10px; font-family: inherit;
+  background: var(--chart-glow); border: 1px solid var(--chart-accent); color: var(--chart-accent);
+  font-size: 13px; font-weight: 600;
+}
+.cp-filter-chip strong { font-weight: 800; }
+.cp-filter-chip:hover { background: var(--chart-accent); color: #fff; }
