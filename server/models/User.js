@@ -22,7 +22,18 @@ const UserSchema = new mongoose.Schema({
   receivesUkmtoAlerts: { type: Boolean, default: false },
   // When true, this user bypasses the mandatory daily attendance gate after login.
   // Managed from the User Management admin tab.
-  skip_attendance: { type: Boolean, default: false }
+  skip_attendance: { type: Boolean, default: false },
+  // BMPL back-office access (the migrated legacy admin). `pages` holds the
+  // legacy page names (e.g. 'manage_vacancy.php') the user may open, derived
+  // from cms_usersubmenu at import; `all_access` is the legacy supadmin flag.
+  // SUPER_ADMIN users see everything regardless.
+  bmpl: {
+    legacy_id: { type: Number, default: null },
+    legacy_username: { type: String, default: null },
+    department: { type: String, default: '' },
+    all_access: { type: Boolean, default: false },
+    pages: { type: [String], default: [] },
+  }
 }, { timestamps: true });
 
 export default mongoose.model('User', UserSchema);

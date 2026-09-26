@@ -29,6 +29,9 @@ import candidateRoutes from './routes/candidateRoutes.js';
 import candidateProfileRoutes from './routes/candidateProfileRoutes.js';
 import candidateJobRoutes from './routes/candidateJobRoutes.js';
 import candidateAccountRoutes from './routes/candidateAccountRoutes.js';
+import bmplRoutes from './routes/bmplRoutes.js';
+import bmplWorkflowRoutes from './routes/bmplWorkflowRoutes.js';
+import bmplExtraRoutes from './routes/bmplExtraRoutes.js';
 import productRoutes from './routes/productRoutes.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -125,6 +128,9 @@ app.use('/api/candidate', candidateRoutes);
 app.use('/api/candidate', candidateProfileRoutes);
 app.use('/api/candidate', candidateJobRoutes);
 app.use('/api/candidate', candidateAccountRoutes);
+app.use('/api/bmpl', bmplRoutes);
+app.use('/api/bmpl', bmplWorkflowRoutes);
+app.use('/api/bmpl', bmplExtraRoutes);
 app.use('/api/products', productRoutes);
 
 app.get('/', (req, res) => {
