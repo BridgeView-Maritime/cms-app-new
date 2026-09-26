@@ -109,6 +109,11 @@ export const getDashboardInitData = async (req, res) => {
     // 2. Programmatically sweep every other collection active in Mongoose to find the dynamic updates
     const modelNames = mongoose.modelNames();
     for (const modelName of modelNames) {
+      // Migrated legacy data (collection_<table>, e.g. 37k crewing records) is
+      // never a menu source; sweeping it here loaded every row per login and
+      // took minutes once the BMPL models were registered.
+      const collName = mongoose.model(modelName)?.collection?.name || '';
+      if (collName.startsWith('collection_')) continue;
       if (modelName !== 'User' && modelName !== 'Role' && modelName !== 'Menu' && modelName !== 'AppMenu' && modelName !== 'AdminManagementModels') {
         try {
           const extraDocs = await mongoose.model(modelName).find({}).lean();

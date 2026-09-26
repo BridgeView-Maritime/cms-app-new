@@ -33,7 +33,10 @@ export const authenticateToken = async (req, res, next) => {
       email: userContext.email,
       username: userContext.username,
       role_id: userContext.role_id?._id,
-      role_code: userContext.role_id?.role_code // Now 'SUPER_ADMIN', 'ADMIN', or 'HR' safely passes through!
+      role_code: userContext.role_id?.role_code, // Now 'SUPER_ADMIN', 'ADMIN', or 'HR' safely passes through!
+      // BMPL back-office permissions (see models/User.js) - loaded here so the
+      // BMPL routes need no second user lookup.
+      bmpl: userContext.bmpl ? userContext.bmpl.toObject?.() || userContext.bmpl : null
     };
 
     next();
